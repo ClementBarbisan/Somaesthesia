@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 168ffea0f21e8584f832d2c82a1343c7, type: 3}
   m_Name: TPose
   m_EditorClassIdentifier: 
-  relativeMode: 1
+  relativeMode: 0
   waist:
     isActive: 1
     orientation: {x: 0, y: 0, z: 0, w: 1}
