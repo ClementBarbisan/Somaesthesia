@@ -94,6 +94,12 @@ MonoBehaviour:
   - bone: {fileID: 8916566341712020546}
     jointType: 23
     parentJointType: 22
+  - bone: {fileID: 1346956292475134499}
+    jointType: 2
+    parentJointType: 3
+  - bone: {fileID: 3520047710416442069}
+    jointType: 1
+    parentJointType: 2
 --- !u!1 &28654291037002943
 GameObject:
   m_ObjectHideFlags: 0
