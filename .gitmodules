@@ -1,0 +1,6 @@
+[submodule "ActionDetection/mmaction2"]
+	path = ActionDetection/mmaction2
+	url = https://github.com/open-mmlab/mmaction2.git
+[submodule "mmaction2"]
+	path = mmaction2
+	url = https://github.com/ClementBarbisan/mmaction2.git
