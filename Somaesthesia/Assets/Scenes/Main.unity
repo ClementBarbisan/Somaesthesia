@@ -477,9 +477,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 591904936}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 413026eac3a5cb740b5fc1192b40c6f5, type: 3}
+  m_Script: {fileID: 11500000, guid: 32995140fc2c9ff4e8240900c737f0fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  connectionIP: 127.0.0.1
+  connectionPort: 25001
 --- !u!4 &603855528 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 960075172793927502, guid: 60770bdb4dc667c45bea53db0339dc05,
