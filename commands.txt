@@ -1,0 +1,6 @@
+# The demo.mp4 and label_map_k400.txt are both from Kinetics-400
+python demo/demo.py tsn_imagenet-pretrained-r50_8xb32-1x1x8-100e_kinetics400-rgb.py tsn_imagenet-pretrained-r50_8xb32-1x1x8-100e_kinetics400-rgb_20220906-2692d16c.pth demo/demo.mp4 tools/data/kinetics/label_map_k400.txt
+python demo/webcam_demo.py demo/demo_configs/i3d_r50_32x2x1_video_infer.py checkpoints/i3d_imagenet-pretrained-r50_8xb8-32x2x1-100e_kinetics400-rgb_20220812-e213c223.pth tools/data/kinetics/label_map_k400.txt --average-size 5 --threshold 0.2
+demo/demo_configs/uniformerv2-large-p14-res336_clip-kinetics710-pre_u32_kinetics700-rgb.py demo/uniformerv2-large-p14-res336_clip-kinetics710-pre_u32_kinetics700-rgb_20221219-95cf9046.pth tools/data/kinetics/label_map_k700.txt --average-size 5 --threshold 0.2
+demo/demo_configs/uniformerv2-large-p14-res224_clip-kinetics710-pre_u8_kinetics700-rgb.py demo/uniformerv2-large-p14-res224_clip-kinetics710-pre_u8_kinetics700-rgb_20221219-bfb9f401.pth demo/label_map_k700.txt --average-size 5 --threshold 0.2
+python demo\webcam_demo.py tsn_imagenet-pretrained-r50_8xb32-1x1x8-100e_kinetics400-rgb.py work_dirs\tsn_imagenet-pretrained-r50_8xb32-1x1x8-100e_kinetics400-rgb\best_acc_top1_epoch_33.pth label_kinetics_tiny.txt --device cuda:0
