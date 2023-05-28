@@ -12,40 +12,40 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 168ffea0f21e8584f832d2c82a1343c7, type: 3}
   m_Name: TPose
   m_EditorClassIdentifier: 
-  relativeMode: 0
+  relativeMode: 1
   waist:
     isActive: 1
     orientation: {x: 0, y: 0, z: 0, w: 1}
-    tolerance: 0.9
+    tolerance: 0.75
   leftHip:
     isActive: 1
     orientation: {x: 0, y: 0, z: 0, w: 1}
-    tolerance: 0.9
+    tolerance: 0.75
   leftKnee:
     isActive: 1
     orientation: {x: 0, y: 0, z: 0, w: 1}
-    tolerance: 0.9
+    tolerance: 0.75
   rightHip:
     isActive: 1
     orientation: {x: 0, y: 0, z: 0, w: 1}
-    tolerance: 0.9
+    tolerance: 0.75
   rightKnee:
     isActive: 1
     orientation: {x: 0, y: 0, z: 0, w: 1}
-    tolerance: 0.9
+    tolerance: 0.75
   leftShoulder:
     isActive: 1
     orientation: {x: 0, y: 0, z: 0.028504, w: -0.9995937}
-    tolerance: 0.9
+    tolerance: 0.75
   leftElbow:
     isActive: 1
     orientation: {x: 0, y: 0, z: 0, w: 1}
-    tolerance: 0.9
+    tolerance: 0.75
   rightShoulder:
     isActive: 1
     orientation: {x: 0, y: 0, z: 0.01167882, w: -0.9999318}
-    tolerance: 0.9
+    tolerance: 0.75
   rightElbow:
     isActive: 1
     orientation: {x: 0, y: 0, z: 0, w: 1}
-    tolerance: 0.9
+    tolerance: 0.75

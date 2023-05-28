@@ -16,6 +16,8 @@ public class ReceiveLabelsValue : MonoBehaviour
     
     private void Start()
     {
+        Application.targetFrameRate = 60;
+        QualitySettings.vSyncCount = 2;
         ThreadStart ts = new ThreadStart(GetInfo);
         mThread = new Thread(ts);
         mThread.Start();
