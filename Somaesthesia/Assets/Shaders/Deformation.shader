@@ -9,6 +9,7 @@ Shader "Custom/Deformation"
         _MainTex ("Albedo (RGB)", 2D) = "white" {}
         _Glossiness ("Smoothness", Range(0,1)) = 0.5
         _Metallic ("Metallic", Range(0,1)) = 0.0
+        _EdgeLength ("Edge length", Range(1,150)) = 15
     }
     SubShader
     {
@@ -17,12 +18,13 @@ Shader "Custom/Deformation"
 
         CGPROGRAM
         // Physically based Standard lighting model, and enable shadows on all light types
-        #pragma surface surf Standard fullforwardshadows vertex:vert addshadow
+        #pragma surface surf Standard fullforwardshadows vertex:vert tessellate:tessEdge addshadow
         #include "Packages/jp.keijiro.noiseshader/Shader/Common.hlsl"
         #include "Packages/jp.keijiro.noiseshader/Shader/ClassicNoise3D.hlsl"
-
+        #include "Tessellation.cginc"
         // Use shader model 3.0 target, to get nicer looking lighting
-        #pragma target 3.0
+         #pragma target 4.6
+
 
         sampler2D _MainTex;
 
@@ -44,11 +46,17 @@ Shader "Custom/Deformation"
 
         float _Speed;
         float _Amplitude;
+        float _EdgeLength;
 
-
+        float4 tessEdge (appdata_full v0, appdata_full v1, appdata_full v2)
+        {
+            return UnityEdgeLengthBasedTess (v0.vertex, v1.vertex, v2.vertex, _EdgeLength);
+        }
+        
         void vert(inout appdata_full data)
         {
-            data.vertex.y += sin(_Time * _Speed) * _Amplitude * PeriodicNoise(data.vertex, data.normal);
+            data.vertex.y += sin(_Time * _Speed) * _Amplitude * PeriodicNoise(data.vertex * 10,
+                float3(5,2, 0.1));
         }
         
         void surf (Input IN, inout SurfaceOutputStandard o)

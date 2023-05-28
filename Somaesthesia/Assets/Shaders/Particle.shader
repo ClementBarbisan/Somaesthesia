@@ -72,7 +72,7 @@ Shader "Particle"
 			return o;
 		}
 
-		[maxvertexcount(24)]
+		[maxvertexcount(4)]
 		void geom(point PS_INPUT p[1], inout TriangleStream<PS_INPUT> triStream)
 		{
 			PS_INPUT o;
