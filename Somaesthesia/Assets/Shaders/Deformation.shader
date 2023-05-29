@@ -42,7 +42,6 @@ Shader "Custom/Deformation"
             struct Joints
             {
                 float3 Pos;
-                float3 Dir;
             };
 
             StructuredBuffer<Joints> _Skeleton;
@@ -58,7 +57,8 @@ Shader "Custom/Deformation"
             float _Amplitude;
             float _EdgeLength;
             float _Distance;
-
+            int _WidthTex;
+            int _HeightTex;
             float4 tessEdge(appdata_full v0, appdata_full v1, appdata_full v2)
             {
                 return UnityEdgeLengthBasedTess(v0.vertex, v1.vertex, v2.vertex, _EdgeLength);
@@ -74,8 +74,8 @@ Shader "Custom/Deformation"
                     {
                         data.vertex.xyz += sin(_Time * _Speed) * _Amplitude * PeriodicNoise(data.vertex * 10,
                             float3(5, 2, 0.1));
-                        data.color.r = 1.0 / (dist + 1.0);
-                        data.color.gb = 0;
+                        float2 posView = UnityWorldToViewPos(data.vertex).xy;
+                        data.color = tex2Dlod(_MainTex, float4(posView.x/ _WidthTex, posView.y / _HeightTex, 0, 0));
                         return;
                     }
                 }
