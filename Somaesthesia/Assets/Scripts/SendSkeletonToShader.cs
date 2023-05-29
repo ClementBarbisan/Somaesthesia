@@ -2,20 +2,21 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using nuitrack;
+using nuitrack.device;
 using NuitrackSDK;
 using NuitrackSDK.Avatar;
 using UnityEngine;
+using Joint = nuitrack.Joint;
 using Vector3 = UnityEngine.Vector3;
 
 public struct Joints
 {
     public Vector3 Pos;
-    public Vector3 Dir;
 }
 
 public class SendSkeletonToShader : MonoBehaviour
 {
-    private UserData.SkeletonData _skeleton;
+    private Skeleton _skeleton;
     List<Joints> jointsList = new List<Joints>();
     private BoundingBox _boxUser;
     private ComputeBuffer _buffer;
@@ -41,48 +42,54 @@ public class SendSkeletonToShader : MonoBehaviour
         nuitrack.JointType.LeftAnkle,
         nuitrack.JointType.RightAnkle
     };
-
-    private NuitrackAvatar _avatar;
-    // private List<GameObject> _cubes = new List<GameObject>();
-
+    private int _id = -1;
+    private Camera cam;
     // Start is called before the first frame update
     void Start()
     {
-        NuitrackManager.onUserTrackerUpdate += NuitrackManagerOnonUserTrackerUpdate;
-        _avatar = GetComponent<NuitrackAvatar>();
+        NuitrackManager.onUserTrackerUpdate += UserTrackerOnOnUpdateEvent;
+        NuitrackManager.SkeletonTracker.OnSkeletonUpdateEvent += SkeletonTrackerOnOnSkeletonUpdateEvent;
+        cam = Camera.main;
+    }
+
+    private void UserTrackerOnOnUpdateEvent(UserFrame frame)
+    {
+        if (frame.NumUsers > 0 )
+        {
+
+            _id = frame.Users[0].ID;
+        }
     }
 
     private void OnDestroy()
     {
         _buffer?.Release();
-        NuitrackManager.onUserTrackerUpdate -= NuitrackManagerOnonUserTrackerUpdate;
+        // NuitrackManager.SkeletonTracker.OnSkeletonUpdateEvent -= SkeletonTrackerOnOnSkeletonUpdateEvent;
+        NuitrackManager.onUserTrackerUpdate -= UserTrackerOnOnUpdateEvent;
     }
 
-    private void NuitrackManagerOnonUserTrackerUpdate(UserFrame frame)
+    private void SkeletonTrackerOnOnSkeletonUpdateEvent(SkeletonData skeletondata)
     {
-        if (frame.NumUsers > 0 && NuitrackManager.UsersList.Count > 0)
+        if (_id == -1)
         {
-            if (_buffer == null)
-            {
-                _buffer = new ComputeBuffer(_jointsInfo.Length, sizeof(float) * 6);
-            }
-
-            UserData data = NuitrackManager.UsersList[0].GetUser(NuitrackManager.UsersList[0].CurrentUserID);
-            _skeleton = data.Skeleton;
+            return;
+        }
+        _skeleton = skeletondata.GetSkeletonByID(_id);
+        if (_buffer == null)
+        {
+            _buffer = new ComputeBuffer(_jointsInfo.Length, sizeof(float) * 3);
+        }
+        if (_skeleton != null)
+        {
             jointsList.Clear();
+            Vector3 posCam = cam.transform.position;
             for (int i = 0; i < _jointsInfo.Length; i++)
             {
-                // if (_cubes.Count < _jointsInfo.Length)
-                // {
-                //     _cubes.Add(GameObject.CreatePrimitive(PrimitiveType.Cube));
-                //     _cubes[^1].transform.localScale = Vector3.one * 0.1f;
-                // }
-
                 Joints newJoint = new Joints();
-                newJoint.Pos = Quaternion.Euler(0, 180, 0) * (_skeleton.GetJoint(_jointsInfo[i]).Position);
-                // newJoint.Pos.Scale(Vector3.one * 2f);
-                // _cubes[i].transform.position = newJoint.Pos;
-                newJoint.Dir = _skeleton.GetJoint(_jointsInfo[i]).Rotation * Vector3.forward;
+                Joint joint = _skeleton.GetJoint(_jointsInfo[i]);
+                newJoint.Pos = joint.Real.ToVector3();
+                newJoint.Pos = new Vector3(posCam.x - newJoint.Pos.x / 600f, posCam.y + newJoint.Pos.y / 600f,
+                    posCam.z - newJoint.Pos.z / 600f);
                 jointsList.Add(newJoint);
             }
             _buffer.SetData(jointsList);

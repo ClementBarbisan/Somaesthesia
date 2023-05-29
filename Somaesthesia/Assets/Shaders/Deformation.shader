@@ -67,13 +67,17 @@ Shader "Custom/Deformation"
             void vert(inout appdata_full data)
             {
                 #ifdef SHADER_API_D3D11
-                float dist = distance((_Skeleton[1].Pos), mul(unity_ObjectToWorld, data.vertex));
-                if (dist < _Distance)
+                for (int i = 0; i < 18; i++)
                 {
-                    data.vertex.xyz += sin(_Time * _Speed) * _Amplitude * PeriodicNoise(data.vertex * 10,
-                        float3(5, 2, 0.1));
-                    data.color.r = 1.0 / (dist + 1.0);
-                    data.color.gb = 0;
+                    float dist = distance((_Skeleton[i].Pos), mul(unity_ObjectToWorld, data.vertex));
+                    if (dist < _Distance)
+                    {
+                        data.vertex.xyz += sin(_Time * _Speed) * _Amplitude * PeriodicNoise(data.vertex * 10,
+                            float3(5, 2, 0.1));
+                        data.color.r = 1.0 / (dist + 1.0);
+                        data.color.gb = 0;
+                        return;
+                    }
                 }
                 #endif
             }
