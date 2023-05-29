@@ -59,9 +59,9 @@ Shader "Particle"
 		{
 			PS_INPUT o = (PS_INPUT)0;
 			// Position
-			o.position = float4((_CamPos.x + _Width / 2.0) / 100.0 - instance_id % _Width / 100.0,
-				(_CamPos.y + _Height / 2.0) / 100.0 - instance_id / _Width / 100.0,
-				_CamPos.z - particleBuffer[instance_id] / 1500.0 - 3.0, 1.0f);
+			o.position = float4((_CamPos.x + _Width / 2.0) / 200.0 - instance_id % _Width / 200.0,
+				(_CamPos.y + _Height / 2.0) / 200.0 - instance_id / _Width / 200.0,
+				_CamPos.z - particleBuffer[instance_id] / 3000.0 - 2.0, 1.0f);
 			o.instance = int(instance_id);
 			if (segmentBuffer[instance_id] == 0)
 			{
