@@ -301,8 +301,9 @@ MonoBehaviour:
   headTransform: {fileID: 0}
   needBorderGrid: 0
   borderGrid: {fileID: 0}
+  basePivotOffset: {x: 0, y: 0, z: 0}
   sensorSpace: {fileID: 0}
-  recenterOnSuccess: 1
+  recenterOnSuccess: 0
 --- !u!114 &345654138
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -541,6 +542,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -9200210366883936642, guid: 4bb09cccb13b5954682f33cd16bd7665,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 4bb09cccb13b5954682f33cd16bd7665,
         type: 3}
       propertyPath: m_RootOrder
@@ -623,6 +629,31 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1630794972795428178, guid: 4bb09cccb13b5954682f33cd16bd7665,
         type: 3}
+      propertyPath: m_Quality
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1630794972795428178, guid: 4bb09cccb13b5954682f33cd16bd7665,
+        type: 3}
+      propertyPath: m_CastShadows
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1630794972795428178, guid: 4bb09cccb13b5954682f33cd16bd7665,
+        type: 3}
+      propertyPath: m_ReceiveShadows
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1630794972795428178, guid: 4bb09cccb13b5954682f33cd16bd7665,
+        type: 3}
+      propertyPath: m_DynamicOccludee
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1630794972795428178, guid: 4bb09cccb13b5954682f33cd16bd7665,
+        type: 3}
+      propertyPath: m_SkinnedMotionVectors
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1630794972795428178, guid: 4bb09cccb13b5954682f33cd16bd7665,
+        type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 011627f9b0d4e2047a129e87af97cb92, type: 2}
@@ -641,6 +672,11 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 011627f9b0d4e2047a129e87af97cb92, type: 2}
+    - target: {fileID: 6657560127643677590, guid: 4bb09cccb13b5954682f33cd16bd7665,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4bb09cccb13b5954682f33cd16bd7665, type: 3}
 --- !u!1 &1669223331 stripped
