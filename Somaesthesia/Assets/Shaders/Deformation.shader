@@ -5,6 +5,7 @@ Shader "Custom/Deformation"
     {
         [PowerSlider(5.0)] _Speed ("Speed", Range (0.01, 100)) = 2
         [PowerSlider(5.0)] _Amplitude ("Amplitude", Range (0.01, 5)) = 0.25
+        _Distance ("Distance", Range(0, 10)) = 1
         _Color ("Color", Color) = (1,1,1,1)
         _MainTex ("Albedo (RGB)", 2D) = "white" {}
         _Glossiness ("Smoothness", Range(0,1)) = 0.5
@@ -32,7 +33,14 @@ Shader "Custom/Deformation"
         {
             float2 uv_MainTex;
         };
-
+#ifdef SHADER_API_D3D11
+        struct Joints
+        {
+            float3 Pos;
+            float3 Dir;
+        };
+        StructuredBuffer<Joints> _Skeleton;
+#endif        
         half _Glossiness;
         half _Metallic;
         fixed4 _Color;
@@ -47,6 +55,7 @@ Shader "Custom/Deformation"
         float _Speed;
         float _Amplitude;
         float _EdgeLength;
+        float _Distance;
 
         float4 tessEdge (appdata_full v0, appdata_full v1, appdata_full v2)
         {
@@ -55,14 +64,19 @@ Shader "Custom/Deformation"
         
         void vert(inout appdata_full data)
         {
-            data.vertex.y += sin(_Time * _Speed) * _Amplitude * PeriodicNoise(data.vertex * 10,
+  #ifdef SHADER_API_D3D11
+            if (distance(_Skeleton[0].Pos, data.vertex) < _Distance)
+            {
+                data.vertex.xyz += sin(_Time * _Speed) * _Amplitude * PeriodicNoise(data.vertex * 10,
                 float3(5,2, 0.1));
-        }
+            }
+ #endif
+       }
         
         void surf (Input IN, inout SurfaceOutputStandard o)
         {
             // Albedo comes from a texture tinted by color
-            fixed4 c = tex2D (_MainTex, IN.uv_MainTex) * _Color;
+            fixed4 c = _Color;
             o.Albedo = c.rgb;
             // Metallic and smoothness come from slider variables
             o.Metallic = _Metallic;

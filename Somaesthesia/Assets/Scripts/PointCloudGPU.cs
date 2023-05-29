@@ -1,24 +1,30 @@
-﻿using Intel.RealSense.Math;
+﻿using System.Diagnostics;
+using System.Runtime.InteropServices;
+using Intel.RealSense.Math;
 using Kino;
 using NuitrackSDK;
+using Unity.Collections;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 public class PointCloudGPU : MonoBehaviour {
 
     static public PointCloudGPU Instance;
     public Material matPointCloud;
-    [HideInInspector]
-    public float[] particles;
+    private short[] particles;
     ComputeBuffer buffer;
     Texture2D texture;
     int width = 0;
     int height = 0;
-    float multiplier = -1f;
-    float elapsedTime = 0;
     private Camera cam;
 
     private void Awake()
     {
+        if (Instance)
+        {
+            Destroy(this);
+            return;
+        }
         Instance = this;
     }
 
@@ -52,8 +58,8 @@ public class PointCloudGPU : MonoBehaviour {
         if (buffer == null)
         {
             Debug.Log("Initialize compute buffer");
-            particles = new float[frame.Cols * frame.Rows];
-            buffer = new ComputeBuffer(frame.Cols * frame.Rows, 12);
+            particles = new short[frame.Cols * frame.Rows];
+            buffer = new ComputeBuffer(frame.Cols * frame.Rows, sizeof(float));
             width = frame.Cols;
             height = frame.Rows;
             matPointCloud.SetVector("_CamPos", cam.transform.position);
@@ -62,13 +68,7 @@ public class PointCloudGPU : MonoBehaviour {
             matPointCloud.SetInt("_Height", height);
           
         }
-        for (int i = 0; i < frame.Rows; i++)
-        {
-            for (int j = 0; j < frame.Cols; j++)
-            {
-                particles[i * frame.Cols + j] = frame[i, j];
-            }
-        }
+        Marshal.Copy(frame.Data, particles, 0, frame.Cols * frame.Rows);
         buffer.SetData(particles);
     }
 
