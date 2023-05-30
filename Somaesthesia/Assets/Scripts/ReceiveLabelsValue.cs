@@ -41,8 +41,8 @@ public class ReceiveLabelsValue : MonoBehaviour
 
     void OnDestroy()
     {
-        listener.Stop();
-        client.Close();
+        listener?.Stop();
+        client?.Close();
     }
 
     void SendAndReceiveData()

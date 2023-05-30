@@ -16,26 +16,22 @@ Shader "Custom/Deformation"
     {
             Tags
             {
-                "RenderType"="Transparent" "Queue"="Geometry" "IgnoreProjector"="True"
+                "RenderType"="Opaque"
             }
-            Blend SrcAlpha OneMinusSrcAlpha
-            Cull Back
-            zWrite On
-            zTest LEqual
-            zClip False
-
+            LOD 100
             CGPROGRAM
             #pragma surface surf Standard fullforwardshadows vertex:vert tessellate:tessEdge addshadow //alpha:fade
             #include "Packages/jp.keijiro.noiseshader/Shader/Common.hlsl"
             #include "Packages/jp.keijiro.noiseshader/Shader/ClassicNoise3D.hlsl"
             #include "Tessellation.cginc"
-            #pragma target 4.6
+            #pragma target 3.0
 
 
             sampler2D _MainTex;
 
             struct Input {
-                float4 coord : TEXCOORD0;
+                float4 screenPos;
+                float3 texcoord1 : TEXCOORD1;
                 float4 color : COLOR;
             };
             #ifdef SHADER_API_D3D11
@@ -49,6 +45,7 @@ Shader "Custom/Deformation"
             half _Glossiness;
             half _Metallic;
             fixed4 _Color;
+            float _Transparency;
 
             UNITY_INSTANCING_BUFFER_START(Props)
             UNITY_INSTANCING_BUFFER_END(Props)
@@ -67,34 +64,45 @@ Shader "Custom/Deformation"
             void vert(inout appdata_full data)
             {
                 #ifdef SHADER_API_D3D11
+                data.color.w = float4(1,1,1,1);
                 for (int i = 0; i < 18; i++)
                 {
                     float dist = distance((_Skeleton[i].Pos), mul(unity_ObjectToWorld, data.vertex));
                     if (dist < _Distance)
                     {
+                        data.color.w = dist / _Distance;
                         data.vertex.xyz += sin(_Time * _Speed) * _Amplitude * PeriodicNoise(data.vertex * 10,
                             float3(5, 2, 0.1));
-                        float4 coord = ComputeScreenPos(UnityWorldToClipPos(data.vertex));
-                        data.color = tex2Dlod(_MainTex, float4(coord.x / 2.0, coord.y / 2.0, 0.0, 0.0));
+                        data.texcoord = ComputeScreenPos(UnityWorldToClipPos(data.vertex));
+                        data.color.xyz = tex2Dlod(_MainTex, float4(data.texcoord.x / 2.0, data.texcoord.y / 2.0, 0.0, 0.0));
                         return;
                     }
                 }
-               
                 #endif
             }
 
             void surf(Input IN, inout SurfaceOutputStandard o)
             {
                 // Albedo comes from a texture tinted by color
-                fixed4 c = IN.color;
+                fixed3 c = IN.color.xyz;
                 // fixed4 c = _Color + IN.color;
                 o.Albedo = c.rgb;
                 // Metallic and smoothness come from slider variables
                 o.Metallic = _Metallic;
                 o.Smoothness = _Glossiness;
-                o.Alpha = c.a;
+                // o.Alpha = c.a;
+                float4x4 thresholdMatrix =
+                    {  1.0 / 17.0,  9.0 / 17.0,  3.0 / 17.0, 11.0 / 17.0,
+                        13.0 / 17.0,  5.0 / 17.0, 15.0 / 17.0,  7.0 / 17.0,
+                        4.0 / 17.0, 12.0 / 17.0,  2.0 / 17.0, 10.0 / 17.0,
+                        16.0 / 17.0,  8.0 / 17.0, 14.0 / 17.0,  6.0 / 17.0
+                    };
+                float4x4 _RowAccess = { 1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1 };
+                float2 pos = IN.screenPos.xy / IN.screenPos.w;
+                pos *= _ScreenParams.xy; // pixel position
+                clip(IN.color.w - thresholdMatrix[fmod(pos.x, 4)] * _RowAccess[fmod(pos.y, 4)]);
             }
             ENDCG
     }
-    Fallback "Legacy Shaders/Transparent/Cutout/VertexLit"
+    Fallback "Diffuse"
 }
