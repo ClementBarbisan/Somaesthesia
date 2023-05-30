@@ -74,11 +74,12 @@ Shader "Custom/Deformation"
                     {
                         data.vertex.xyz += sin(_Time * _Speed) * _Amplitude * PeriodicNoise(data.vertex * 10,
                             float3(5, 2, 0.1));
-                        break;
+                        float4 coord = ComputeScreenPos(UnityWorldToClipPos(data.vertex));
+                        data.color = tex2Dlod(_MainTex, float4(coord.x / 2.0, coord.y / 2.0, 0.0, 0.0));
+                        return;
                     }
                 }
-                float4 coord = ComputeScreenPos(UnityWorldToClipPos(data.vertex));
-                data.color = tex2Dlod(_MainTex, float4(coord.x / 2.0, coord.y / 2.0, 0.0, 0.0));
+               
                 #endif
             }
 
