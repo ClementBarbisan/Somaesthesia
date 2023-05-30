@@ -75,7 +75,7 @@ Shader "Custom/Deformation"
                         data.vertex.xyz += sin(_Time * _Speed) * _Amplitude * PeriodicNoise(data.vertex * 10,
                             float3(5, 2, 0.1));
                         float2 posView = UnityWorldToViewPos(data.vertex).xy;
-                        data.color = tex2Dlod(_MainTex, float4(posView.x/ _WidthTex, posView.y / _HeightTex, 0, 0));
+                        data.texcoord = ComputeScreenPos(data.vertex);
                         return;
                     }
                 }
@@ -85,7 +85,8 @@ Shader "Custom/Deformation"
             void surf(Input IN, inout SurfaceOutputStandard o)
             {
                 // Albedo comes from a texture tinted by color
-                fixed4 c = _Color + IN.color;
+                fixed4 c = tex2D(_MainTex, IN.uv_MainTex);
+                // fixed4 c = _Color + IN.color;
                 o.Albedo = c.rgb;
                 // Metallic and smoothness come from slider variables
                 o.Metallic = _Metallic;
