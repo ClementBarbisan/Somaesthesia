@@ -85,8 +85,8 @@ public class PointCloudGPU : MonoBehaviour {
     {
         matPointCloud.SetPass(0);
         Graphics.DrawProceduralNow(MeshTopology.Points, 1, width * height);
-        // matPointCloud.SetPass(1);
-        // Graphics.DrawProceduralNow(MeshTopology.Points, 1, width * height);
+        matPointCloud.SetPass(1);
+        Graphics.DrawProceduralNow(MeshTopology.Points, 1, 18);
     }
 
     private void OnDestroy()

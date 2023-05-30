@@ -6,6 +6,7 @@ Shader "Particle"
 {
 	Properties
 	{
+		_Size  ("Size cube", Range(0, 10)) = 0.25
 	}
 
 	SubShader 
@@ -43,8 +44,6 @@ Shader "Particle"
 		uniform int _WidthTex;
 		uniform int _Height;
 		uniform int _HeightTex;
-		uniform float _MinZ;
-		uniform float _MaxZ;
 		uniform float3 _CamPos;
 		uniform float _Rotation;
 
@@ -137,6 +136,137 @@ Shader "Particle"
 		}
 
 		ENDCG
+		}
+		Pass 
+		{
+			Tags{ "LightMode" = "Deferred" }
+			LOD 100
+			ZWrite Off
+			//Blend SrcAlpha OneMinusSrcAlpha
+			CGPROGRAM
+			#pragma target 5.0
+			
+			#pragma vertex vert
+			#pragma geometry geom
+			#pragma fragment frag
+			#pragma multi_compile_instancing
+			#include "UnityCG.cginc"
+			
+			// Pixel shader input
+			struct PS_INPUT
+			{
+				float4 position : SV_POSITION;
+				uint instance : SV_InstanceID;
+			};
+			
+			#ifdef SHADER_API_D3D11
+            struct Joints
+            {
+                float3 Pos;
+            };
+
+            StructuredBuffer<Joints> _Skeleton;
+            #endif
+			
+			//sampler2D _MainTex;
+
+			// Properties variables
+			uniform float _Size;
+			uniform float _Rotation;
+			
+			// Vertex shader
+			PS_INPUT vert(uint instance_id : SV_instanceID)
+			{
+				PS_INPUT o = (PS_INPUT)0;
+				// Position
+				o.position = float4(_Skeleton[instance_id].Pos, 1.0);
+				o.instance = int(instance_id);
+				return o;
+			}
+
+			[maxvertexcount(24)]
+			void geom(point PS_INPUT p[1], inout LineStream<PS_INPUT> lineStream)
+			{
+				PS_INPUT o;
+				o.instance = p[0].instance;
+				float size = _Size;
+				float4 A = float4(-size / 2, size / 2, size / 2, 0);
+				float4 B = float4(size / 2, size / 2, size / 2, 0);
+				float4 C = float4(-size / 2, size / 2, -size / 2, 0);
+				float4 D = float4(size / 2, size / 2, -size / 2, 0);
+				float4 E = float4(size / 2, -size / 2, -size / 2, 0);
+				float4 F = float4(size / 2, -size / 2, size / 2, 0);
+				float4 G = float4(-size / 2, -size / 2, size / 2, 0);
+				float4 H = float4(-size / 2, -size / 2, -size / 2, 0);
+				o.position = UnityObjectToClipPos(p[0].position + A);
+				lineStream.Append(o);
+				o.position = UnityObjectToClipPos(p[0].position + G);
+				lineStream.Append(o);
+				lineStream.RestartStrip();
+				o.position = UnityObjectToClipPos(p[0].position + G);
+				lineStream.Append(o);
+				o.position = UnityObjectToClipPos(p[0].position + F);
+				lineStream.Append(o);
+				lineStream.RestartStrip();
+				o.position = UnityObjectToClipPos(p[0].position + F);
+				lineStream.Append(o);
+				o.position = UnityObjectToClipPos(p[0].position + B);
+				lineStream.Append(o);
+				lineStream.RestartStrip();
+				o.position = UnityObjectToClipPos(p[0].position + B);
+				lineStream.Append(o);
+				o.position = UnityObjectToClipPos(p[0].position + A);
+				lineStream.Append(o);
+				lineStream.RestartStrip();
+				o.position = UnityObjectToClipPos(p[0].position + C);
+				lineStream.Append(o);
+				o.position = UnityObjectToClipPos(p[0].position + H);
+				lineStream.Append(o);
+				lineStream.RestartStrip();
+				o.position = UnityObjectToClipPos(p[0].position + H);
+				lineStream.Append(o);
+				o.position = UnityObjectToClipPos(p[0].position + E);
+				lineStream.Append(o);
+				lineStream.RestartStrip();
+				o.position = UnityObjectToClipPos(p[0].position + E);
+				lineStream.Append(o);
+				o.position = UnityObjectToClipPos(p[0].position + D);
+				lineStream.Append(o);
+				lineStream.RestartStrip();
+				o.position = UnityObjectToClipPos(p[0].position + D);
+				lineStream.Append(o);
+				o.position = UnityObjectToClipPos(p[0].position + C);
+				lineStream.Append(o);
+				lineStream.RestartStrip();
+				o.position = UnityObjectToClipPos(p[0].position + A);
+				lineStream.Append(o);
+				o.position = UnityObjectToClipPos(p[0].position + C);
+				lineStream.Append(o);
+				lineStream.RestartStrip();
+				o.position = UnityObjectToClipPos(p[0].position + G);
+				lineStream.Append(o);
+				o.position = UnityObjectToClipPos(p[0].position + H);
+				lineStream.Append(o);
+				lineStream.RestartStrip();
+				o.position = UnityObjectToClipPos(p[0].position + F);
+				lineStream.Append(o);
+				o.position = UnityObjectToClipPos(p[0].position + E);
+				lineStream.Append(o);
+				lineStream.RestartStrip();
+				o.position = UnityObjectToClipPos(p[0].position + B);
+				lineStream.Append(o);
+				o.position = UnityObjectToClipPos(p[0].position + D);
+				lineStream.Append(o);
+				// lineStream.RestartStrip();
+			}
+			
+			// Pixel shader
+			float4 frag(PS_INPUT i) : COLOR
+			{
+				return (float4(1.0f, 1.0f, 1.0f, 1.0f) * (1.0f - i.position.z / i.position.w));
+			}
+			
+			ENDCG
 		}
 	}
 	Fallback Off
