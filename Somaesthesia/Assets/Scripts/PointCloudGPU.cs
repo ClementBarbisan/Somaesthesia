@@ -47,9 +47,6 @@ public class PointCloudGPU : MonoBehaviour {
             matPointCloud.SetTexture("_MainTex", texture);
             matPointCloud.SetInt("_WidthTex", frame.Cols);
             matPointCloud.SetInt("_HeightTex", frame.Rows);
-            matMesh.SetTexture("_MainTex", texture);
-            matMesh.SetInt("_WidthTex", frame.Cols);
-            matMesh.SetInt("_HeightTex", frame.Rows);
         }
         texture.LoadRawTextureData(frame.Data, frame.DataSize);
         texture.Apply();

@@ -24,10 +24,7 @@ Shader "Custom/Deformation"
             #include "Packages/jp.keijiro.noiseshader/Shader/Common.hlsl"
             #include "Packages/jp.keijiro.noiseshader/Shader/ClassicNoise3D.hlsl"
             #include "Tessellation.cginc"
-            #pragma target 3.0
-
-
-            sampler2D _MainTex;
+            #pragma target 4.6
 
             struct Input {
                 float4 screenPos;
@@ -54,8 +51,7 @@ Shader "Custom/Deformation"
             float _Amplitude;
             float _EdgeLength;
             float _Distance;
-            int _WidthTex;
-            int _HeightTex;
+         
             float4 tessEdge(appdata_full v0, appdata_full v1, appdata_full v2)
             {
                 return UnityEdgeLengthBasedTess(v0.vertex, v1.vertex, v2.vertex, _EdgeLength);
@@ -64,17 +60,17 @@ Shader "Custom/Deformation"
             void vert(inout appdata_full data)
             {
                 #ifdef SHADER_API_D3D11
-                data.color.w = float4(1,1,1,1);
+                data.color.w = 1;
                 for (int i = 0; i < 18; i++)
                 {
                     float dist = distance((_Skeleton[i].Pos), mul(unity_ObjectToWorld, data.vertex));
                     if (dist < _Distance)
                     {
-                        data.color.w = dist / _Distance;
+                        data.color.w = pow(dist / _Distance, 2);
                         data.vertex.xyz += sin(_Time * _Speed) * _Amplitude * PeriodicNoise(data.vertex * 10,
                             float3(5, 2, 0.1));
                         data.texcoord = ComputeScreenPos(UnityWorldToClipPos(data.vertex));
-                        data.color.xyz = tex2Dlod(_MainTex, float4(data.texcoord.x / 2.0, data.texcoord.y / 2.0, 0.0, 0.0));
+                        data.color.rgb = float3(1, 0, 0);
                         return;
                     }
                 }
@@ -84,7 +80,7 @@ Shader "Custom/Deformation"
             void surf(Input IN, inout SurfaceOutputStandard o)
             {
                 // Albedo comes from a texture tinted by color
-                fixed3 c = IN.color.xyz;
+                fixed3 c = _Color * IN.color;
                 // fixed4 c = _Color + IN.color;
                 o.Albedo = c.rgb;
                 // Metallic and smoothness come from slider variables

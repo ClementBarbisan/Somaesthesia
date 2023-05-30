@@ -133,7 +133,7 @@ Shader "Particle"
 			half edge = 1 - min(edge2.x, edge2.y);
 			float2 uv =  float2(float(i.instance % _WidthTex) / (float)_WidthTex, float(i.instance / _WidthTex) / (float)_HeightTex);
 			float4 col = tex2D(_MainTex,uv);
-			return (float4(col.z, col.y, col.x, col.w));
+			return (float4(col.z, col.y, col.x,0));// col.w));
 		}
 
 		ENDCG
