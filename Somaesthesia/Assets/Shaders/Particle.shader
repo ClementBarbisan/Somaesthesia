@@ -139,17 +139,14 @@ Shader "Particle"
 		}
 		Pass 
 		{
-			Tags{ "LightMode" = "Deferred" }
 			LOD 100
 			ZWrite Off
-			//Blend SrcAlpha OneMinusSrcAlpha
 			CGPROGRAM
 			#pragma target 5.0
 			
 			#pragma vertex vert
 			#pragma geometry geom
 			#pragma fragment frag
-			#pragma multi_compile_instancing
 			#include "UnityCG.cginc"
 			
 			// Pixel shader input
@@ -174,6 +171,11 @@ Shader "Particle"
 			uniform float _Size;
 			uniform float _Rotation;
 			
+			float rand(in float2 uv)
+			{
+				float2 noise = (frac(sin(dot(uv, float2(12.9898, 78.233)*2.0)) * 43758.5453));
+				return abs(noise.x + noise.y) * 0.5;
+			}
 			// Vertex shader
 			PS_INPUT vert(uint instance_id : SV_instanceID)
 			{
@@ -184,12 +186,18 @@ Shader "Particle"
 				return o;
 			}
 
-			[maxvertexcount(24)]
+			[maxvertexcount(36)]
 			void geom(point PS_INPUT p[1], inout LineStream<PS_INPUT> lineStream)
 			{
 				PS_INPUT o;
 				o.instance = p[0].instance;
-				float size = _Size;
+				float2 screenPos = ComputeScreenPos(p[0].position);
+				uint i = (uint)((p[0].instance + floor(rand(screenPos) * 18)) % 18);
+				if (i == p[0].instance)
+				{
+					i = (i + 1) % 18;
+				}
+				float size = rand(screenPos) * _Size * 2.0;
 				float4 A = float4(-size / 2, size / 2, size / 2, 0);
 				float4 B = float4(size / 2, size / 2, size / 2, 0);
 				float4 C = float4(-size / 2, size / 2, -size / 2, 0);
@@ -257,7 +265,11 @@ Shader "Particle"
 				lineStream.Append(o);
 				o.position = UnityObjectToClipPos(p[0].position + D);
 				lineStream.Append(o);
-				// lineStream.RestartStrip();
+				lineStream.RestartStrip();
+				o.position = UnityObjectToClipPos(p[0].position);
+				lineStream.Append(o);
+				o.position = UnityObjectToClipPos(float4(_Skeleton[i].Pos, 1.0));
+				lineStream.Append(o);
 			}
 			
 			// Pixel shader
