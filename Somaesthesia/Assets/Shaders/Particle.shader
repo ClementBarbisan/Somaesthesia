@@ -6,7 +6,6 @@ Shader "Particle"
 {
 	Properties
 	{
-		_Size  ("Size cube", Range(0, 10)) = 0.25
 	}
 
 	SubShader 
@@ -157,9 +156,11 @@ Shader "Particle"
 			};
 			
 			#ifdef SHADER_API_D3D11
-            struct Joints
+			struct Joints
             {
                 float3 Pos;
+                float3x3 Matrice;
+                float Size;
             };
 
             StructuredBuffer<Joints> _Skeleton;
@@ -168,7 +169,6 @@ Shader "Particle"
 			//sampler2D _MainTex;
 
 			// Properties variables
-			uniform float _Size;
 			uniform float _Rotation;
 			
 			float rand(in float2 uv)
@@ -197,15 +197,15 @@ Shader "Particle"
 				{
 					i = (i + 1) % 18;
 				}
-				float size = rand(screenPos) * _Size * 2.0;
-				float4 A = float4(-size / 2, size / 2, size / 2, 0);
-				float4 B = float4(size / 2, size / 2, size / 2, 0);
-				float4 C = float4(-size / 2, size / 2, -size / 2, 0);
-				float4 D = float4(size / 2, size / 2, -size / 2, 0);
-				float4 E = float4(size / 2, -size / 2, -size / 2, 0);
-				float4 F = float4(size / 2, -size / 2, size / 2, 0);
-				float4 G = float4(-size / 2, -size / 2, size / 2, 0);
-				float4 H = float4(-size / 2, -size / 2, -size / 2, 0);
+				float size = rand(screenPos) *  _Skeleton[p[0].instance].Size * 2.0;
+				float3 A = mul( _Skeleton[p[0].instance].Matrice, float3(-size / 2, size / 2, size / 2));
+				float3 B = mul( _Skeleton[p[0].instance].Matrice, float3(size / 2, size / 2, size / 2));
+				float3 C = mul( _Skeleton[p[0].instance].Matrice, float3(-size / 2, size / 2, -size / 2));
+				float3 D = mul( _Skeleton[p[0].instance].Matrice, float3(size / 2, size / 2, -size / 2));
+				float3 E = mul( _Skeleton[p[0].instance].Matrice, float3(size / 2, -size / 2, -size / 2));
+				float3 F = mul( _Skeleton[p[0].instance].Matrice, float3(size / 2, -size / 2, size / 2));
+				float3 G = mul( _Skeleton[p[0].instance].Matrice,  float3(-size / 2, -size / 2, size / 2));
+				float3 H = mul( _Skeleton[p[0].instance].Matrice,  float3(-size / 2, -size / 2, -size / 2));
 				o.position = UnityObjectToClipPos(p[0].position + A);
 				lineStream.Append(o);
 				o.position = UnityObjectToClipPos(p[0].position + G);

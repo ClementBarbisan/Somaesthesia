@@ -5,6 +5,7 @@ using nuitrack;
 using nuitrack.device;
 using NuitrackSDK;
 using NuitrackSDK.Avatar;
+using Unity.Mathematics;
 using UnityEngine;
 using Joint = nuitrack.Joint;
 using Vector3 = UnityEngine.Vector3;
@@ -12,6 +13,8 @@ using Vector3 = UnityEngine.Vector3;
 public struct Joints
 {
     public Vector3 Pos;
+    public float3x3 Matrice;
+    public float Size;
 }
 
 public class SendSkeletonToShader : MonoBehaviour
@@ -47,9 +50,12 @@ public class SendSkeletonToShader : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        NuitrackManager.onUserTrackerUpdate += UserTrackerOnOnUpdateEvent;
-        NuitrackManager.SkeletonTracker.OnSkeletonUpdateEvent += SkeletonTrackerOnOnSkeletonUpdateEvent;
         cam = Camera.main;
+        if (NuitrackManager.Instance.NuitrackInitialized)
+        {
+            NuitrackManager.onUserTrackerUpdate += UserTrackerOnOnUpdateEvent;
+            NuitrackManager.SkeletonTracker.OnSkeletonUpdateEvent += SkeletonTrackerOnOnSkeletonUpdateEvent;
+        }
     }
 
     private void UserTrackerOnOnUpdateEvent(UserFrame frame)
@@ -64,8 +70,11 @@ public class SendSkeletonToShader : MonoBehaviour
     private void OnDestroy()
     {
         _buffer?.Release();
-        // NuitrackManager.SkeletonTracker.OnSkeletonUpdateEvent -= SkeletonTrackerOnOnSkeletonUpdateEvent;
-        NuitrackManager.onUserTrackerUpdate -= UserTrackerOnOnUpdateEvent;
+        if (NuitrackManager.Instance.NuitrackInitialized)
+        {
+            // NuitrackManager.SkeletonTracker.OnSkeletonUpdateEvent -= SkeletonTrackerOnOnSkeletonUpdateEvent;
+            NuitrackManager.onUserTrackerUpdate -= UserTrackerOnOnUpdateEvent;
+        }
     }
 
     private void SkeletonTrackerOnOnSkeletonUpdateEvent(SkeletonData skeletondata)
@@ -77,7 +86,7 @@ public class SendSkeletonToShader : MonoBehaviour
         _skeleton = skeletondata.GetSkeletonByID(_id);
         if (_buffer == null)
         {
-            _buffer = new ComputeBuffer(_jointsInfo.Length, sizeof(float) * 3);
+            _buffer = new ComputeBuffer(_jointsInfo.Length, sizeof(float) * 13);
         }
         if (_skeleton != null)
         {
@@ -87,9 +96,15 @@ public class SendSkeletonToShader : MonoBehaviour
             {
                 Joints newJoint = new Joints();
                 Joint joint = _skeleton.GetJoint(_jointsInfo[i]);
+                float3x3 matrice = new float3x3();
+                matrice.c0 = new float3(joint.Orient.Matrix[0], joint.Orient.Matrix[1], joint.Orient.Matrix[2]); 
+                matrice.c1 = new float3(joint.Orient.Matrix[3], joint.Orient.Matrix[4], joint.Orient.Matrix[5]); 
+                matrice.c2 = new float3(joint.Orient.Matrix[6], joint.Orient.Matrix[7], joint.Orient.Matrix[8]); 
+                newJoint.Matrice = math.inverse(matrice);
                 newJoint.Pos = joint.Real.ToVector3();
-                newJoint.Pos = new Vector3(posCam.x - newJoint.Pos.x / 600f, posCam.y + newJoint.Pos.y / 600f,
-                    posCam.z - newJoint.Pos.z / 600f);
+                newJoint.Pos = new Vector3(posCam.x - newJoint.Pos.x / 500f, posCam.y + newJoint.Pos.y / 500f,
+                    posCam.z - newJoint.Pos.z / 500f);
+                newJoint.Size = 0.25f;
                 jointsList.Add(newJoint);
             }
             _buffer.SetData(jointsList);

@@ -35,6 +35,8 @@ Shader "Custom/Deformation"
             struct Joints
             {
                 float3 Pos;
+                float3x3 Matrice;
+                float Size;
             };
 
             StructuredBuffer<Joints> _Skeleton;

@@ -17,7 +17,7 @@ public class SegmentPaint : MonoBehaviour
 
     void OnDestroy()
     {
-        segmentBuffer.Release();
+        segmentBuffer?.Release();
         NuitrackManager.onUserTrackerUpdate -= ColorizeUser;
     }
 
