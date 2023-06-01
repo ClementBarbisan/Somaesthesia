@@ -32,6 +32,7 @@ Material:
     m_Floats:
     - _HighSpeedValue: 12
     - _Rotation: 10
+    - _Size: 0.25
     - _Value: 0
     - _colorSwitch: 60
     m_Colors:

@@ -103,7 +103,7 @@ public class SendSkeletonToShader : MonoBehaviour
                 newJoint.Matrice = math.inverse(matrice);
                 newJoint.Pos = joint.Real.ToVector3();
                 newJoint.Pos = new Vector3(posCam.x - newJoint.Pos.x / 500f, posCam.y + newJoint.Pos.y / 500f,
-                    posCam.z - newJoint.Pos.z / 500f);
+                    posCam.z - newJoint.Pos.z / 600f);
                 newJoint.Size = 0.25f;
                 jointsList.Add(newJoint);
             }
