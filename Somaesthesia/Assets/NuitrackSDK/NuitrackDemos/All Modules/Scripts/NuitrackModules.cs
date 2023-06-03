@@ -16,8 +16,6 @@ namespace NuitrackSDK.NuitrackDemos
         [SerializeField] GameObject depthUserVisualizationPrefab;
         [SerializeField] GameObject depthUserMeshVisualizationPrefab;
         [SerializeField] GameObject skeletonsVisualizationPrefab;
-        [SerializeField] GameObject gesturesVisualizationPrefab;
-        [SerializeField] GameObject handTrackerVisualizationPrefab;
 
         ExceptionsLogger exceptionsLogger;
 
@@ -87,7 +85,7 @@ namespace NuitrackSDK.NuitrackDemos
                 indirectAvatarMan.SetActive(skeletonOn);
             if (skelVisId == 4)
                 directAvatarMan.SetActive(skeletonOn);
-            NuitrackManager.Instance.ChangeModulesState(skeletonOn, handsOn, depthOn, colorOn, gesturesOn, userOn);
+            NuitrackManager.Instance.ChangeModulesState(skeletonOn, depthOn, colorOn, userOn);
         }
 
         public void InitModules()
@@ -95,8 +93,6 @@ namespace NuitrackSDK.NuitrackDemos
             Instantiate(depthUserVisualizationPrefab);
             Instantiate(depthUserMeshVisualizationPrefab);
             skelVis = Instantiate(skeletonsVisualizationPrefab);
-            Instantiate(handTrackerVisualizationPrefab);
-            Instantiate(gesturesVisualizationPrefab);
         }
 
         void Update()
@@ -104,7 +100,6 @@ namespace NuitrackSDK.NuitrackDemos
             string processingTimesInfo = "";
             if ((NuitrackManager.UserTracker != null) && (NuitrackManager.UserTracker.GetProcessingTime() > 1f)) processingTimesInfo += "User FPS: " + (1000f / NuitrackManager.UserTracker.GetProcessingTime()).ToString("0") + "\n";
             if ((NuitrackManager.SkeletonTracker != null) && (NuitrackManager.SkeletonTracker.GetProcessingTime() > 1f)) processingTimesInfo += "Skeleton FPS: " + (1000f / NuitrackManager.SkeletonTracker.GetProcessingTime()).ToString("0") + "\n";
-            if ((NuitrackManager.HandTracker != null) && (NuitrackManager.HandTracker.GetProcessingTime() > 1f)) processingTimesInfo += "Hand FPS: " + (1000f / NuitrackManager.HandTracker.GetProcessingTime()).ToString("0") + "\n";
 
             perfomanceInfoText.text = processingTimesInfo;
         }

@@ -32,12 +32,8 @@ public class PointCloudGPU : MonoBehaviour {
     // Use this for initialization
     void Start () 
     {
-        if (NuitrackManager.Instance.NuitrackInitialized)
-        {
-            NuitrackManager.DepthSensor.OnUpdateEvent += HandleOnDepthSensorUpdateEvent;
-            NuitrackManager.ColorSensor.OnUpdateEvent += HandleOnColorSensorUpdateEvent;
-        }
-        
+        NuitrackManager.DepthSensor.OnUpdateEvent += HandleOnDepthSensorUpdateEvent;
+        NuitrackManager.ColorSensor.OnUpdateEvent += HandleOnColorSensorUpdateEvent;
         Cursor.visible = false;
         cam = Camera.main;
     }
@@ -96,10 +92,7 @@ public class PointCloudGPU : MonoBehaviour {
     private void OnDestroy()
     {
         buffer?.Release();
-        if (NuitrackManager.Instance.NuitrackInitialized)
-        {
-            NuitrackManager.DepthSensor.OnUpdateEvent -= HandleOnDepthSensorUpdateEvent;
-            NuitrackManager.ColorSensor.OnUpdateEvent -= HandleOnColorSensorUpdateEvent;
-        }
+        // NuitrackManager.DepthSensor.OnUpdateEvent -= HandleOnDepthSensorUpdateEvent;
+        // NuitrackManager.ColorSensor.OnUpdateEvent -= HandleOnColorSensorUpdateEvent;
     }
 }

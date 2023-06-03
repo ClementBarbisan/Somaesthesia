@@ -66,10 +66,10 @@ Shader "Custom/Deformation"
                 for (int i = 0; i < 18; i++)
                 {
                     float dist = distance((_Skeleton[i].Pos), mul(unity_ObjectToWorld, data.vertex));
-                    if (dist < _Distance)
+                    if (dist < _Skeleton[i].Size)
                     {
                         data.color.w = pow(dist / _Distance, 2);
-                        data.vertex.xyz += sin(_Time * _Speed) * _Amplitude * PeriodicNoise(data.vertex * 10,
+                        data.vertex.xyz += sin(_Time * _Speed) * _Amplitude * PeriodicNoise(data.vertex,
                             float3(5, 2, 0.1));
                         data.texcoord = ComputeScreenPos(UnityWorldToClipPos(data.vertex));
                         data.color.rgb = float3(1, 0, 0);

@@ -59,14 +59,13 @@ public class NuitrackManager : MonoBehaviour
     Thread _thread;
 
     public NuitrackInitState InitState { get { return NuitrackLoader.initState; } }
-    [SerializeField, NuitrackSDKInspector]
-    bool
-    depthModuleOn = true,
-    colorModuleOn = true,
-    userTrackerModuleOn = true,
-    skeletonTrackerModuleOn = true,
-    gesturesRecognizerModuleOn = true,
-    handsTrackerModuleOn = true;
+
+    [SerializeField, NuitrackSDKInspector] private bool
+        depthModuleOn = true,
+        colorModuleOn = true,
+        userTrackerModuleOn = true,
+        skeletonTrackerModuleOn = true;
+   
 
     bool nuitrackError = false;
     public LicenseInfo LicenseInfo
@@ -119,10 +118,6 @@ public class NuitrackManager : MonoBehaviour
     public static UserTracker UserTracker { get { return UserTrackers[0]; } }
     public static List<SkeletonTracker> SkeletonTrackers { get; private set; } = new List<SkeletonTracker>();
     public static SkeletonTracker SkeletonTracker { get { return SkeletonTrackers[0]; } }
-    public static List<GestureRecognizer> GestureRecognizers { get; private set; } = new List<GestureRecognizer>();
-    public static GestureRecognizer GestureRecognizer { get { return GestureRecognizers[0]; } }
-    public static List<HandTracker> HandTrackers { get; private set; } = new List<HandTracker>();
-    public static HandTracker HandTracker { get { return HandTrackers[0]; } }
     public static List<DepthFrame> DepthFrames { get; private set; } = new List<DepthFrame>();
     public static DepthFrame DepthFrame { get { return DepthFrames[0]; }}
     public static List<ColorFrame> ColorFrames { get; private set; } = new List<ColorFrame>();
@@ -131,8 +126,7 @@ public class NuitrackManager : MonoBehaviour
     public static UserFrame UserFrame { get { return UserFrames[0]; } }
 
     List<SkeletonData> skeletonData = new List<SkeletonData>();
-    List<HandTrackerData> handTrackerData = new List<HandTrackerData>();
-    List<GestureData> gestureData = new List<GestureData>();
+   
 
     public static event DepthSensor.OnUpdate onDepthUpdate;
     public static event ColorSensor.OnUpdate onColorUpdate;
@@ -170,8 +164,6 @@ public class NuitrackManager : MonoBehaviour
     public bool UseDepthModule { get => depthModuleOn; }
     public bool UseUserTrackerModule { get => userTrackerModuleOn; }
     public bool UseSkeletonTracking { get => skeletonTrackerModuleOn; }
-    public bool UseHandsTracking { get => handsTrackerModuleOn; }
-    public bool UserGestureTracking { get => gesturesRecognizerModuleOn; }
     public bool UseFaceTracking { get => useFaceTracking; }
     public bool UseNuitrackAi { get => useNuitrackAi; set { useNuitrackAi = value; } }
     //public bool UseObjectDetection { get => useObjectDetection; }
@@ -329,7 +321,7 @@ public class NuitrackManager : MonoBehaviour
         yield return null;
     }
 
-    public void ChangeModulesState(bool skeleton, bool hand, bool depth, bool color, bool gestures, bool user)
+    public void ChangeModulesState(bool skeleton, bool depth, bool color, bool user)
     {
         if (skeletonTrackerModuleOn != skeleton || !NuitrackInitialized)
         {           
@@ -345,37 +337,6 @@ public class NuitrackManager : MonoBehaviour
                     SkeletonTrackers[i].OnSkeletonUpdateEvent -= onSkeletonUpdates[i];
             }
         }
-
-        if (handsTrackerModuleOn != hand || !NuitrackInitialized)
-        {
-            handsTrackerModuleOn = hand;
-
-            for (int i = 0; i < devices.Count; i++)
-            {
-                handTrackerData[i] = null;
-
-                if (hand)
-                    HandTrackers[i].OnUpdateEvent += onHandsUpdates[i];
-                else
-                    HandTrackers[i].OnUpdateEvent -= onHandsUpdates[i];
-            }
-        }
-
-        if (gesturesRecognizerModuleOn != gestures || !NuitrackInitialized)
-        {
-            gesturesRecognizerModuleOn = gestures;
-
-            for (int i = 0; i < devices.Count; i++)
-            {
-                gestureData[i] = null;
-
-                if (gestures)
-                    GestureRecognizers[i].OnNewGesturesEvent += onNewGesturesUpdates[i];
-                else
-                    GestureRecognizers[i].OnNewGesturesEvent -= onNewGesturesUpdates[i];
-            }
-        }
-
         if (depthModuleOn != depth || !NuitrackInitialized)
         {
             depthModuleOn = depth;
@@ -480,14 +441,10 @@ public class NuitrackManager : MonoBehaviour
                 ColorFrames.Clear();
                 UserFrames.Clear();
                 skeletonData.Clear();
-                gestureData.Clear();
-                handTrackerData.Clear();
                 DepthSensors.Clear();
                 ColorSensors.Clear();
                 SkeletonTrackers.Clear();
                 UserTrackers.Clear();
-                HandTrackers.Clear();
-                GestureRecognizers.Clear();
                 UsersList.Clear();
 
                 onColorUpdates.Clear();
@@ -520,17 +477,11 @@ public class NuitrackManager : MonoBehaviour
                     UserTrackers.Add(UserTracker.Create());
                     UserFrames.Add(new UserFrame());
                     Floors.Add(null);
-                    HandTrackers.Add(HandTracker.Create());
-                    handTrackerData.Add(null);
-                    GestureRecognizers.Add(GestureRecognizer.Create());
-                    gestureData.Add(null);
                     int sensorId = i;
                     onDepthUpdates.Add((frame) => HandleOnDepthSensorUpdateEvent(frame, sensorId));
                     onColorUpdates.Add((frame) => HandleOnColorSensorUpdateEvent(frame, sensorId));
                     onSkeletonUpdates.Add((skeleton) => HandleOnSkeletonUpdateEvent(skeleton, sensorId));
                     onUserTrackerUpdates.Add((user) => HandleOnUserTrackerUpdateEvent(user, sensorId));
-                    onHandsUpdates.Add((hands) => HandleOnHandsUpdateEvent(hands, sensorId));
-                    onNewGesturesUpdates.Add((gestures) => OnNewGestures(gestures, sensorId));
                 }
 
                 if (multisensorType == MultisensorType.Singlesensor)
@@ -565,7 +516,7 @@ public class NuitrackManager : MonoBehaviour
             Nuitrack.Run();
             Debug.Log("Nuitrack Run OK");
 
-            ChangeModulesState(skeletonTrackerModuleOn, handsTrackerModuleOn, depthModuleOn, colorModuleOn, gesturesRecognizerModuleOn, userTrackerModuleOn);
+            ChangeModulesState(skeletonTrackerModuleOn, depthModuleOn, colorModuleOn, userTrackerModuleOn);
 
             NuitrackInitialized = true;
         }
@@ -710,21 +661,6 @@ public class NuitrackManager : MonoBehaviour
         skeletonData[sensorId] = (SkeletonData)_skeletonData.Clone();
     }
 
-    void OnNewGestures(GestureData gestures, int sensorId)
-    {
-        if (gestureData[sensorId] != null)
-            gestureData[sensorId].Dispose();
-
-        gestureData[sensorId] = (GestureData)gestures.Clone();
-    }
-
-    void HandleOnHandsUpdateEvent(HandTrackerData _handTrackerData, int sensorId)
-    {
-        if (handTrackerData[sensorId] != null)
-            handTrackerData[sensorId].Dispose();
-
-        handTrackerData[sensorId] = (HandTrackerData)_handTrackerData.Clone();
-    }
 
     bool canBePaused;
     void OnApplicationPause(bool pauseStatus)
@@ -779,24 +715,18 @@ public class NuitrackManager : MonoBehaviour
                     SkeletonTrackers[i].OnSkeletonUpdateEvent -= onSkeletonUpdates[i];
                 if (UserTrackers[i] != null)
                     UserTrackers[i].OnUpdateEvent -= onUserTrackerUpdates[i];
-                if (HandTrackers[i] != null)
-                    HandTrackers[i].OnUpdateEvent -= onHandsUpdates[i];
-                if (GestureRecognizers[i] != null)
-                    GestureRecognizers[i].OnNewGesturesEvent -= onNewGesturesUpdates[i];
 
                 DepthFrames[i] = null;
                 ColorFrames[i] = null;
                 UserFrames[i] = null;
                 skeletonData[i] = null;
-                gestureData[i] = null;
-                handTrackerData[i] = null;
+              
 
                 DepthSensors[i] = null;
                 ColorSensors[i] = null;
                 UserTrackers[i] = null;
                 SkeletonTrackers[i] = null;
-                GestureRecognizers[i] = null;
-                HandTrackers[i] = null;
+               
             }
 
             Nuitrack.Release();
@@ -828,16 +758,16 @@ public class NuitrackManager : MonoBehaviour
         try
         {
             for (int i = 0; i < UsersList.Count; i++)
-                UsersList[i].UpdateData(skeletonData[i], handTrackerData[i], gestureData[i], NuitrackJson);
+                UsersList[i].UpdateData(skeletonData[i]);
 
-            for (int i = 0; i < gestureData.Count; i++)
-            {
-                if (gestureData[i] != null)
-                {
-                    gestureData[i].Dispose();
-                    gestureData[i] = null;
-                }
-            }
+            // for (int i = 0; i < gestureData.Count; i++)
+            // {
+            //     if (gestureData[i] != null)
+            //     {
+            //         gestureData[i].Dispose();
+            //         gestureData[i] = null;
+            //     }
+            // }
 
             if (multisensorType == MultisensorType.Singlesensor)
             {

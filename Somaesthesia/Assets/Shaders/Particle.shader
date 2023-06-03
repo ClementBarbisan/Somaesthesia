@@ -21,6 +21,7 @@ Shader "Particle"
 			#pragma geometry geom
 			#pragma fragment frag
 			#pragma multi_compile_instancing
+			#pragma Standard fullforwardshadows addshadow
 			#include "UnityCG.cginc"
 
 			// Pixel shader input
@@ -138,14 +139,20 @@ Shader "Particle"
 		}
 		Pass 
 		{
+			 Tags {"Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Transparent"}
+		    ZWrite Off
+		    Blend SrcAlpha OneMinusSrcAlpha
+		    Cull front 
 			LOD 100
-			ZWrite Off
 			CGPROGRAM
 			#pragma target 5.0
 			
 			#pragma vertex vert
 			#pragma geometry geom
 			#pragma fragment frag
+			#pragma Standard fullforwardshadows addshadow
+			#include "Packages/jp.keijiro.noiseshader/Shader/Common.hlsl"
+            #include "Packages/jp.keijiro.noiseshader/Shader/ClassicNoise3D.hlsl"
 			#include "UnityCG.cginc"
 			
 			// Pixel shader input
@@ -186,96 +193,100 @@ Shader "Particle"
 				return o;
 			}
 
-			[maxvertexcount(36)]
+			float map(float value, float min1, float max1, float min2, float max2)
+			{
+				// Convert the current value to a percentage
+				// 0% - min1, 100% - max1
+				float perc = (value - min1) / (max1 - min1);
+
+				// Do the same operation backwards with min2 and max2
+				float val = perc * (max2 - min2) + min2;
+				return (val);
+			}
+
+			
+			void AddVertex(point PS_INPUT o,inout LineStream<PS_INPUT> lineStream, float4 pos1, float4 pos2, int nbVertex)
+			{
+				float4 x = pos1;
+				float4 y = pos2;
+				o.position = x;
+				lineStream.Append(o);
+				float4 dir = y - x;
+				int cNb = clamp(nbVertex, 0, 12);
+				for (int i = 1; i < cNb; i++)
+				{
+					float4 p = x + dir * ((float)i / (float)cNb);
+					o.position = p + PeriodicNoise(float3(rand(p.xy), rand(p.yz), rand(p.xz)), sin(_Time.xxx / 1000) * 20) / 15;
+					lineStream.Append(o);
+				}
+				o.position = y;
+				lineStream.Append(o);
+				lineStream.RestartStrip();
+			}
+
+			[maxvertexcount(204)]
 			void geom(point PS_INPUT p[1], inout LineStream<PS_INPUT> lineStream)
 			{
+				uint nb = 0;
+				uint stride = 0;
+				_Skeleton.GetDimensions(nb, stride);
 				PS_INPUT o;
 				o.instance = p[0].instance;
-				float2 screenPos = ComputeScreenPos(p[0].position);
-				uint i = (uint)((p[0].instance + floor(rand(screenPos) * 18)) % 18);
-				if (i == p[0].instance)
-				{
-					i = (i + 1) % 18;
-				}
-				float size = rand(screenPos) *  _Skeleton[p[0].instance].Size * 2.0;
-				float3 A = mul( _Skeleton[p[0].instance].Matrice, float3(-size / 2, size / 2, size / 2));
-				float3 B = mul( _Skeleton[p[0].instance].Matrice, float3(size / 2, size / 2, size / 2));
-				float3 C = mul( _Skeleton[p[0].instance].Matrice, float3(-size / 2, size / 2, -size / 2));
-				float3 D = mul( _Skeleton[p[0].instance].Matrice, float3(size / 2, size / 2, -size / 2));
-				float3 E = mul( _Skeleton[p[0].instance].Matrice, float3(size / 2, -size / 2, -size / 2));
-				float3 F = mul( _Skeleton[p[0].instance].Matrice, float3(size / 2, -size / 2, size / 2));
-				float3 G = mul( _Skeleton[p[0].instance].Matrice,  float3(-size / 2, -size / 2, size / 2));
-				float3 H = mul( _Skeleton[p[0].instance].Matrice,  float3(-size / 2, -size / 2, -size / 2));
-				o.position = UnityObjectToClipPos(p[0].position + A);
-				lineStream.Append(o);
-				o.position = UnityObjectToClipPos(p[0].position + G);
-				lineStream.Append(o);
-				lineStream.RestartStrip();
-				o.position = UnityObjectToClipPos(p[0].position + G);
-				lineStream.Append(o);
-				o.position = UnityObjectToClipPos(p[0].position + F);
-				lineStream.Append(o);
-				lineStream.RestartStrip();
-				o.position = UnityObjectToClipPos(p[0].position + F);
-				lineStream.Append(o);
-				o.position = UnityObjectToClipPos(p[0].position + B);
-				lineStream.Append(o);
-				lineStream.RestartStrip();
-				o.position = UnityObjectToClipPos(p[0].position + B);
-				lineStream.Append(o);
-				o.position = UnityObjectToClipPos(p[0].position + A);
-				lineStream.Append(o);
-				lineStream.RestartStrip();
-				o.position = UnityObjectToClipPos(p[0].position + C);
-				lineStream.Append(o);
-				o.position = UnityObjectToClipPos(p[0].position + H);
-				lineStream.Append(o);
-				lineStream.RestartStrip();
-				o.position = UnityObjectToClipPos(p[0].position + H);
-				lineStream.Append(o);
-				o.position = UnityObjectToClipPos(p[0].position + E);
-				lineStream.Append(o);
-				lineStream.RestartStrip();
-				o.position = UnityObjectToClipPos(p[0].position + E);
-				lineStream.Append(o);
-				o.position = UnityObjectToClipPos(p[0].position + D);
-				lineStream.Append(o);
-				lineStream.RestartStrip();
-				o.position = UnityObjectToClipPos(p[0].position + D);
-				lineStream.Append(o);
-				o.position = UnityObjectToClipPos(p[0].position + C);
-				lineStream.Append(o);
-				lineStream.RestartStrip();
-				o.position = UnityObjectToClipPos(p[0].position + A);
-				lineStream.Append(o);
-				o.position = UnityObjectToClipPos(p[0].position + C);
-				lineStream.Append(o);
-				lineStream.RestartStrip();
-				o.position = UnityObjectToClipPos(p[0].position + G);
-				lineStream.Append(o);
-				o.position = UnityObjectToClipPos(p[0].position + H);
-				lineStream.Append(o);
-				lineStream.RestartStrip();
-				o.position = UnityObjectToClipPos(p[0].position + F);
-				lineStream.Append(o);
-				o.position = UnityObjectToClipPos(p[0].position + E);
-				lineStream.Append(o);
-				lineStream.RestartStrip();
-				o.position = UnityObjectToClipPos(p[0].position + B);
-				lineStream.Append(o);
-				o.position = UnityObjectToClipPos(p[0].position + D);
-				lineStream.Append(o);
-				lineStream.RestartStrip();
-				o.position = UnityObjectToClipPos(p[0].position);
-				lineStream.Append(o);
-				o.position = UnityObjectToClipPos(float4(_Skeleton[i].Pos, 1.0));
-				lineStream.Append(o);
+				// float2 screenPos = ComputeScreenPos(p[0].position);
+				const uint index = (uint)((p[0].instance + 1) % nb);
+				// if (i == p[0].instance)
+				// {
+					// i = (i + 1) % 18;
+				// }
+				// const int instanceDiv = clamp(nb / (_Time.z), 1, nb);
+				const int nbVertex = clamp(_Time.w, 0, nb);
+				const float size = _Skeleton[p[0].instance].Size;
+				float3 top = size / 2;
+				float3 bottom = -size / 2;
+				// for (int i = o.instance; i < o.instance + instanceDiv; i++)
+				// {
+				// 	float3 pos = _Skeleton[i].Pos;
+				// 	top.xyz = max(top.xyz, pos.xyz);
+				// 	bottom.xyz = min(bottom.xyz, pos.xyz);
+				// }
+				// top.z = top.z / 5 + size;
+				// bottom.z = bottom.z / 5 - size;
+				// top.xy = top.xy / 2 + size;
+				// bottom.xy = bottom.xy / 2 - size;
+				float4 pos = p[0].position;
+				float3x3 mat = _Skeleton[p[0].instance].Matrice;
+				// const float noise1 = sin(_Time.x / 20) / 50 * nbVertex;
+				// const float noise2 = cos(_Time.x / 20) / 50 * nbVertex;
+				const float4 A = UnityObjectToClipPos(mul(mat , float3(bottom.x, top.y, top.z)) + pos);// + noise1;
+				const float4 B = UnityObjectToClipPos(mul(mat, float3(top.x, top.y, top.z)) + pos);// + noise1;
+				const float4 C = UnityObjectToClipPos(mul(mat, float3(bottom.x, top.y, bottom.z)) + pos);// + noise1;
+				const float4 D = UnityObjectToClipPos(mul(mat, float3(top.x, top.y, bottom.z)) + pos);// + noise1;
+				const float4 E = UnityObjectToClipPos(mul(mat, float3(top.x, bottom.y, bottom.z)) + pos);// + noise2;
+				const float4 F = UnityObjectToClipPos(mul(mat, float3(top.x, bottom.y, top.z)) + pos);// + noise2;
+				const float4 G = UnityObjectToClipPos(mul(mat, float3(bottom.x, bottom.y, top.z)) + pos);// + noise2;
+				const float4 H = UnityObjectToClipPos(mul(mat, float3(bottom.x, bottom.y, bottom.z)) + pos);// + noise2;
+				AddVertex(o, lineStream, A, G, nbVertex);
+				AddVertex(o, lineStream, G, F, nbVertex);
+				AddVertex(o, lineStream, F, B, nbVertex);
+				AddVertex(o, lineStream, B, A, nbVertex);
+				AddVertex(o, lineStream, C, H, nbVertex);
+				AddVertex(o, lineStream, H, E, nbVertex);
+				AddVertex(o, lineStream, E, D, nbVertex);
+				AddVertex(o, lineStream, D, C, nbVertex);
+				AddVertex(o, lineStream, A, C, nbVertex);
+				AddVertex(o, lineStream, G, H, nbVertex);
+				AddVertex(o, lineStream, F, E, nbVertex);
+				AddVertex(o, lineStream, B, D, nbVertex);
+
+
+				AddVertex(o, lineStream, UnityObjectToClipPos(p[0].position),
+				UnityObjectToClipPos(float4(_Skeleton[index].Pos, 1.0)), nbVertex);
 			}
 			
 			// Pixel shader
 			float4 frag(PS_INPUT i) : COLOR
 			{
-				return (float4(1.0f, 1.0f, 1.0f, 1.0f) * (1.0f - i.position.z / i.position.w));
+				return (float4(1.0f, 1.0f, 1.0f, 1.0f));
 			}
 			
 			ENDCG

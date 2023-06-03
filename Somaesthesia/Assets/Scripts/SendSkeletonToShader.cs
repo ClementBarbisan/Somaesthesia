@@ -26,24 +26,23 @@ public class SendSkeletonToShader : MonoBehaviour
     nuitrack.JointType[] _jointsInfo = new nuitrack.JointType[]
     {
         nuitrack.JointType.Head,
-        nuitrack.JointType.Neck,
         nuitrack.JointType.LeftCollar,
-        nuitrack.JointType.Torso,
-        nuitrack.JointType.Waist,
         nuitrack.JointType.LeftShoulder,
-        nuitrack.JointType.RightShoulder,
         nuitrack.JointType.LeftElbow,
-        nuitrack.JointType.RightElbow,
         nuitrack.JointType.LeftWrist,
+        nuitrack.JointType.RightCollar,
+        nuitrack.JointType.RightShoulder,
+        nuitrack.JointType.RightElbow,
         nuitrack.JointType.RightWrist,
-        nuitrack.JointType.LeftHand,
-        nuitrack.JointType.RightHand,
+        nuitrack.JointType.Waist,
         nuitrack.JointType.LeftHip,
-        nuitrack.JointType.RightHip,
         nuitrack.JointType.LeftKnee,
-        nuitrack.JointType.RightKnee,
         nuitrack.JointType.LeftAnkle,
-        nuitrack.JointType.RightAnkle
+        nuitrack.JointType.LeftFoot,
+        nuitrack.JointType.RightHip,
+        nuitrack.JointType.RightKnee,
+        nuitrack.JointType.RightAnkle,
+        nuitrack.JointType.RightFoot,
     };
     private int _id = -1;
     private Camera cam;
@@ -51,11 +50,8 @@ public class SendSkeletonToShader : MonoBehaviour
     void Start()
     {
         cam = Camera.main;
-        if (NuitrackManager.Instance.NuitrackInitialized)
-        {
-            NuitrackManager.onUserTrackerUpdate += UserTrackerOnOnUpdateEvent;
-            NuitrackManager.SkeletonTracker.OnSkeletonUpdateEvent += SkeletonTrackerOnOnSkeletonUpdateEvent;
-        }
+        NuitrackManager.onUserTrackerUpdate += UserTrackerOnOnUpdateEvent;
+        NuitrackManager.SkeletonTracker.OnSkeletonUpdateEvent += SkeletonTrackerOnOnSkeletonUpdateEvent;
     }
 
     private void UserTrackerOnOnUpdateEvent(UserFrame frame)
@@ -70,11 +66,8 @@ public class SendSkeletonToShader : MonoBehaviour
     private void OnDestroy()
     {
         _buffer?.Release();
-        if (NuitrackManager.Instance.NuitrackInitialized)
-        {
-            // NuitrackManager.SkeletonTracker.OnSkeletonUpdateEvent -= SkeletonTrackerOnOnSkeletonUpdateEvent;
-            NuitrackManager.onUserTrackerUpdate -= UserTrackerOnOnUpdateEvent;
-        }
+        // NuitrackManager.SkeletonTracker.OnSkeletonUpdateEvent -= SkeletonTrackerOnOnSkeletonUpdateEvent;
+        NuitrackManager.onUserTrackerUpdate -= UserTrackerOnOnUpdateEvent;
     }
 
     private void SkeletonTrackerOnOnSkeletonUpdateEvent(SkeletonData skeletondata)
@@ -102,8 +95,8 @@ public class SendSkeletonToShader : MonoBehaviour
                 matrice.c2 = new float3(joint.Orient.Matrix[6], joint.Orient.Matrix[7], joint.Orient.Matrix[8]); 
                 newJoint.Matrice = math.inverse(matrice);
                 newJoint.Pos = joint.Real.ToVector3();
-                newJoint.Pos = new Vector3(posCam.x - newJoint.Pos.x / 500f, posCam.y + newJoint.Pos.y / 500f,
-                    posCam.z - newJoint.Pos.z / 600f);
+                newJoint.Pos = new Vector3(posCam.x - newJoint.Pos.x / 450f, posCam.y + newJoint.Pos.y / 450f,
+                    posCam.z - newJoint.Pos.z / 650f);
                 newJoint.Size = 0.25f;
                 jointsList.Add(newJoint);
             }

@@ -62,7 +62,7 @@ namespace NuitrackSDKEditor
 
             DrawInitEvent();
 
-            DrawFramePreview();
+            // DrawFramePreview();
         }
 
         void DrawModules()
@@ -77,8 +77,6 @@ namespace NuitrackSDKEditor
                     serializedObject.DrawPropertyField("colorModuleOn");
                     serializedObject.DrawPropertyField("userTrackerModuleOn");
                     serializedObject.DrawPropertyField("skeletonTrackerModuleOn");
-                    serializedObject.DrawPropertyField("gesturesRecognizerModuleOn");
-                    serializedObject.DrawPropertyField("handsTrackerModuleOn");
 
                     NuitrackSDKGUI.PropertyWithHelpButton(
                         serializedObject,
