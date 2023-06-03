@@ -6,6 +6,8 @@ Shader "Particle"
 {
 	Properties
 	{
+		_RadiusParticles ("Size particles", Range(0, 1)) = 0.05
+		_Radius ("Size Strokes", Range(0, 20)) = 12
 	}
 
 	SubShader 
@@ -15,13 +17,11 @@ Shader "Particle"
 			ZWrite Off
 			Blend SrcAlpha OneMinusSrcAlpha
 			CGPROGRAM
-			#pragma target 5.0
+			#pragma target 4.6
 
 			#pragma vertex vert
 			#pragma geometry geom
 			#pragma fragment frag
-			#pragma multi_compile_instancing
-			#pragma Standard fullforwardshadows addshadow
 			#include "UnityCG.cginc"
 
 			// Pixel shader input
@@ -36,7 +36,16 @@ Shader "Particle"
 		// Particle's data, shared with the compute shader
 		StructuredBuffer<float> particleBuffer;
 		StructuredBuffer<int> segmentBuffer;
+		#ifdef SHADER_API_D3D11
+		struct Joints
+	    {
+	        float3 Pos;
+	        float3x3 Matrice;
+	        float Size;
+	    };
 
+	    StructuredBuffer<Joints> _Skeleton;
+	    #endif
 
 		// Properties variables
 		uniform sampler2D _MainTex;
@@ -46,28 +55,50 @@ Shader "Particle"
 		uniform int _HeightTex;
 		uniform float3 _CamPos;
 		uniform float _Rotation;
-
+		float _Radius;
+		float _RadiusParticles;
+		
 		float rand(in float2 uv)
 		{
 			float2 noise = (frac(sin(dot(uv, float2(12.9898, 78.233)*2.0)) * 43758.5453));
 			return abs(noise.x + noise.y) * 0.5;
 		}
 
-		// Vertex shader
 		PS_INPUT vert(uint instance_id : SV_instanceID)
 		{
 			PS_INPUT o = (PS_INPUT)0;
-			// Position
 			o.position = float4((_CamPos.x + _Width / 2.0) / 200.0 - instance_id % _Width / 200.0,
 				(_CamPos.y + _Height / 2.0) / 200.0 - instance_id / _Width / 200.0,
 				_CamPos.z - particleBuffer[instance_id] / 3000.0 - 2.0, 1.0f);
+			uint nb = 0;
+			uint stride = 0;
+			_Skeleton.GetDimensions(nb, stride);
 			o.instance = int(instance_id);
 			if (segmentBuffer[instance_id] == 0)
 			{
-				o.keep.x = 0;
+				o.keep.y = 0;
 			}
 			else
-				o.keep.x = 1;
+			{
+				o.keep.y = 1;
+			}
+			float3 pos = UnityObjectToClipPos(o.position);
+			for (uint i = 0; i < nb; i++)
+			{
+				float3 posSkelet = UnityObjectToClipPos(_Skeleton[i].Pos);
+				float dist = distance(posSkelet, pos);
+				if (o.keep.y == 1 && dist < _Skeleton[i].Size / 2 && dist > _Skeleton[i].Size / 3 &&
+					posSkelet.y > pos.y)
+				{
+					o.keep.x = 1;
+					break;
+				}
+				else
+				{
+					o.keep.x = 0;
+				}
+			}
+			
 			return o;
 		}
 
@@ -84,7 +115,7 @@ Shader "Particle"
 			o.keep.x = 1;
 			o.keep.y = p[0].keep.y;
 			float4 position = float4(p[0].position.x , p[0].position.y , p[0].position.z, p[0].position.w);
-			float size = 0.05;
+			float size = _RadiusParticles;
 			float3 up = float3(0, 1, 0);
 			float3 look = _WorldSpaceCameraPos - p[0].position;
 			look.y = 0;
@@ -118,23 +149,59 @@ Shader "Particle"
 		{
 			return dot(color, float3(0.299f, 0.587f, 0.114f)) * 3;
 		}
-
-		// Pixel shader
+		struct region {
+            int x1, y1, x2, y2;
+        };
 		float4 frag(PS_INPUT i) : COLOR
 		{
-			if (i.keep.x == 0)
-			{
-				discard;
-			}
-			half2 fw = fwidth(i.uv);
-			half2 edge2 = min(smoothstep(0, fw * 2, i.uv),
-				smoothstep(0, fw * 2, 1 - i.uv));
-			half edge = 1 - min(edge2.x, edge2.y);
-			float2 uv =  float2(float(i.instance % _WidthTex) / (float)_WidthTex, float(i.instance / _WidthTex) / (float)_HeightTex);
-			float4 col = tex2D(_MainTex,uv);
-			return (float4(col.z, col.y, col.x,0));// col.w));
-		}
+			float2 uv = float2(float(i.instance % _WidthTex) / (float)_WidthTex, float(i.instance / _WidthTex) / (float)_HeightTex);//i.uv;
+                float n = float((_Radius + 1) * (_Radius + 1));
+                float4 col = tex2D(_MainTex, uv);
 
+                float3 m[4];
+                float3 s[4];
+
+                for (int k = 0; k < 4; ++k) {
+                    m[k] = float3(0, 0, 0);
+                    s[k] = float3(0, 0, 0);
+                }
+
+                region R[4] = {
+                    {-_Radius, -_Radius,       0,       0},
+                    {       0, -_Radius, _Radius,       0},
+                    {       0,        0, _Radius, _Radius},
+                    {-_Radius,        0,       0, _Radius}
+                };
+
+                for (int k = 0; k < 4; ++k) {
+                    for (int j = R[k].y1; j <= R[k].y2; ++j) {
+                        for (int l = R[k].x1; l <= R[k].x2; ++l) {
+                            float3 c = tex2D(_MainTex, uv + (float2(l * (1.0 / (float)_WidthTex), j * (1.0 / (float)_HeightTex)))).rgb;
+                            m[k] += c;
+                            s[k] += c * c;
+                        }
+                    }
+                }
+
+                float min = 1e+2;
+                float s2;
+                for (int k = 0; k < 4; ++k) {
+                    m[k] /= n;
+                    s[k] = abs(s[k] / n - m[k] * m[k]);
+
+                    s2 = s[k].r + s[k].g + s[k].b;
+                    if (s2 < min) {
+                        min = s2;
+                        col.rgb = m[k].rgb;
+                    }
+                }
+                return (float4(col.z, col.y, col.x, col.w));
+			// float2 uv =  float2(float(i.instance % _WidthTex) / (float)_WidthTex, float(i.instance / _WidthTex) / (float)_HeightTex);
+			// float4 col = tex2D(_MainTex,uv);
+			// col = saturate(col);
+			// return (float4(col.z, col.y, col.x, col.w));
+		}
+			
 		ENDCG
 		}
 		Pass 
@@ -145,12 +212,11 @@ Shader "Particle"
 		    Cull front 
 			LOD 100
 			CGPROGRAM
-			#pragma target 5.0
+			#pragma target 4.6
 			
 			#pragma vertex vert
 			#pragma geometry geom
 			#pragma fragment frag
-			#pragma Standard fullforwardshadows addshadow
 			#include "Packages/jp.keijiro.noiseshader/Shader/Common.hlsl"
             #include "Packages/jp.keijiro.noiseshader/Shader/ClassicNoise3D.hlsl"
 			#include "UnityCG.cginc"

@@ -31,6 +31,8 @@ Material:
     m_Ints: []
     m_Floats:
     - _HighSpeedValue: 12
+    - _Radius: 5
+    - _RadiusParticles: 0.075
     - _Rotation: 10
     - _Size: 0.25
     - _Value: 0

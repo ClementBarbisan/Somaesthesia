@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Intel.RealSense.Math;
 using Kino;
@@ -10,6 +12,7 @@ using Debug = UnityEngine.Debug;
 public class PointCloudGPU : MonoBehaviour {
 
     static public PointCloudGPU Instance;
+    public Material kuwahara;
     public Material matPointCloud;
     public Material matMesh;
     private short[] particles;
@@ -81,14 +84,14 @@ public class PointCloudGPU : MonoBehaviour {
         }
     }
 
-    void OnRenderObject()
+    private void OnRenderObject()
     {
         matPointCloud.SetPass(0);
         Graphics.DrawProceduralNow(MeshTopology.Points, 1, width * height);
         matPointCloud.SetPass(1);
         Graphics.DrawProceduralNow(MeshTopology.Points, 1, 18);
     }
-
+    
     private void OnDestroy()
     {
         buffer?.Release();

@@ -63,16 +63,18 @@ Shader "Custom/Deformation"
             {
                 #ifdef SHADER_API_D3D11
                 data.color.w = 1;
+                float3 pos = UnityWorldToClipPos(data.vertex);
                 for (int i = 0; i < 18; i++)
                 {
-                    float dist = distance((_Skeleton[i].Pos), mul(unity_ObjectToWorld, data.vertex));
-                    if (dist < _Skeleton[i].Size)
+                    float curDist = distance((_Skeleton[i].Pos), mul(unity_ObjectToWorld, data.vertex));
+                    if (curDist < _Skeleton[i].Size)
                     {
-                        data.color.w = pow(dist / _Distance, 2);
+                        data.color.w = pow(curDist / _Distance, 2);
                         data.vertex.xyz += sin(_Time * _Speed) * _Amplitude * PeriodicNoise(data.vertex,
                             float3(5, 2, 0.1));
                         data.texcoord = ComputeScreenPos(UnityWorldToClipPos(data.vertex));
                         data.color.rgb = float3(1, 0, 0);
+                        data.color.w -= distance(data.vertex, pos);
                         return;
                     }
                 }
