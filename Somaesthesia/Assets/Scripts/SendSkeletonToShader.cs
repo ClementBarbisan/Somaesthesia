@@ -46,6 +46,9 @@ public class SendSkeletonToShader : MonoBehaviour
     };
     private int _id = -1;
     private Camera cam;
+
+    [SerializeField] private float sizeSkeleton = 0.25f;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -97,7 +100,7 @@ public class SendSkeletonToShader : MonoBehaviour
                 newJoint.Pos = joint.Real.ToVector3();
                 newJoint.Pos = new Vector3(posCam.x - newJoint.Pos.x / 450f, posCam.y + newJoint.Pos.y / 450f,
                     posCam.z - newJoint.Pos.z / 650f);
-                newJoint.Size = 0.25f;
+                newJoint.Size = sizeSkeleton;
                 jointsList.Add(newJoint);
             }
             _buffer.SetData(jointsList);

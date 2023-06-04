@@ -92,7 +92,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _AlphaClip: 0
-    - _Amplitude: 0.25
+    - _Amplitude: 0.75
     - _Blend: 0
     - _BumpScale: 1
     - _ClearCoatMask: 0
@@ -101,7 +101,7 @@ Material:
     - _Cutoff: 0.5
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
-    - _Distance: 0.2
+    - _Distance: 0.25
     - _DstBlend: 0
     - _EdgeLength: 5
     - _EnvironmentReflections: 1

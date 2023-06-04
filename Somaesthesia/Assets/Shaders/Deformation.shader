@@ -70,8 +70,7 @@ Shader "Custom/Deformation"
                     if (curDist < _Skeleton[i].Size)
                     {
                         data.color.w = pow(curDist / _Distance, 2);
-                        data.vertex.xyz += sin(_Time * _Speed) * _Amplitude * PeriodicNoise(data.vertex,
-                            float3(5, 2, 0.1));
+                        data.vertex.xyz += sin(_Time * _Speed) * _Amplitude * ClassicNoise(data.vertex);
                         data.texcoord = ComputeScreenPos(UnityWorldToClipPos(data.vertex));
                         data.color.rgb = float3(1, 0, 0);
                         data.color.w -= distance(data.vertex, pos);
