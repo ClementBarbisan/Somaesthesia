@@ -15,8 +15,14 @@ Shader "Particle"
     {
         Pass
         {
+            Tags
+            {
+                "Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Transparent"
+            }
             ZWrite Off
             Blend SrcAlpha OneMinusSrcAlpha
+            Cull back
+            LOD 100
             CGPROGRAM
             #pragma target 4.6
 
@@ -125,10 +131,10 @@ Shader "Particle"
                 float3 right = cross(up, look);
                 float halfS = 0.5f * size;
                 float4 v[4];
-                v[0] = float4(position + halfS * right - halfS * up, 1.0f);
-                v[1] = float4(position + halfS * right + halfS * up, 1.0f);
-                v[2] = float4(position - halfS * right - halfS * up, 1.0f);
-                v[3] = float4(position - halfS * right + halfS * up, 1.0f);
+                v[0] = float4(position + halfS * right * rand(position.xy) * 1.5 - halfS * up * rand(position.yz) * 1.5, 1.0f);
+                v[1] = float4(position + halfS * right * rand(position.zx) * 1.5 + halfS * up * rand(position.xz) * 1.5, 1.0f);
+                v[2] = float4(position - halfS * right * rand(position.zy) * 1.5 - halfS * up * rand(position.yx) * 1.5, 1.0f);
+                v[3] = float4(position - halfS * right * rand(position.xz) * 1.5 + halfS * up * rand(position.zy) * 1.5, 1.0f);
 
                 o.position = UnityObjectToClipPos(v[0]);
                 o.uv = float2(1.0f, 0.0f);
@@ -146,6 +152,11 @@ Shader "Particle"
                 o.uv = float2(0.0f, 1.0f);
                 triStream.Append(o);
             }
+
+                half3 AdjustContrastCurve(half3 color, half contrast) {
+                return pow(abs(color * 2 - 1), 1 / max(contrast, 0.0001)) * sign(color - 0.5) + 0.5;
+            }
+
 
             float CalcLuminance(float3 color)
             {
@@ -165,7 +176,7 @@ Shader "Particle"
                 float4 col = tex2D(_MainTex, uv);
                 float4 tint = float4(.5+.5*cos(float3(1,2,3)*1.5+uv.x*5.), 1.0);
                 float4 dir = float4(normalize(float3(uv-.5, 0.)), 1.0);
-                float4 colTint = col*tint*pow(-dir*.5+.5, 0.5);
+                float4 colTint = col.zyxw+((tint + pow(-dir*.5+.5, 0.5)) * CalcLuminance(col.zyx) / 2);
 
                 float3 m[4];
                 float3 s[4];
@@ -213,7 +224,7 @@ Shader "Particle"
                         col.rgb = m[k].rgb;
                     }
                 }
-                col = col + colTint * CalcLuminance(col.xyz);
+                col = float4(AdjustContrastCurve(col, 0.25), col.w) + colTint / 2.5;
                 return (float4(col.z, col.y, col.x, col.w));
             }
             ENDCG
@@ -471,8 +482,7 @@ Shader "Particle"
                 for (int i = 1; i < nbVertex; i++)
                 {
                     float4 p = x + dir * ((float)i / (float)nbVertex);
-                    o.position = p + PeriodicNoise(float3(rand(p.xy), rand(p.yz), rand(p.xz)),
-                                                   sin(_Time.xxx / 1000) * 20) / 15 + _SinTime.z / 10;
+                    o.position = p + _SinTime.z / 10;
                     lineStream.Append(o);
                 }
                 o.position = y + _SinTime.z / 10;
