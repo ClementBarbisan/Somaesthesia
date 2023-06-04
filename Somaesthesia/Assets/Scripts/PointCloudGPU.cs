@@ -45,7 +45,6 @@ public class PointCloudGPU : MonoBehaviour {
     {
         if (texture == null)
         {
-            nuitrack.OutputMode ouput = NuitrackManager.ColorSensor.GetOutputMode();
             texture = new Texture2D(frame.Cols, frame.Rows, TextureFormat.RGB24, false);
             matPointCloud.SetTexture("_MainTex", texture);
             matPointCloud.SetInt("_WidthTex", frame.Cols);

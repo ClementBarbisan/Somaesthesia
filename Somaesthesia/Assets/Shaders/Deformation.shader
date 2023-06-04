@@ -7,9 +7,8 @@ Shader "Custom/Deformation"
         [PowerSlider(5.0)] _Amplitude ("Amplitude", Range (0.01, 5)) = 0.25
         _Distance ("Distance", Range(0, 10)) = 1
         _Color ("Color", Color) = (1,1,1,1)
+        _ColorDisrupt ("Color Change", Color) = (1,0,0,1)
         _MainTex ("Albedo (RGB)", 2D) = "white" {}
-        _Glossiness ("Smoothness", Range(0,1)) = 0.5
-        _Metallic ("Metallic", Range(0,1)) = 0.0
         _EdgeLength ("Edge length", Range(1,150)) = 15
     }
     SubShader
@@ -23,12 +22,12 @@ Shader "Custom/Deformation"
             #pragma surface surf Standard fullforwardshadows vertex:vert tessellate:tessEdge addshadow //alpha:fade
             #include "Packages/jp.keijiro.noiseshader/Shader/Common.hlsl"
             #include "Packages/jp.keijiro.noiseshader/Shader/ClassicNoise3D.hlsl"
+            #include "Packages/jp.keijiro.noiseshader/Shader/SimplexNoise3D.hlsl"
             #include "Tessellation.cginc"
             #pragma target 4.6
 
             struct Input {
                 float4 screenPos;
-                float3 texcoord1 : TEXCOORD1;
                 float4 color : COLOR;
             };
             #ifdef SHADER_API_D3D11
@@ -41,10 +40,12 @@ Shader "Custom/Deformation"
 
             StructuredBuffer<Joints> _Skeleton;
             #endif
-            half _Glossiness;
-            half _Metallic;
             fixed4 _Color;
-            float _Transparency;
+            float4 _ColorDisrupt;
+            uniform sampler2D _MainTex;
+            float4 _MainTex_ST;
+            int _WidthTex;
+            int _HeightTex;
 
             UNITY_INSTANCING_BUFFER_START(Props)
             UNITY_INSTANCING_BUFFER_END(Props)
@@ -53,7 +54,13 @@ Shader "Custom/Deformation"
             float _Amplitude;
             float _EdgeLength;
             float _Distance;
-         
+
+            float rand(in float2 uv)
+            {
+                float2 noise = (frac(sin(dot(uv, float2(12.9898, 78.233) * 2.0)) * 43758.5453));
+                return abs(noise.x + noise.y) * 0.5;
+            }
+            
             float4 tessEdge(appdata_full v0, appdata_full v1, appdata_full v2)
             {
                 return UnityEdgeLengthBasedTess(v0.vertex, v1.vertex, v2.vertex, _EdgeLength);
@@ -66,17 +73,19 @@ Shader "Custom/Deformation"
                 _Skeleton.GetDimensions(nb , stride);
                 data.color.w = 1;
                 float3 pos = data.vertex;
+                // data.texcoord = ComputeScreenPos(UnityWorldToClipPos(data.vertex));
                 for (int i = 0; i < nb; i++)
                 {
                     float curDist = distance((_Skeleton[i].Pos), mul(unity_ObjectToWorld, data.vertex));
                     if (curDist < _Skeleton[i].Size)
                     {
                         data.color.w -= curDist * _Time.x;
-                        data.vertex.xyz += sin(_Time * _Speed) * _Amplitude * ClassicNoise(
-                            data.vertex) + _CosTime.x / 10.0;
-                        data.texcoord = ComputeScreenPos(UnityWorldToClipPos(data.vertex));
-                        data.color.rgb = float3(1, 0, 0);
+                        data.vertex.xyz += sin(_Time * _Speed) * _Amplitude * (SimplexNoise(
+                            data.vertex) / 2.5);
+                        // data.texcoord = ComputeScreenPos(UnityWorldToClipPos(data.vertex));
+                        data.color.rgb = _ColorDisrupt;
                         data.color.w -= distance(data.vertex, pos) * _Time.x;
+                        data.color.rgb *= tex2Dlod(_MainTex, float4(data.texcoord.xy * _MainTex_ST.xy + _MainTex_ST.zw, 0, 0));
                         return;
                     }
                 }
@@ -89,10 +98,6 @@ Shader "Custom/Deformation"
                 fixed3 c = _Color * IN.color;
                 // fixed4 c = _Color + IN.color;
                 o.Albedo = c.rgb;
-                // Metallic and smoothness come from slider variables
-                o.Metallic = _Metallic;
-                o.Smoothness = _Glossiness;
-                // o.Alpha = c.a;
                 float4x4 thresholdMatrix =
                     {  1.0 / 17.0,  9.0 / 17.0,  3.0 / 17.0, 11.0 / 17.0,
                         13.0 / 17.0,  5.0 / 17.0, 15.0 / 17.0,  7.0 / 17.0,
