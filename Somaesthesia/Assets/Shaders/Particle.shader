@@ -9,6 +9,7 @@ Shader "Particle"
         _RadiusParticles ("Size particles", Range(0, 1)) = 0.05
         _Radius ("Size Strokes", Range(0, 20)) = 12
         _Offset ("Offset Surround", Range(0, 20)) = 5
+        _SizeCube ("Size cubes skeleton", Range(0, 2)) = 0.25
     }
 
     SubShader
@@ -268,6 +269,8 @@ Shader "Particle"
             StructuredBuffer<Joints> _Skeleton;
             #endif
 
+            float  _SizeCube;
+            
             float rand(in float2 uv)
             {
                 float2 noise = (frac(sin(dot(uv, float2(12.9898, 78.233) * 2.0)) * 43758.5453));
@@ -332,8 +335,8 @@ Shader "Particle"
                 // i = (i + 1) % 18;
                 // }
                 // const int instanceDiv = clamp(nb / (_Time.z), 1, nb);
-                const int nbVertex = clamp(_Time.x, 0, nb);
-                const float size = _Skeleton[p[0].instance].Size;
+                const int nbVertex = clamp(_Time.y, 0, nb);
+                const float size = _SizeCube;
                 float3 top = size / 2;
                 float3 bottom = -size / 2;
                 // for (int i = o.instance; i < o.instance + instanceDiv; i++)
@@ -380,7 +383,7 @@ Shader "Particle"
             // Pixel shader
             float4 frag(PS_INPUT i) : COLOR
             {
-                return (float4(1.0f, 1.0f, 1.0f, 1.0f));
+                return (float4(1.0f, 1.0f, 1.0f, 1.0f - _Time.x / 5));
             }
             ENDCG
         }

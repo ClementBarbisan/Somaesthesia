@@ -36,6 +36,7 @@ Material:
     - _RadiusParticles: 0.025
     - _Rotation: 10
     - _Size: 0.25
+    - _SizeCube: 0.25
     - _Value: 0
     - _colorSwitch: 60
     m_Colors:
