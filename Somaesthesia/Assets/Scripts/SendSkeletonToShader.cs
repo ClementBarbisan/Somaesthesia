@@ -66,6 +66,14 @@ public class SendSkeletonToShader : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        if (sizeSkeleton < 1.5)
+        {
+            sizeSkeleton += Time.deltaTime / 20;
+        }
+    }
+
     private void OnDestroy()
     {
         _buffer?.Release();

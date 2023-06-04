@@ -58,22 +58,25 @@ Shader "Custom/Deformation"
             {
                 return UnityEdgeLengthBasedTess(v0.vertex, v1.vertex, v2.vertex, _EdgeLength);
             }
-
             void vert(inout appdata_full data)
             {
                 #ifdef SHADER_API_D3D11
+                uint nb = 0;
+                uint stride = 0;
+                _Skeleton.GetDimensions(nb , stride);
                 data.color.w = 1;
-                float3 pos = UnityWorldToClipPos(data.vertex);
-                for (int i = 0; i < 18; i++)
+                float3 pos = data.vertex;
+                for (int i = 0; i < nb; i++)
                 {
                     float curDist = distance((_Skeleton[i].Pos), mul(unity_ObjectToWorld, data.vertex));
                     if (curDist < _Skeleton[i].Size)
                     {
-                        data.color.w = pow(curDist / _Distance, 2);
-                        data.vertex.xyz += sin(_Time * _Speed) * _Amplitude * ClassicNoise(data.vertex);
+                        data.color.w -= curDist * _Time.x;
+                        data.vertex.xyz += sin(_Time * _Speed) * _Amplitude * ClassicNoise(
+                            data.vertex) + _CosTime.x / 10.0;
                         data.texcoord = ComputeScreenPos(UnityWorldToClipPos(data.vertex));
                         data.color.rgb = float3(1, 0, 0);
-                        data.color.w -= distance(data.vertex, pos);
+                        data.color.w -= distance(data.vertex, pos) * _Time.x;
                         return;
                     }
                 }

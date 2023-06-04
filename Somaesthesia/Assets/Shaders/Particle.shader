@@ -153,7 +153,8 @@ Shader "Particle"
                 triStream.Append(o);
             }
 
-                half3 AdjustContrastCurve(half3 color, half contrast) {
+            half3 AdjustContrastCurve(half3 color, half contrast)
+            {
                 return pow(abs(color * 2 - 1), 1 / max(contrast, 0.0001)) * sign(color - 0.5) + 0.5;
             }
 
@@ -225,7 +226,7 @@ Shader "Particle"
                     }
                 }
                 col = float4(AdjustContrastCurve(col, 0.25), col.w) + colTint / 2.5;
-                return (float4(col.z, col.y, col.x, col.w));
+                return (col.zyxw);
             }
             ENDCG
         }
@@ -331,7 +332,7 @@ Shader "Particle"
                 // i = (i + 1) % 18;
                 // }
                 // const int instanceDiv = clamp(nb / (_Time.z), 1, nb);
-                const int nbVertex = clamp(_Time.w, 0, nb);
+                const int nbVertex = clamp(_Time.x, 0, nb);
                 const float size = _Skeleton[p[0].instance].Size;
                 float3 top = size / 2;
                 float3 bottom = -size / 2;
@@ -530,8 +531,7 @@ Shader "Particle"
                 // float4 col = tex2D(_MainTex, uv);
                 // col = saturate(col) * CalcLuminance(col);
                 // col.xyz = max(col.x, max(col.y, col.z));
-                float4 col = float4(1,1,1,1);
-                return (float4(col.z, col.y, col.x, col.w));
+                return (float4(1,1,1,1));
             }
             ENDCG
         }
