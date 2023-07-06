@@ -32,7 +32,16 @@ Shader "Custom/BubbleDeformation"
                 float4 screenPos;
                 float4 color : COLOR;
             };
-         
+           #ifdef SHADER_API_D3D11
+            struct Joints
+            {
+                float3 Pos;
+                float3x3 Matrice;
+                float Size;
+            };
+
+            StructuredBuffer<Joints> _Skeleton;
+            #endif
             fixed4 _Color;
             float4 _ColorDisrupt;
             uniform sampler2D _MainTex;
@@ -58,11 +67,24 @@ Shader "Custom/BubbleDeformation"
             void vert(inout appdata_full data)
             {
                 UNITY_SETUP_INSTANCE_ID(data);
-                data.color.w = 1;
+    #ifdef SHADER_API_D3D11
+                 uint nb = 0;
+                uint stride = 0;
+                _Skeleton.GetDimensions(nb, stride);
                 float3 pos = data.vertex;
-                data.vertex.xyz += sin(_Time * _Speed) * _Amplitude * (PeriodicNoise(pos, float3(12, 1.5, 8)));
+                data.vertex.xyz += sin(_Time * _Speed) * _Amplitude * (PeriodicNoise(pos, float3(12, 25, 88)));
+                for (uint i = 0; i < nb; i++)
+                {
+                    float3 posSkelet = UnityObjectToClipPos(_Skeleton[i].Pos);
+                    float dist = distance(posSkelet, data.vertex);
+                    if (dist < _Skeleton[i].Size)
+                    {
+                        data.color.w = dist / _Skeleton[i].Size / 2;
+                        break;
+                    }
+                }
+    #endif
                 data.color.rgb = _ColorDisrupt;
-                data.color.w -= distance(data.vertex, pos) * _Time.x;
                 data.color.rgb *= tex2Dlod(_MainTex, float4(data.texcoord.xy * _MainTex_ST.xy + _MainTex_ST.zw, 0, 0));
             }
 

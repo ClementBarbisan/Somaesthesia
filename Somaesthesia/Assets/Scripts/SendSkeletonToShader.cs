@@ -97,7 +97,7 @@ public class SendSkeletonToShader : MonoBehaviour
                 return Mathf.Cos(Time.time) * Mathf.Sin(Time.time);
             }
         }
-
+/*
         Random.InitState(42);
         for (int i = 0; i < jointsList.Length; i++)
         {
@@ -109,12 +109,13 @@ public class SendSkeletonToShader : MonoBehaviour
                 matrices[j].m00 = scaleBubbles;
                 matrices[j].m11 = scaleBubbles;
                 matrices[j].m22 = scaleBubbles;
-                matrices[j].SetColumn(3, new Vector4(pos.x + sizeSkeleton * (-0.5f + 0.5f * Random.value) * Rand(Random.Range(0,3), pos),
-                    pos.y + sizeSkeleton * (-0.5f +  0.5f * Random.value) * Rand(Random.Range(0,3), pos), pos.z +
-                    sizeSkeleton * 0.5f * Random.value * Rand(Random.Range(0,3), pos), 1f));
+                matrices[j].SetColumn(3, new Vector4(pos.x + sizeSkeleton * (-0.3f + 0.3f * Random.value) * Rand(Random.Range(0,3), pos),
+                    pos.y + sizeSkeleton * (-0.3f +  0.3f * Random.value) * Rand(Random.Range(0,3), pos), pos.z +
+                    sizeSkeleton * 0.3f * Random.value * Rand(Random.Range(0,3), pos), 1f));
             }
             Graphics.DrawMeshInstanced(meshBubble.sharedMesh, 0, matBubble, matrices);
         }
+        */
     }
 
     private void OnDestroy()
