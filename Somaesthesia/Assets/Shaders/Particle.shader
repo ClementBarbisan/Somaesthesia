@@ -29,7 +29,7 @@ Shader "Particle"
 
             #pragma vertex vert
             #pragma geometry geom
-            #pragma fragment frag
+            #pragma fragment frag multi_compile_instancing
             #include "Packages/jp.keijiro.noiseshader/Shader/Common.hlsl"
             #include "Packages/jp.keijiro.noiseshader/Shader/ClassicNoise3D.hlsl"
             #include "UnityCG.cginc"
@@ -246,7 +246,7 @@ Shader "Particle"
 
             #pragma vertex vert
             #pragma geometry geom
-            #pragma fragment frag
+            #pragma fragment frag multi_compile_instancing
             #include "Packages/jp.keijiro.noiseshader/Shader/Common.hlsl"
             #include "Packages/jp.keijiro.noiseshader/Shader/ClassicNoise3D.hlsl"
             #include "UnityCG.cginc"
@@ -402,7 +402,7 @@ Shader "Particle"
 
             #pragma vertex vert
             #pragma geometry geom
-            #pragma fragment frag
+            #pragma fragment frag multi_compile_instancing
             #include "Packages/jp.keijiro.noiseshader/Shader/Common.hlsl"
             #include "Packages/jp.keijiro.noiseshader/Shader/ClassicNoise3D.hlsl"
             #include "UnityCG.cginc"

@@ -49,16 +49,11 @@ public class ReceiveLabelsValue : MonoBehaviour
     {
         NetworkStream nwStream = client.GetStream();
         byte[] buffer = new byte[client.ReceiveBufferSize];
-
         //---receiving Data from the Host----
         int bytesRead = nwStream.Read(buffer, 0, client.ReceiveBufferSize); //Getting data in Bytes from Python
         string dataReceived = Encoding.UTF8.GetString(buffer, 0, bytesRead); //Converting byte data to string
-
-        if (dataReceived != null)
-        {
-            nwStream.Write(Encoding.ASCII.GetBytes("Received"));
-           Debug.Log(dataReceived);
-        }
+        nwStream.Write(Encoding.ASCII.GetBytes("Received"));
+        Debug.Log(dataReceived);
     }
     
     /*

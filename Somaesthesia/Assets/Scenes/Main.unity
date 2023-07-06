@@ -179,6 +179,14 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 11436578, guid: e999ace05c586574fa1b964016f28531, type: 3}
+      propertyPath: runInBackground
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 11436578, guid: e999ace05c586574fa1b964016f28531, type: 3}
+      propertyPath: dontDestroyOnLoad
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 11436578, guid: e999ace05c586574fa1b964016f28531, type: 3}
       propertyPath: initEvent.m_PersistentCalls.m_Calls.Array.data[2].m_Target
       value: 
       objectReference: {fileID: 1669223331}
@@ -275,6 +283,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sizeSkeleton: 0
+  meshBubble: {fileID: 1531110906451436064, guid: d9daf1668aca7be4c80b4a06ecf85642,
+    type: 3}
+  matBubble: {fileID: 2100000, guid: bab0927979cab0d45a57afdb0b8d1846, type: 2}
+  scaleBubbles: 0.5
 --- !u!1 &372384749
 GameObject:
   m_ObjectHideFlags: 0
