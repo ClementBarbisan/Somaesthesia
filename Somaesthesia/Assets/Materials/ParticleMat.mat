@@ -21,9 +21,8 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _MainTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
+        m_Texture: {fileID: 2800000, guid: 661afd5b31466544ea131c11fc7346ac, type: 3}
+        m_Scale: {x: 5, y: 5}
     - _SegTex:
         m_Texture: {fileID: 2800000, guid: 604d40ad4525c724bad1b314201b3dd0, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -32,7 +31,7 @@ Material:
     m_Floats:
     - _HighSpeedValue: 12
     - _Offset: 3
-    - _Radius: 5
+    - _Radius: 3
     - _RadiusParticles: 0.025
     - _Rotation: 10
     - _Size: 0.25
