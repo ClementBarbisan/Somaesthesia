@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -13,7 +15,8 @@ public class ReceiveLabelsValue : MonoBehaviour
     TcpListener listener;
     TcpClient client;
     bool running;
-    
+    private bool quit;
+
     private void Start()
     {
         Application.targetFrameRate = 60;
@@ -47,15 +50,32 @@ public class ReceiveLabelsValue : MonoBehaviour
 
     void SendAndReceiveData()
     {
-        NetworkStream nwStream = client.GetStream();
-        byte[] buffer = new byte[client.ReceiveBufferSize];
-        //---receiving Data from the Host----
-        int bytesRead = nwStream.Read(buffer, 0, client.ReceiveBufferSize); //Getting data in Bytes from Python
-        string dataReceived = Encoding.UTF8.GetString(buffer, 0, bytesRead); //Converting byte data to string
-        nwStream.Write(Encoding.ASCII.GetBytes("Received"));
-        Debug.Log(dataReceived);
+        try
+        {
+            NetworkStream nwStream = client.GetStream();
+            byte[] buffer = new byte[client.ReceiveBufferSize];
+            //---receiving Data from the Host----
+            int bytesRead = nwStream.Read(buffer, 0, client.ReceiveBufferSize); //Getting data in Bytes from Python
+            string dataReceived = Encoding.UTF8.GetString(buffer, 0, bytesRead); //Converting byte data to string
+            nwStream.Write(Encoding.ASCII.GetBytes("Received"));
+            Debug.Log(dataReceived);
+        }
+        catch (IOException e)
+        {
+            quit = true;
+        }    
     }
-    
+
+    private void Update()
+    {
+
+        if (quit)
+        {
+            Application.Quit();
+        }
+
+    }
+
     /*
     public static string GetLocalIPAddress()
     {
