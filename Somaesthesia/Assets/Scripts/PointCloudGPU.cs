@@ -46,7 +46,7 @@ public class PointCloudGPU : MonoBehaviour {
         if (texture == null)
         {
             texture = new Texture2D(frame.Cols, frame.Rows, TextureFormat.RGB24, false);
-            matPointCloud.SetTexture("_MainTex", texture);
+            matPointCloud.SetTexture("_MixTex", texture);
             matPointCloud.SetInt("_WidthTex", frame.Cols);
             matPointCloud.SetInt("_HeightTex", frame.Rows);
         }

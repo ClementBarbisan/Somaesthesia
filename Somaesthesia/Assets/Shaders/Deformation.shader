@@ -40,15 +40,13 @@ Shader "Custom/Deformation"
 
             StructuredBuffer<Joints> _Skeleton;
             #endif
+            float _SkeletonSize;
             fixed4 _Color;
             float4 _ColorDisrupt;
             uniform sampler2D _MainTex;
             float4 _MainTex_ST;
             int _WidthTex;
             int _HeightTex;
-
-            UNITY_INSTANCING_BUFFER_START(Props)
-            UNITY_INSTANCING_BUFFER_END(Props)
 
             float _Speed;
             float _Amplitude;
@@ -79,12 +77,12 @@ Shader "Custom/Deformation"
                     float curDist = distance((_Skeleton[i].Pos), mul(unity_ObjectToWorld, data.vertex));
                     if (curDist < _Skeleton[i].Size)
                     {
-                        data.color.w -= curDist * _Time.x;
+                        data.color.w -= curDist * _SkeletonSize;
                         data.vertex.xyz += sin(_Time * _Speed) * _Amplitude * (SimplexNoise(
                             data.vertex) / 2.5);
                         // data.texcoord = ComputeScreenPos(UnityWorldToClipPos(data.vertex));
                         data.color.rgb = _ColorDisrupt;
-                        data.color.w -= distance(data.vertex, pos) * _Time.x;
+                        data.color.w -= distance(data.vertex, pos) * _SkeletonSize;
                         data.color.rgb *= tex2Dlod(_MainTex, float4(data.texcoord.xy * _MainTex_ST.xy + _MainTex_ST.zw, 0, 0));
                         return;
                     }

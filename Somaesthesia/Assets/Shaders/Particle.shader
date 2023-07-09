@@ -6,6 +6,7 @@ Shader "Particle"
 {
     Properties
     {
+        _MainTex ("Texture Mix", 2D) = "white" {}
         _RadiusParticles ("Size particles", Range(0, 1)) = 0.05
         _Radius ("Size Strokes", Range(0, 20)) = 12
         _Offset ("Offset Surround", Range(0, 20)) = 5
@@ -56,9 +57,12 @@ Shader "Particle"
 
             StructuredBuffer<Joints> _Skeleton;
             #endif
+            float _SkeletonSize;
 
             // Properties variables
             uniform sampler2D _MainTex;
+            uniform sampler2D _MixTex;
+            uniform float4 _MainTex_ST;
             uniform int _Width;
             uniform int _WidthTex;
             uniform int _Height;
@@ -97,7 +101,7 @@ Shader "Particle"
                 {
                     float3 posSkelet = UnityObjectToClipPos(_Skeleton[i].Pos);
                     float dist = distance(posSkelet, pos);
-                    if (o.keep.y == 1 && dist < _Skeleton[i].Size / 2)
+                    if (o.keep.y == 1 && dist < _SkeletonSize / 2)
                     {
                         o.keep.x = 1;
                         break;
@@ -175,11 +179,8 @@ Shader "Particle"
                 float2 uv = float2(float(i.instance % _WidthTex) / (float)_WidthTex,
                                    float(i.instance / _WidthTex) / (float)_HeightTex); //i.uv;
                 float n = float((_Radius + 1) * (_Radius + 1));
-                float4 col = tex2D(_MainTex, uv);
-                float4 tint = float4(.5+.5*cos(float3(1,2,3)*1.5+uv.x*5.), 1.0);
-                float4 dir = float4(normalize(float3(uv-.5, 0.)), 1.0);
-                float4 colTint = col.zyxw+((tint + pow(-dir*.5+.5, 0.5)) * CalcLuminance(col.zyx) / 2);
-
+                float4 col = tex2D(_MixTex, uv);
+                const float4 colTint = col * tex2D(_MainTex, (uv * _MainTex_ST.xy + _SinTime.yz));
                 float3 m[4];
                 float3 s[4];
 
@@ -203,7 +204,7 @@ Shader "Particle"
                         for (int l = R[k].x1; l <= R[k].x2; ++l)
                         {
                             float3 c = tex2D(
-                                    _MainTex,
+                                    _MixTex,
                                     uv + (float2(l * (1.0 / (float)_WidthTex), j * (1.0 / (float)_HeightTex)))).
                                 rgb;
                             m[k] += c;
@@ -226,7 +227,7 @@ Shader "Particle"
                         col.rgb = m[k].rgb;
                     }
                 }
-                col = float4(AdjustContrastCurve(col, 0.25), col.w) + colTint / 2.5;
+                col = float4(AdjustContrastCurve(col, 0.5), col.w) * (colTint.xyzw / 1.5 + 0.05);
                 return (col.zyxw);
             }
             ENDCG
@@ -268,7 +269,7 @@ Shader "Particle"
 
             StructuredBuffer<Joints> _Skeleton;
             #endif
-
+            float _SkeletonSize;
             float  _SizeCube;
             
             float rand(in float2 uv)
@@ -335,7 +336,7 @@ Shader "Particle"
                 // i = (i + 1) % 18;
                 // }
                 // const int instanceDiv = clamp(nb / (_Time.z), 1, nb);
-                const int nbVertex = clamp(_Time.y, 0, nb);
+                const int nbVertex = clamp(_SkeletonSize * 20, 0, nb);
                 const float size = _SizeCube;
                 float3 top = size / 2;
                 float3 bottom = -size / 2;
@@ -383,7 +384,7 @@ Shader "Particle"
             // Pixel shader
             float4 frag(PS_INPUT i) : COLOR
             {
-                return (float4(1.0f, 1.0f, 1.0f, 1.0f - _Time.x / 5));
+                return (float4(1.0f, 1.0f, 1.0f, 1.0f - _SkeletonSize / 2));
             }
             ENDCG
         }
@@ -413,6 +414,7 @@ Shader "Particle"
 				uint instance : SV_InstanceID;
 				float2 keep : TEXCOORD0;
 			};
+            float _SkeletonSize;
 
 		    StructuredBuffer<float> particleBuffer;
 		    StructuredBuffer<int> segmentBuffer;
@@ -507,7 +509,7 @@ Shader "Particle"
                 float4 pos2 = float4((_CamPos.x + _Width / 2.0) / 200.0 - o.keep.y % _Width / 200.0,
                                     (_CamPos.y + _Height / 2.0) / 200.0 - o.keep.y / _Width / 200.0,
                                     _CamPos.z - particleBuffer[(int)o.keep.y] / 3000.0 - 2.0, 1.0f);
-                const int nbVertex = clamp(_Time.w, 0, 10);
+                const int nbVertex = clamp(_SkeletonSize * 10, 0, 10);
                 AddVertex(o, lineStream, UnityObjectToClipPos(p[0].position) + ClassicNoise(p[0].position.xyz) / 2.5,
                           UnityObjectToClipPos(pos2) + ClassicNoise(pos2.xyz) / 2.5, nbVertex);
             }

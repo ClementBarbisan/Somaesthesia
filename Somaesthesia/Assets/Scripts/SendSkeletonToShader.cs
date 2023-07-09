@@ -49,12 +49,12 @@ public class SendSkeletonToShader : MonoBehaviour
     private Camera cam;
 
     [SerializeField] private float sizeSkeleton = 0.25f;
-    [SerializeField] private MeshFilter meshBubble;
-    [SerializeField] private Material matBubble;
-    [SerializeField] private float scaleBubbles = 0.25f;
-    private Vector3 posMax;
-    private Vector3 posMin;
-    private Vector3 center;
+    // [SerializeField] private MeshFilter meshBubble;
+    // [SerializeField] private Material matBubble;
+    // [SerializeField] private float scaleBubbles = 0.25f;
+    // private Vector3 posMax;
+    // private Vector3 posMin;
+    // private Vector3 center;
 
     // Start is called before the first frame update
     void Start()
@@ -69,18 +69,12 @@ public class SendSkeletonToShader : MonoBehaviour
     {
         if (frame.NumUsers > 0 )
         {
-
             _id = frame.Users[0].ID;
         }
     }
     
     private void Update()
     {
-        //DEBUG STUFF
-        if (sizeSkeleton < 1.5)
-        {
-            sizeSkeleton += Time.deltaTime / 20;
-        }
 
         float Rand(int val, Vector3 pos)
         {
@@ -139,9 +133,9 @@ public class SendSkeletonToShader : MonoBehaviour
         if (_skeleton != null)
         {
             Vector3 posCam = cam.transform.position;
-            posMax = Vector3.negativeInfinity;
-            posMin = Vector3.positiveInfinity;
-            center = Vector3.zero;
+            // posMax = Vector3.negativeInfinity;
+            // posMin = Vector3.positiveInfinity;
+            // center = Vector3.zero;
             for (int i = 0; i < _jointsInfo.Length; i++)
             {
                 Joints newJoint = new Joints();
@@ -155,19 +149,19 @@ public class SendSkeletonToShader : MonoBehaviour
                 newJoint.Pos = new Vector3(posCam.x - newJoint.Pos.x / 450f, posCam.y + newJoint.Pos.y / 450f,
                     posCam.z - newJoint.Pos.z / 650f);
                 newJoint.Size = sizeSkeleton;
-                if (_jointsInfo[i] == JointType.Waist)
-                {
-                    center = newJoint.Pos;
-                }
-                posMax = new Vector3(Mathf.Max(posMax.x, newJoint.Pos.x), Mathf.Max(posMax.y,
-                    newJoint.Pos.y), Mathf.Max(posMax.z, newJoint.Pos.z));
-                posMin = new Vector3(Mathf.Min(posMin.x, newJoint.Pos.x), Mathf.Min(posMin.y,
-                    newJoint.Pos.y), Mathf.Min(posMin.z, newJoint.Pos.z));
+                // if (_jointsInfo[i] == JointType.Waist)
+                // {
+                    // center = newJoint.Pos;
+                // }
+                // posMax = new Vector3(Mathf.Max(posMax.x, newJoint.Pos.x), Mathf.Max(posMax.y,
+                    // newJoint.Pos.y), Mathf.Max(posMax.z, newJoint.Pos.z));
+                // posMin = new Vector3(Mathf.Min(posMin.x, newJoint.Pos.x), Mathf.Min(posMin.y,
+                    // newJoint.Pos.y), Mathf.Min(posMin.z, newJoint.Pos.z));
                 jointsList[i] = newJoint;
             }
             _buffer.SetData(jointsList);
             Shader.SetGlobalBuffer("_Skeleton", _buffer);
-            
+            Shader.SetGlobalFloat("_SkeletonSize", sizeSkeleton);
         }
     }
 }
