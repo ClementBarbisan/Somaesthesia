@@ -127,7 +127,7 @@ Shader "Particle"
                 }
                 o.keep.x = 1;
                 o.keep.y = p[0].keep.y;
-                float4 position = float4(p[0].position.x, p[0].position.y, p[0].position.z, p[0].position.w) + ClassicNoise(p[0].position.xyz) / 2.5;
+                float4 position = float4(p[0].position.x, p[0].position.y, p[0].position.z, p[0].position.w) + PeriodicNoise(p[0].position.xyz, _SinTime) / 2.5;
                 float size = _RadiusParticles * rand(position.xyz) * 1.5;
                 float3 up = float3(0, 1, 0);
                 float3 look = _WorldSpaceCameraPos - p[0].position;
@@ -510,8 +510,10 @@ Shader "Particle"
                                     (_CamPos.y + _Height / 2.0) / 200.0 - o.keep.y / _Width / 200.0,
                                     _CamPos.z - particleBuffer[(int)o.keep.y] / 3000.0 - 2.0, 1.0f);
                 const int nbVertex = clamp(_SkeletonSize * 10, 0, 10);
-                AddVertex(o, lineStream, UnityObjectToClipPos(p[0].position) + ClassicNoise(p[0].position.xyz) / 2.5,
-                          UnityObjectToClipPos(pos2) + ClassicNoise(pos2.xyz) / 2.5, nbVertex);
+                float4 pos1 = UnityObjectToClipPos(p[0].position);
+                float4 pos2Clip = UnityObjectToClipPos(pos2);
+                AddVertex(o, lineStream,  pos1 + PeriodicNoise(pos1.xyz, _SinTime) / 2.5,
+                           pos2Clip + PeriodicNoise(pos2Clip.xyz, _SinTime) / 2.5, nbVertex);
             }
 
             float CalcLuminance(float3 color)
