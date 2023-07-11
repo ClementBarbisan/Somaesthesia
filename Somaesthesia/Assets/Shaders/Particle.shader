@@ -11,6 +11,10 @@ Shader "Particle"
         _Radius ("Size Strokes", Range(0, 20)) = 12
         _Offset ("Offset Surround", Range(0, 20)) = 5
         _SizeCube ("Size cubes skeleton", Range(0, 2)) = 0.25
+        _Hue ("Hue", Range(0, 2)) = 0.5 
+        _Sat ("Saturation", Range(0, 1)) = 0.5 
+        _Bri ("Brightness", Range(0, 1)) = 0.5 
+        _Con ("Contrast", Range(0, 20)) = 0.5 
     }
 
     SubShader
@@ -114,6 +118,33 @@ Shader "Particle"
 
                 return o;
             }
+            
+            inline float3 applyHue(float3 aColor, float aHue)
+            {
+                float angle = radians(aHue);
+                float3 k = float3(0.57735, 0.57735, 0.57735);
+                float cosAngle = cos(angle);
+                //Rodrigues' rotation formula
+                return aColor * cosAngle + cross(k, aColor) * sin(angle) + k * dot(k, aColor) * (1 - cosAngle);
+            }
+             
+             
+            inline float4 applyHSBEffect(float4 startColor, fixed4 hsbc)
+            {
+                float _Hue = 360 * hsbc.r;
+                float _Brightness = hsbc.g * 2 - 1;
+                float _Contrast = hsbc.b * 2;
+                float _Saturation = hsbc.a * 2;
+             
+                float4 outputColor = startColor;
+                outputColor.rgb = applyHue(outputColor.rgb, _Hue);
+                outputColor.rgb = (outputColor.rgb - 0.5f) * (_Contrast) + 0.5f;
+                outputColor.rgb = outputColor.rgb + _Brightness;        
+                float3 intensity = dot(outputColor.rgb, float3(0.299,0.587,0.114));
+                outputColor.rgb = lerp(intensity, outputColor.rgb, _Saturation);
+             
+                return outputColor;
+            }
 
             [maxvertexcount(4)]
             void geom(point PS_INPUT p[1], inout TriangleStream<PS_INPUT> triStream)
@@ -127,7 +158,7 @@ Shader "Particle"
                 }
                 o.keep.x = 1;
                 o.keep.y = p[0].keep.y;
-                float4 position = float4(p[0].position.x, p[0].position.y, p[0].position.z, p[0].position.w) + PeriodicNoise(p[0].position.xyz, _SinTime) / 2.5;
+                float4 position = float4(p[0].position.x, p[0].position.y, p[0].position.z, p[0].position.w) + ClassicNoise(p[0].position.xyz) / 2.5;
                 float size = _RadiusParticles * rand(position.xyz) * 1.5;
                 float3 up = float3(0, 1, 0);
                 float3 look = _WorldSpaceCameraPos - p[0].position;
@@ -174,12 +205,18 @@ Shader "Particle"
                 int x1, y1, x2, y2;
             };
 
+            float _Hue;
+            float _Sat;
+            float _Bri;
+            float _Con;
+
             float4 frag(PS_INPUT i) : COLOR
             {
                 float2 uv = float2(float(i.instance % _WidthTex) / (float)_WidthTex,
                                    float(i.instance / _WidthTex) / (float)_HeightTex); //i.uv;
                 float n = float((_Radius + 1) * (_Radius + 1));
                 float4 col = tex2D(_MixTex, uv);
+                // col.b = 0;
                 const float4 colTint = col * tex2D(_MainTex, (uv * _MainTex_ST.xy + _SinTime.yz));
                 float3 m[4];
                 float3 s[4];
@@ -207,6 +244,7 @@ Shader "Particle"
                                     _MixTex,
                                     uv + (float2(l * (1.0 / (float)_WidthTex), j * (1.0 / (float)_HeightTex)))).
                                 rgb;
+                            // c -= 0.1;
                             m[k] += c;
                             s[k] += c * c;
                         }
@@ -227,7 +265,7 @@ Shader "Particle"
                         col.rgb = m[k].rgb;
                     }
                 }
-                col = float4(AdjustContrastCurve(col, 0.5), col.w) * (colTint.xyzw / 1.5 + 0.05);
+                col = applyHSBEffect(col, float4(_Hue, _Sat, _Bri, _Con)) * (colTint.xyzw + 0.05);
                 return (col.zyxw);
             }
             ENDCG
@@ -512,8 +550,8 @@ Shader "Particle"
                 const int nbVertex = clamp(_SkeletonSize * 10, 0, 10);
                 float4 pos1 = UnityObjectToClipPos(p[0].position);
                 float4 pos2Clip = UnityObjectToClipPos(pos2);
-                AddVertex(o, lineStream,  pos1 + PeriodicNoise(pos1.xyz, _SinTime) / 2.5,
-                           pos2Clip + PeriodicNoise(pos2Clip.xyz, _SinTime) / 2.5, nbVertex);
+                AddVertex(o, lineStream,  pos1 + ClassicNoise(pos1.xyz) / 2.5,
+                           pos2Clip + ClassicNoise(pos2Clip.xyz) / 2.5, nbVertex);
             }
 
             float CalcLuminance(float3 color)
