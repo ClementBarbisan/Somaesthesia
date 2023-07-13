@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using UnityEngine;
 using System.Threading;
+using UnityEngine.Serialization;
 
 public class ReceiveLabelsValue : MonoBehaviour
 {
@@ -16,7 +18,15 @@ public class ReceiveLabelsValue : MonoBehaviour
     TcpClient client;
     bool running;
     private bool quit;
-
+    public float[] ValIA;
+    public string[] TextIA;
+    public List<Vector4> PointMove = new List<Vector4>();
+    private bool _results = false;
+    public bool ResultsDone = false;
+    private bool _move = false;
+    public bool MoveDone = false;
+    private int _textIndex = 0;
+    private int _valIndex = 0;
     private void Start()
     {
         Application.targetFrameRate = 60;
@@ -48,6 +58,61 @@ public class ReceiveLabelsValue : MonoBehaviour
         client?.Close();
     }
 
+    void ComputeStrings(string dataReceived)
+    {
+        if (dataReceived == "##")
+        {
+            if (_results)
+            {
+                _results = false;
+                ResultsDone = true;
+            }
+            else
+            {
+                _move = false;
+                MoveDone = true;
+            }
+        }
+        if (_results)
+        {
+            if (ValIA == null || TextIA == null)
+            {
+                int nb = int.Parse(dataReceived);
+                ValIA = new float[nb];
+                TextIA = new string[nb];
+                _textIndex = 0;
+                _valIndex = 0;
+            }
+            else if (float.TryParse(dataReceived, out float val))
+            {
+                ValIA[_valIndex] = val;
+                _valIndex++;
+            }
+            else
+            {
+                TextIA[_textIndex] = dataReceived;
+                _textIndex++;
+            }
+        }
+        if (_move)
+        {
+            string[] values = dataReceived.Split(",");
+            PointMove.Add(new Vector4(float.Parse(values[0]), float.Parse(values[1]),
+                float.Parse(values[2]),float.Parse(values[3])));
+        }
+        if (dataReceived == "results" && ResultsDone == false)
+        {
+            ValIA = null;
+            TextIA = null;
+            _results = true;
+        }
+        if (dataReceived == "contours" && MoveDone == false)
+        {
+            PointMove.Clear();
+            _move = true;
+        }
+    }
+
     void SendAndReceiveData()
     {
         try
@@ -59,6 +124,7 @@ public class ReceiveLabelsValue : MonoBehaviour
             string dataReceived = Encoding.UTF8.GetString(buffer, 0, bytesRead); //Converting byte data to string
             nwStream.Write(Encoding.ASCII.GetBytes("Received"));
             Debug.Log(dataReceived);
+            ComputeStrings(dataReceived);
         }
         catch (IOException e)
         {

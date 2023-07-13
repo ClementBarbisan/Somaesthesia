@@ -1,12 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using nuitrack;
 using nuitrack.device;
 using NuitrackSDK;
 using NuitrackSDK.Avatar;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Rendering;
 using Joint = nuitrack.Joint;
 using Random = UnityEngine.Random;
 using Vector3 = UnityEngine.Vector3;
@@ -23,6 +25,12 @@ public class SendSkeletonToShader : MonoBehaviour
     private Skeleton _skeleton;
     private BoundingBox _boxUser;
     private ComputeBuffer _buffer;
+    private ComputeBuffer _bufferMove;
+    private ReceiveLabelsValue _data;
+    private List<Vector4> listZero = new List<Vector4>();
+    [SerializeField] private float sizeSkeletonDivider = 15;
+    [SerializeField] private Material matClear;
+    [SerializeField] private Color col;
     nuitrack.JointType[] _jointsInfo = new nuitrack.JointType[]
     {
         nuitrack.JointType.Head,
@@ -47,8 +55,10 @@ public class SendSkeletonToShader : MonoBehaviour
     Joints[] jointsList;
     private int _id = -1;
     private Camera cam;
-
+    [SerializeField] private int maxMove = 15;
     [SerializeField] private float sizeSkeleton = 0.25f;
+
+    [SerializeField] private float maxSkeleton = 15;
     // [SerializeField] private MeshFilter meshBubble;
     // [SerializeField] private Material matBubble;
     // [SerializeField] private float scaleBubbles = 0.25f;
@@ -59,10 +69,15 @@ public class SendSkeletonToShader : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        _data = GetComponent<ReceiveLabelsValue>();
         jointsList = new Joints[_jointsInfo.Length];
         cam = Camera.main;
         NuitrackManager.onUserTrackerUpdate += UserTrackerOnOnUpdateEvent;
         NuitrackManager.SkeletonTracker.OnSkeletonUpdateEvent += SkeletonTrackerOnOnSkeletonUpdateEvent;
+        for (int i = 0; i < maxMove; i++)
+        {
+            listZero.Add(Vector4.zero);
+        }
     }
 
     private void UserTrackerOnOnUpdateEvent(UserFrame frame)
@@ -72,10 +87,37 @@ public class SendSkeletonToShader : MonoBehaviour
             _id = frame.Users[0].ID;
         }
     }
+
+    public static double StandardDeviation(IEnumerable<float> values)
+    {
+        double avg = values.Average();
+        return Math.Sqrt(values.Average(v=>Math.Pow(v-avg,2)));
+    }
     
+    private float CalculateStdDev(float[] list)
+    {
+        float mean = 0;
+        for (int i = 0; i < list.Length; i++)
+        {
+            mean += list[i] * 10f;
+        }
+        mean /= list.Length;
+        float[] squareDist = new float[list.Length];    
+        for (int i = 0; i < list.Length; i++)
+        {
+            squareDist[i] = Mathf.Pow(Mathf.Abs(list[i] * 10f - mean), 2);
+        }
+        float val = 0;
+        for (int i = 0; i < squareDist.Length; i++)
+        {
+            val += squareDist[i];
+        }
+        val /= squareDist.Length;
+        return (Mathf.Sqrt(val));
+    }
+
     private void Update()
     {
-
         float Rand(int val, Vector3 pos)
         {
             if (val == 0)
@@ -91,6 +133,35 @@ public class SendSkeletonToShader : MonoBehaviour
                 return Mathf.Cos(Time.time) * Mathf.Sin(Time.time);
             }
         }
+
+        if (_data.ResultsDone)
+        {
+            float val = 50;
+            val -= (float)StandardDeviation(_data.ValIA);
+            // val += 0.05f;
+            // val *= _data.ValIA.Length;
+            sizeSkeleton = val / maxSkeleton;
+            _data.ResultsDone = false;
+        }
+
+        if (_data.MoveDone)
+        {
+            if (_bufferMove == null)
+            {
+                _bufferMove = new ComputeBuffer(maxMove, sizeof(float) * 4);
+                matClear.SetBuffer("_UVs", _bufferMove);
+            }
+
+            int nb = Mathf.Min(_data.PointMove.Count, maxMove);
+            _bufferMove.SetData(_data.PointMove, 0, 0, nb);
+            if (nb < maxMove)
+            {
+                _bufferMove.SetData(listZero, 0, nb, maxMove - nb);
+            }
+
+            _data.MoveDone = false;
+        }
+
 /*
         Random.InitState(42);
         for (int i = 0; i < jointsList.Length; i++)
@@ -112,9 +183,21 @@ public class SendSkeletonToShader : MonoBehaviour
         */
     }
 
+    
+    void OnRenderImage(RenderTexture src, RenderTexture dest)
+    {
+        col.a = 1 - sizeSkeleton / sizeSkeletonDivider;
+        matClear.color = col;
+        RenderTexture tmpTex = new RenderTexture(src.width, src.height, src.depth, src.graphicsFormat);
+        Graphics.Blit(src, tmpTex, matClear, 0);
+        Graphics.Blit(tmpTex, dest, matClear, 1);
+        tmpTex.Release();
+    }
+
     private void OnDestroy()
     {
         _buffer?.Release();
+        _bufferMove?.Release();
         // NuitrackManager.SkeletonTracker.OnSkeletonUpdateEvent -= SkeletonTrackerOnOnSkeletonUpdateEvent;
         NuitrackManager.onUserTrackerUpdate -= UserTrackerOnOnUpdateEvent;
     }
