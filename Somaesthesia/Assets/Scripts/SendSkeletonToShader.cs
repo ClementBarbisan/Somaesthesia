@@ -184,7 +184,7 @@ public class SendSkeletonToShader : MonoBehaviour
     
     void OnRenderImage(RenderTexture src, RenderTexture dest)
     {
-        col.a = Mathf.SmoothStep(1f, 0.25f, sizeSkeleton / maxSkeleton);
+        col.a = EasingFunction.EaseInCubic(1, 0.25f, sizeSkeleton / maxSkeleton);
         matClear.color = col;
         if (tmpTex == null)
         {
