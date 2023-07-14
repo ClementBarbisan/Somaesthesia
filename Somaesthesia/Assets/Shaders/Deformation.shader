@@ -75,7 +75,7 @@ Shader "Custom/Deformation"
                     float curDist = distance((_Skeleton[i].Pos), UnityObjectToClipPos(data.vertex));
                     if (curDist < _SkeletonSize)
                     {
-                        data.color.w = curDist / (_SkeletonSize);
+                        data.color.w = curDist / _SkeletonSize / 10;
                         data.vertex.xyz += sin(_Time * _Speed) * _Amplitude * (1 / curDist) * (SimplexNoise(
                             data.vertex) / 2.5);
                         data.color.rgb = _ColorDisrupt;

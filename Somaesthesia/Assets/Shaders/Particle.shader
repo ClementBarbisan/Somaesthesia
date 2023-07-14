@@ -105,9 +105,9 @@ Shader "Particle"
                 {
                     float3 posSkelet = UnityObjectToClipPos(_Skeleton[i].Pos);
                     float dist = distance(posSkelet, pos);
-                    if (o.keep.y == 1 && dist < _SkeletonSize / 2)
+                    if (o.keep.y == 1 && dist < _SkeletonSize / 5)
                     {
-                        o.keep.x = 1;
+                        o.keep.x = dist / (_SkeletonSize / 5);
                         break;
                     }
                     else
@@ -155,7 +155,7 @@ Shader "Particle"
                 {
                     return;
                 }
-                o.keep.x = 1;
+                o.keep.x = p[0].keep.x;
                 o.keep.y = p[0].keep.y;
                 float4 position = float4(p[0].position.x, p[0].position.y, p[0].position.z, p[0].position.w) + ClassicNoise(p[0].position.xyz) / 2.5;
                 float size = _RadiusParticles * rand(position.xyz) * 1.5;
@@ -267,6 +267,7 @@ Shader "Particle"
                 col = applyHSBEffect(col, float4(_Hue, _Sat, _Bri, _Con)) * (colTint.xyzw + 0.25);
                 if (i.uv.x < 0.1 || i.uv.x > 0.9 || i.uv.y < 0.1 || i.uv.y > 0.9)
                     col /= 50;
+                col.w = i.keep.x;
                 return (col.zyxw);
             }
             ENDCG

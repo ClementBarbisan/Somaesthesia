@@ -139,7 +139,7 @@ public class SendSkeletonToShader : MonoBehaviour
             val -= (float)StandardDeviation(_data.ValIA);
             // val += 0.05f;
             // val *= _data.ValIA.Length;
-            sizeSkeleton = val / maxSkeleton;
+            sizeSkeleton -= sizeSkeleton - val / maxSkeleton;
             _data.ResultsDone = false;
         }
 

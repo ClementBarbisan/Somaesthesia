@@ -498,7 +498,7 @@ MonoBehaviour:
   col: {r: 0.88235295, g: 0.88235295, b: 0.88235295, a: 1}
   maxMove: 15
   sizeSkeleton: 0
-  maxSkeleton: 25
+  maxSkeleton: 10
 --- !u!1001 &1669223330
 PrefabInstance:
   m_ObjectHideFlags: 0
