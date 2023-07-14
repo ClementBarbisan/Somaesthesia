@@ -184,7 +184,7 @@ public class SendSkeletonToShader : MonoBehaviour
     
     void OnRenderImage(RenderTexture src, RenderTexture dest)
     {
-        col.a = EasingFunction.EaseInCubic(1, 0.25f, sizeSkeleton / maxSkeleton);
+        col.a = EasingFunction.EaseInCubicD(0.25f, 1f, (1 - sizeSkeleton / maxSkeleton));
         matClear.color = col;
         if (tmpTex == null)
         {

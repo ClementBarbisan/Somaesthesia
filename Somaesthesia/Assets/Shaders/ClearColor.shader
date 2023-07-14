@@ -7,14 +7,14 @@ Shader "Custom/ClearColor"
     }
     SubShader
     {
-        Tags
-        {
-            "Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Transparent"
-        }
-        Blend SrcAlpha OneMinusSrcAlpha
+//        Tags
+//        {
+//            "Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Transparent"
+//        }
+//        Blend SrcAlpha OneMinusSrcAlpha
         Cull Off
-        ZTest LEqual
-    	ZWrite On
+        ZTest Always
+    	ZWrite Off
         
          Pass
         {
@@ -57,10 +57,10 @@ Shader "Custom/ClearColor"
                 for (int j = 0; j < nb; j++)
                 {
                     if (length(_UVs[j].x) + length(_UVs[j].y) > 1 && distance(_UVs[j].xy / _ScreenParams.xy, i.uv)
-                        <= length(_UVs[j].z) / _ScreenParams.x + length(_UVs[j].w) / _ScreenParams.y)
+                        <= length(_UVs[j].z) / (_ScreenParams.x / 2) + length(_UVs[j].w) / (_ScreenParams.y / 2))
                     {
                         float val = distance(_UVs[j].xy / _ScreenParams.xy, i.uv) / (length(_UVs[j].z) /
-                            (_ScreenParams.x) + length(_UVs[j].w) / (_ScreenParams.y));
+                            (_ScreenParams.x / 2) + length(_UVs[j].w) / (_ScreenParams.y / 2));
                         float3 colGray = (col.r * 0.299 + col.g * 0.587 + col.b * 0.114) * val;
                         return float4(col.rgb * (1 - val) + colGray.rgb, 1);
                     }
@@ -75,7 +75,6 @@ Shader "Custom/ClearColor"
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            #pragma fragmentoption ARB_precision_hint_fastest
             #include "UnityCG.cginc"
 
             struct appdata

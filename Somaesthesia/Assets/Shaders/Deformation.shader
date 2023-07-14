@@ -24,13 +24,13 @@ Shader "Custom/Deformation"
             #include "Packages/jp.keijiro.noiseshader/Shader/ClassicNoise3D.hlsl"
             #include "Packages/jp.keijiro.noiseshader/Shader/SimplexNoise3D.hlsl"
             #include "Tessellation.cginc"
-            #pragma target 4.6
+            #pragma target 5.0
 
             struct Input {
                 float4 screenPos;
                 float4 color : COLOR;
             };
-            #ifdef SHADER_API_D3D11
+#ifdef SHADER_API_D3D11
             struct Joints
             {
                 float3 Pos;
@@ -39,7 +39,7 @@ Shader "Custom/Deformation"
             };
 
             StructuredBuffer<Joints> _Skeleton;
-            #endif
+#endif
             float _SkeletonSize;
             fixed4 _Color;
             float4 _ColorDisrupt;
@@ -73,9 +73,9 @@ Shader "Custom/Deformation"
                 for (int i = 0; i < nb; i++)
                 {
                     float curDist = distance((_Skeleton[i].Pos), UnityObjectToClipPos(data.vertex));
-                    if (curDist < _SkeletonSize / 5)
+                    if (curDist < _SkeletonSize)
                     {
-                        data.color.w = smoothstep(0, 1, curDist / (_SkeletonSize / 5));
+                        data.color.w = curDist / (_SkeletonSize);
                         data.vertex.xyz += sin(_Time * _Speed) * _Amplitude * (1 / curDist) * (SimplexNoise(
                             data.vertex) / 2.5);
                         data.color.rgb = _ColorDisrupt;
@@ -83,7 +83,7 @@ Shader "Custom/Deformation"
                         return;
                     }
                 }
-                #endif
+#endif
             }
 
             void surf(Input IN, inout SurfaceOutputStandard o)

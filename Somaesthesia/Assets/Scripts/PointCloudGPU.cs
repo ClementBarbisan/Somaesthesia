@@ -12,7 +12,6 @@ using Debug = UnityEngine.Debug;
 public class PointCloudGPU : MonoBehaviour {
 
     static public PointCloudGPU Instance;
-    public Material kuwahara;
     public Material matPointCloud;
     public Material matMesh;
     private short[] particles;

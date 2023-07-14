@@ -220,10 +220,10 @@ Shader "Particle"
                 float3 m[4];
                 float3 s[4];
 
-                for (int k = 0; k < 4; ++k)
+                for (int j = 0; j < 4; ++j)
                 {
-                    m[k] = float3(0, 0, 0);
-                    s[k] = float3(0, 0, 0);
+                    m[j] = float3(0, 0, 0);
+                    s[j] = float3(0, 0, 0);
                 }
 
                 region R[4] = {
@@ -243,7 +243,6 @@ Shader "Particle"
                                     _MixTex,
                                     uv + (float2(l * (1.0 / (float)_WidthTex), j * (1.0 / (float)_HeightTex)))).
                                 rgb;
-                            // c -= 0.1;
                             m[k] += c;
                             s[k] += c * c;
                         }
@@ -252,16 +251,16 @@ Shader "Particle"
 
                 float min = 1e+2;
                 float s2;
-                for (int k = 0; k < 4; ++k)
+                for (int l = 0; l < 4; ++l)
                 {
-                    m[k] /= n;
-                    s[k] = abs(s[k] / n - m[k] * m[k]);
+                    m[l] /= n;
+                    s[l] = abs(s[l] / n - m[l] * m[l]);
 
-                    s2 = s[k].r + s[k].g + s[k].b;
+                    s2 = s[l].r + s[l].g + s[l].b;
                     if (s2 < min)
                     {
                         min = s2;
-                        col.rgb = m[k].rgb;
+                        col.rgb = m[l].rgb;
                     }
                 }
                 col = applyHSBEffect(col, float4(_Hue, _Sat, _Bri, _Con)) * (colTint.xyzw + 0.25);
@@ -519,16 +518,16 @@ Shader "Particle"
             {
                 float4 x = pos1;
                 float4 y = pos2;
-                o.position = x + _SinTime.z / 10;
+                o.position = x + _SinTime.z * (_SkeletonSize / 20);
                 lineStream.Append(o);
                 float4 dir = y - x;
                 for (int i = 1; i < nbVertex; i++)
                 {
                     float4 p = x + dir * ((float)i / (float)nbVertex);
-                    o.position = p + _SinTime.z / 10;
+                    o.position = p + _SinTime.z* (_SkeletonSize / 20);
                     lineStream.Append(o);
                 }
-                o.position = y + _SinTime.z / 10;
+                o.position = y + _SinTime.z * (_SkeletonSize / 20);
                 lineStream.Append(o);
                 lineStream.RestartStrip();
             }
@@ -546,11 +545,11 @@ Shader "Particle"
                 float4 pos2 = float4((_CamPos.x + _Width / 2.0) / 200.0 - o.keep.y % _Width / 200.0,
                                     (_CamPos.y + _Height / 2.0) / 200.0 - o.keep.y / _Width / 200.0,
                                     _CamPos.z - particleBuffer[(int)o.keep.y] / 3000.0 - 2.0, 1.0f);
-                const int nbVertex = clamp(_SkeletonSize * 10, 0, 10);
+                const int nbVertex = clamp(_SkeletonSize, 0, 10);
                 float4 pos1 = UnityObjectToClipPos(p[0].position);
                 float4 pos2Clip = UnityObjectToClipPos(pos2);
-                AddVertex(o, lineStream,  pos1 + ClassicNoise(pos1.xyz) / 2.5,
-                           pos2Clip + ClassicNoise(pos2Clip.xyz) / 2.5, nbVertex);
+                AddVertex(o, lineStream,  pos1 + ClassicNoise(pos1.xyz) * (_SkeletonSize / 5),
+                           pos2Clip + ClassicNoise(pos2Clip.xyz) * (_SkeletonSize / 5), nbVertex);
             }
 
             float CalcLuminance(float3 color)
