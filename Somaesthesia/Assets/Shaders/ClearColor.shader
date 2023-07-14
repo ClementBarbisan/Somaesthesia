@@ -55,11 +55,11 @@ Shader "Custom/ClearColor"
                 _UVs.GetDimensions(nb, stride);
                 for (int j = 0; j < nb; j++)
                 {
-                    if (length(_UVs[j].x) + length(_UVs[j].y) > 100 && distance(_UVs[j].xy / _ScreenParams.xy, i.uv)
+                    if (length(_UVs[j].x) + length(_UVs[j].y) > 1 && distance(_UVs[j].xy / _ScreenParams.xy, i.uv)
                         <= length(_UVs[j].z) / _ScreenParams.x + length(_UVs[j].w) / _ScreenParams.y)
                     {
-                        float val =  distance(_UVs[j].xy / _ScreenParams.xy, i.uv) /  (length(_UVs[j].z) /
-                            _ScreenParams.x + length(_UVs[j].w) / _ScreenParams.y);
+                        float val = distance(_UVs[j].xy / _ScreenParams.xy, i.uv) / (length(_UVs[j].z) /
+                            (_ScreenParams.x) + length(_UVs[j].w) / (_ScreenParams.y));
                         float3 colGray = (col.r * 0.299 + col.g * 0.587 + col.b * 0.114) * val;
                         return float4(col.rgb * (1 - val) + colGray.rgb, 1);
                     }

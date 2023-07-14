@@ -23,17 +23,22 @@ Material:
     - _MainTex:
         m_Texture: {fileID: 2800000, guid: 661afd5b31466544ea131c11fc7346ac, type: 3}
         m_Scale: {x: 5, y: 5}
+        m_Offset: {x: 0, y: 0}
     - _SegTex:
         m_Texture: {fileID: 2800000, guid: 604d40ad4525c724bad1b314201b3dd0, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _Bri: 0.48
+    - _Con: 3.5
     - _HighSpeedValue: 12
+    - _Hue: 0.85
     - _Offset: 3
     - _Radius: 3
     - _RadiusParticles: 0.025
     - _Rotation: 10
+    - _Sat: 0.49
     - _Size: 0.25
     - _SizeCube: 0.25
     - _Value: 0

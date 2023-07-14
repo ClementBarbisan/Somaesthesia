@@ -151,7 +151,6 @@ Shader "Particle"
             {
                 PS_INPUT o;
                 o.instance = p[0].instance;
-                o.uv = float2(0, 0);
                 if (p[0].keep.x == 0)
                 {
                     return;
@@ -265,7 +264,7 @@ Shader "Particle"
                         col.rgb = m[k].rgb;
                     }
                 }
-                col = applyHSBEffect(col, float4(_Hue, _Sat, _Bri, _Con)) * (colTint.xyzw + 0.05);
+                col = applyHSBEffect(col, float4(_Hue, _Sat, _Bri, _Con)) * (colTint.xyzw + 0.25);
                 return (col.zyxw);
             }
             ENDCG

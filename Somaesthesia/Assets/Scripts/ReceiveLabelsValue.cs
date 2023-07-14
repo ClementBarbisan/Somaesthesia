@@ -18,12 +18,17 @@ public class ReceiveLabelsValue : MonoBehaviour
     TcpClient client;
     bool running;
     private bool quit;
+    [HideInInspector]
     public float[] ValIA;
+    [HideInInspector]
     public string[] TextIA;
+    [HideInInspector]
     public List<Vector4> PointMove = new List<Vector4>();
     private bool _results = false;
+    [HideInInspector]
     public bool ResultsDone = false;
     private bool _move = false;
+    [HideInInspector]
     public bool MoveDone = false;
     private int _textIndex = 0;
     private int _valIndex = 0;
