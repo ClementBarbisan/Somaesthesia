@@ -12,8 +12,9 @@ Shader "Custom/ClearColor"
             "Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Transparent"
         }
         Blend SrcAlpha OneMinusSrcAlpha
-        Cull Off ZWrite Off ZTest Always
-
+        Cull Off
+        ZTest LEqual
+    	ZWrite On
         
          Pass
         {
@@ -74,7 +75,7 @@ Shader "Custom/ClearColor"
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-
+            #pragma fragmentoption ARB_precision_hint_fastest
             #include "UnityCG.cginc"
 
             struct appdata

@@ -70,19 +70,15 @@ Shader "Custom/Deformation"
                 uint stride = 0;
                 _Skeleton.GetDimensions(nb , stride);
                 data.color.w = 1;
-                float3 pos = data.vertex;
-                // data.texcoord = ComputeScreenPos(UnityWorldToClipPos(data.vertex));
                 for (int i = 0; i < nb; i++)
                 {
-                    float curDist = distance((_Skeleton[i].Pos), mul(unity_ObjectToWorld, data.vertex));
-                    if (curDist < _Skeleton[i].Size)
+                    float curDist = distance((_Skeleton[i].Pos), UnityObjectToClipPos(data.vertex));
+                    if (curDist < _SkeletonSize / 5)
                     {
-                        data.color.w -= curDist * _SkeletonSize;
-                        data.vertex.xyz += sin(_Time * _Speed) * _Amplitude * (SimplexNoise(
+                        data.color.w = smoothstep(0, 1, curDist / (_SkeletonSize / 5));
+                        data.vertex.xyz += sin(_Time * _Speed) * _Amplitude * (1 / curDist) * (SimplexNoise(
                             data.vertex) / 2.5);
-                        // data.texcoord = ComputeScreenPos(UnityWorldToClipPos(data.vertex));
                         data.color.rgb = _ColorDisrupt;
-                        data.color.w -= distance(data.vertex, pos) * _SkeletonSize;
                         data.color.rgb *= tex2Dlod(_MainTex, float4(data.texcoord.xy * _MainTex_ST.xy + _MainTex_ST.zw, 0, 0));
                         return;
                     }

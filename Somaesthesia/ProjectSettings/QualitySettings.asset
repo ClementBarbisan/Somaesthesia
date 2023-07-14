@@ -84,7 +84,7 @@ QualitySettings:
     name: High Fidelity
     pixelLightCount: 2
     shadows: 2
-    shadowResolution: 1
+    shadowResolution: 2
     shadowProjection: 1
     shadowCascades: 2
     shadowDistance: 40
@@ -96,7 +96,7 @@ QualitySettings:
     textureQuality: 0
     anisotropicTextures: 2
     antiAliasing: 4
-    softParticles: 0
+    softParticles: 1
     softVegetation: 1
     realtimeReflectionProbes: 1
     billboardsFaceCameraPosition: 1

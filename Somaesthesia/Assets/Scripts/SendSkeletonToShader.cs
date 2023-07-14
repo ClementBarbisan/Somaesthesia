@@ -28,7 +28,6 @@ public class SendSkeletonToShader : MonoBehaviour
     private ComputeBuffer _bufferMove;
     private ReceiveLabelsValue _data;
     private List<Vector4> listZero = new List<Vector4>();
-    [SerializeField] private float sizeSkeletonDivider = 15;
     [SerializeField] private Material matClear;
     [SerializeField] private Color col;
     nuitrack.JointType[] _jointsInfo = new nuitrack.JointType[]
@@ -57,8 +56,8 @@ public class SendSkeletonToShader : MonoBehaviour
     private Camera cam;
     [SerializeField] private int maxMove = 15;
     [SerializeField] private float sizeSkeleton = 0.25f;
-
     [SerializeField] private float maxSkeleton = 15;
+    private RenderTexture tmpTex = null;
     // [SerializeField] private MeshFilter meshBubble;
     // [SerializeField] private Material matBubble;
     // [SerializeField] private float scaleBubbles = 0.25f;
@@ -115,25 +114,25 @@ public class SendSkeletonToShader : MonoBehaviour
         val /= squareDist.Length;
         return (Mathf.Sqrt(val));
     }
-
+    
+    float Rand(int val, Vector3 pos)
+    {
+        if (val == 0)
+        {
+            return Mathf.Cos(Time.time);
+        }
+        else if (val == 1)
+        {
+            return Mathf.Sin(Time.time);
+        }
+        else
+        {
+            return Mathf.Cos(Time.time) * Mathf.Sin(Time.time);
+        }
+    }
+    
     private void Update()
     {
-        float Rand(int val, Vector3 pos)
-        {
-            if (val == 0)
-            {
-                return Mathf.Cos(Time.time);
-            }
-            else if (val == 1)
-            {
-               return Mathf.Sin(Time.time);
-            }
-            else
-            {
-                return Mathf.Cos(Time.time) * Mathf.Sin(Time.time);
-            }
-        }
-
         if (_data.ResultsDone)
         {
             float val = 50;
@@ -161,7 +160,6 @@ public class SendSkeletonToShader : MonoBehaviour
 
             _data.MoveDone = false;
         }
-
 /*
         Random.InitState(42);
         for (int i = 0; i < jointsList.Length; i++)
@@ -186,12 +184,14 @@ public class SendSkeletonToShader : MonoBehaviour
     
     void OnRenderImage(RenderTexture src, RenderTexture dest)
     {
-        col.a = 1 - sizeSkeleton / sizeSkeletonDivider;
+        col.a = Mathf.SmoothStep(1f, 0.25f, sizeSkeleton / maxSkeleton);
         matClear.color = col;
-        RenderTexture tmpTex = new RenderTexture(src.width, src.height, src.depth, src.graphicsFormat);
+        if (tmpTex == null)
+        {
+            tmpTex = new RenderTexture(Screen.width, Screen.height, src.depth, src.graphicsFormat);
+        }
         Graphics.Blit(src, tmpTex, matClear, 0);
         Graphics.Blit(tmpTex, dest, matClear, 1);
-        tmpTex.Release();
     }
 
     private void OnDestroy()
