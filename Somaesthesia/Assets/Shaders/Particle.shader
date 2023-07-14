@@ -216,7 +216,8 @@ Shader "Particle"
                 float n = float((_Radius + 1) * (_Radius + 1));
                 float4 col = tex2D(_MixTex, uv);
                 // col.b = 0;
-                const float4 colTint = col * tex2D(_MainTex, (uv * _MainTex_ST.xy + _SinTime.yz));
+                const float4 colTint = col * applyHSBEffect(tex2D(_MainTex, (uv * _MainTex_ST.xy + _SinTime.yz)) / 1.25,
+                    float4(_Hue, _Sat, _Bri, _Con));
                 float3 m[4];
                 float3 s[4];
 
@@ -264,6 +265,8 @@ Shader "Particle"
                     }
                 }
                 col = applyHSBEffect(col, float4(_Hue, _Sat, _Bri, _Con)) * (colTint.xyzw + 0.25);
+                if (i.uv.x < 0.1 || i.uv.x > 0.9 || i.uv.y < 0.1 || i.uv.y > 0.9)
+                    col /= 50;
                 return (col.zyxw);
             }
             ENDCG
