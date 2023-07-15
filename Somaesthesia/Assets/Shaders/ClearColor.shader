@@ -7,11 +7,11 @@ Shader "Custom/ClearColor"
     }
     SubShader
     {
-//        Tags
-//        {
-//            "Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Transparent"
-//        }
-//        Blend SrcAlpha OneMinusSrcAlpha
+        Tags
+        {
+            "Queue"="Transparent" "RenderType"="Transparent"
+        }
+        Blend SrcAlpha OneMinusSrcAlpha
         Cull Off
         ZTest Always
     	ZWrite Off

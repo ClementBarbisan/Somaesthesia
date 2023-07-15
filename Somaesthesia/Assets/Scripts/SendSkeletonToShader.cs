@@ -85,6 +85,10 @@ public class SendSkeletonToShader : MonoBehaviour
         {
             _id = frame.Users[0].ID;
         }
+        else
+        {
+            _id = -1;
+        }
     }
 
     public static double StandardDeviation(IEnumerable<float> values)
@@ -93,27 +97,7 @@ public class SendSkeletonToShader : MonoBehaviour
         return Math.Sqrt(values.Average(v=>Math.Pow(v-avg,2)));
     }
     
-    private float CalculateStdDev(float[] list)
-    {
-        float mean = 0;
-        for (int i = 0; i < list.Length; i++)
-        {
-            mean += list[i] * 10f;
-        }
-        mean /= list.Length;
-        float[] squareDist = new float[list.Length];    
-        for (int i = 0; i < list.Length; i++)
-        {
-            squareDist[i] = Mathf.Pow(Mathf.Abs(list[i] * 10f - mean), 2);
-        }
-        float val = 0;
-        for (int i = 0; i < squareDist.Length; i++)
-        {
-            val += squareDist[i];
-        }
-        val /= squareDist.Length;
-        return (Mathf.Sqrt(val));
-    }
+    
     
     float Rand(int val, Vector3 pos)
     {
@@ -133,13 +117,23 @@ public class SendSkeletonToShader : MonoBehaviour
     
     private void Update()
     {
+        if (_id == -1)
+        {
+            if (_bufferMove != null)
+            {
+                _bufferMove.SetData(listZero, 0, 0, maxMove);
+            }
+            sizeSkeleton = 0;
+            return;
+        }
+
         if (_data.ResultsDone)
         {
             float val = 50;
             val -= (float)StandardDeviation(_data.ValIA);
             // val += 0.05f;
             // val *= _data.ValIA.Length;
-            sizeSkeleton -= sizeSkeleton - val / maxSkeleton;
+            sizeSkeleton = Mathf.Lerp(sizeSkeleton, val / maxSkeleton, 0.1f);
             _data.ResultsDone = false;
         }
 
@@ -181,17 +175,18 @@ public class SendSkeletonToShader : MonoBehaviour
         */
     }
 
-    
+    private void OnPreRender()
+    {
+        col.a = Mathf.Clamp(EasingFunction.EaseInCubicD(0.05f, 1f, (1 - sizeSkeleton / maxSkeleton)),
+            0.05f, 1f);
+        matClear.color = col;
+        Graphics.Blit(tmpTex, matClear, 1);
+    }
+
     void OnRenderImage(RenderTexture src, RenderTexture dest)
     {
-        col.a = EasingFunction.EaseInCubicD(0.25f, 1f, (1 - sizeSkeleton / maxSkeleton));
-        matClear.color = col;
-        if (tmpTex == null)
-        {
-            tmpTex = new RenderTexture(Screen.width, Screen.height, src.depth, src.graphicsFormat);
-        }
+        Graphics.Blit(src, dest, matClear, 0);
         Graphics.Blit(src, tmpTex, matClear, 0);
-        Graphics.Blit(tmpTex, dest, matClear, 1);
     }
 
     private void OnDestroy()

@@ -7,6 +7,7 @@ Shader "Particle"
     Properties
     {
         _MainTex ("Texture Mix", 2D) = "white" {}
+        _ParticleTex ("PointTex", 2D) = "white" {}
         _RadiusParticles ("Size particles", Range(0, 1)) = 0.05
         _Radius ("Size Strokes", Range(0, 20)) = 12
         _Offset ("Offset Surround", Range(0, 20)) = 5
@@ -65,6 +66,7 @@ Shader "Particle"
 
             // Properties variables
             uniform sampler2D _MainTex;
+            uniform  sampler2D _ParticleTex;
             uniform sampler2D _MixTex;
             uniform float4 _MainTex_ST;
             uniform int _Width;
@@ -85,21 +87,19 @@ Shader "Particle"
             PS_INPUT vert(uint instance_id : SV_instanceID)
             {
                 PS_INPUT o = (PS_INPUT)0;
-                o.position = float4((_CamPos.x + _Width / 2.0) / 200.0 - instance_id % _Width / 200.0,
-                                    (_CamPos.y + _Height / 2.0) / 200.0 - instance_id / _Width / 200.0,
-                                    _CamPos.z - particleBuffer[instance_id] / 3000.0 - 2.0, 1.0f);
-                uint nb = 0;
-                uint stride = 0;
-                _Skeleton.GetDimensions(nb, stride);
-                o.instance = int(instance_id);
-                if (segmentBuffer[instance_id] == 0)
+                if (segmentBuffer[instance_id] == 0 || instance_id % 30 > 0)
                 {
                     o.keep.y = 0;
+                    return o;
                 }
                 else
                 {
                     o.keep.y = 1;
                 }
+                uint nb = 0;
+                uint stride = 0;
+                _Skeleton.GetDimensions(nb, stride);
+                o.instance = int(instance_id);
                 float3 pos = UnityObjectToClipPos(o.position);
                 for (uint i = 0; i < nb; i++)
                 {
@@ -115,7 +115,13 @@ Shader "Particle"
                         o.keep.x = 0;
                     }
                 }
-
+                if (o.keep.x == 0)
+                {
+                    return o;
+                }
+                o.position = float4((_CamPos.x + _Width / 2.0) / 200.0 - instance_id % _Width / 200.0,
+                                    (_CamPos.y + _Height / 2.0) / 200.0 - instance_id / _Width / 200.0,
+                                    _CamPos.z - particleBuffer[instance_id] / 3000.0 - 2.0, 1.0f);
                 return o;
             }
             
@@ -151,14 +157,14 @@ Shader "Particle"
             {
                 PS_INPUT o;
                 o.instance = p[0].instance;
-                if (p[0].keep.x == 0)
+                if (p[0].keep.x < 0.01)
                 {
                     return;
                 }
                 o.keep.x = p[0].keep.x;
                 o.keep.y = p[0].keep.y;
                 float4 position = float4(p[0].position.x, p[0].position.y, p[0].position.z, p[0].position.w) + ClassicNoise(p[0].position.xyz) / 2.5;
-                float size = _RadiusParticles * rand(position.xyz) * 1.5;
+                float size = _RadiusParticles * (rand(position.xyz) * 0.25 + 0.75);
                 float3 up = float3(0, 1, 0);
                 float3 look = _WorldSpaceCameraPos - p[0].position;
                 look.y = 0;
@@ -211,12 +217,13 @@ Shader "Particle"
 
             float4 frag(PS_INPUT i) : COLOR
             {
+                float4 tex = tex2D(_ParticleTex, i.uv);
                 float2 uv = float2(float(i.instance % _WidthTex) / (float)_WidthTex,
                                    float(i.instance / _WidthTex) / (float)_HeightTex); //i.uv;
                 float n = float((_Radius + 1) * (_Radius + 1));
                 float4 col = tex2D(_MixTex, uv);
                 // col.b = 0;
-                const float4 colTint = col * applyHSBEffect(tex2D(_MainTex, (uv * _MainTex_ST.xy + _SinTime.yz)) / 1.25,
+                const float4 colTint = col * applyHSBEffect(tex2D(_MainTex, (uv * _MainTex_ST.xy + _SinTime.yz)),
                     float4(_Hue, _Sat, _Bri, _Con));
                 float3 m[4];
                 float3 s[4];
@@ -264,10 +271,13 @@ Shader "Particle"
                         col.rgb = m[l].rgb;
                     }
                 }
-                col = applyHSBEffect(col, float4(_Hue, _Sat, _Bri, _Con)) * (colTint.xyzw + 0.25);
-                if (i.uv.x < 0.1 || i.uv.x > 0.9 || i.uv.y < 0.1 || i.uv.y > 0.9)
-                    col /= 50;
-                col.w = i.keep.x;
+                col.w = i.keep.x * tex.w;
+                if (col.w <= 0.01)
+                {
+                    return (col.zyxw);
+                }
+                col = applyHSBEffect(col, float4(_Hue, _Sat, _Bri, _Con)) * (colTint.xyzw + 0.4);
+                col *= pow(tex, 2);
                 return (col.zyxw);
             }
             ENDCG
