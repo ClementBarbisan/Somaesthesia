@@ -48,25 +48,27 @@ Shader "Custom/ClearColor"
             StructuredBuffer<float4> _UVs;
             
             float SkeletonSize;
+            
             fixed4 frag (v2f i) : SV_Target
             {
                 fixed4 col = tex2D(_MainTex, i.uv);
                 uint nb = 0;
                 uint stride = 0;
                 _UVs.GetDimensions(nb, stride);
+                float val = 1;
                 for (int j = 0; j < nb; j++)
                 {
-                    if (length(_UVs[j].x) + length(_UVs[j].y) > 1 && distance(_UVs[j].xy / _ScreenParams.xy, i.uv)
-                        <= length(_UVs[j].z) / (_ScreenParams.x / 2) + length(_UVs[j].w) / (_ScreenParams.y / 2))
+                    
+                    float2 xy = float2(_UVs[j].x / _ScreenParams.x, (_ScreenParams.y - _UVs[j].y) / _ScreenParams.y);
+                    float zwLength = length(_UVs[j].z) / (_ScreenParams.y) + length(_UVs[j].w) / (_ScreenParams.y);
+                    if (xy.x > 0 && xy.y > 0 && distance(xy, i.uv) <= zwLength * 1.5)
                     {
-                        float val = distance(_UVs[j].xy / _ScreenParams.xy, i.uv) / (length(_UVs[j].z) /
-                            (_ScreenParams.x / 2) + length(_UVs[j].w) / (_ScreenParams.y / 2));
-                        float3 colGray = (col.r * 0.299 + col.g * 0.587 + col.b * 0.114) * val;
-                        return float4(col.rgb * (1 - val) + colGray.rgb, 1);
+                        val -= 1 - distance(xy, i.uv) / (zwLength * 1.5);
                     }
                 }
-                col.rgb = col.r * 0.299 + col.g * 0.587 + col.b * 0.114;
-                return col;
+                val = saturate(val);
+                float3 colGray = (col.r * 0.299 + col.g * 0.587 + col.b * 0.114) * val;
+                return float4(col.rgb * (1 - val) + colGray.rgb, 1);
             }
             ENDCG
         }
