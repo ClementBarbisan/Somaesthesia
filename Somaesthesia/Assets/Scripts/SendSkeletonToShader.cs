@@ -135,11 +135,11 @@ public class SendSkeletonToShader : MonoBehaviour
             // val *= _data.ValIA.Length;
             if (val > maxSkeleton)
             {
-                sizeSkeleton = Mathf.Lerp(sizeSkeleton, val / maxSkeleton, 0.05f);
+                sizeSkeleton = Mathf.Lerp(sizeSkeleton, val / maxSkeleton, Time.deltaTime);
             }
             else
             {
-                sizeSkeleton = Mathf.Lerp(sizeSkeleton, val / maxSkeleton, 0.5f);
+                sizeSkeleton = Mathf.Lerp(sizeSkeleton, val / maxSkeleton, 0.1f);
             }
 
             _data.ResultsDone = false;
