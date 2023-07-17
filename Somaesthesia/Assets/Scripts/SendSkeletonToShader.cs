@@ -185,8 +185,8 @@ public class SendSkeletonToShader : MonoBehaviour
 
     private void OnPreRender()
     {
-        col.a = Mathf.Clamp(EasingFunction.EaseInCubicD(0.05f, 1f, (1 - sizeSkeleton / maxSkeleton)),
-            0.05f, 1f);
+        col.a = Mathf.Clamp(EasingFunction.EaseInCubicD(0.2f, 1f, (1 - sizeSkeleton / maxSkeleton)),
+            0.2f, 1f);
         matClear.color = col;
         Graphics.Blit(tmpTex, matClear, 1);
     }

@@ -14,12 +14,14 @@ public class PointCloudGPU : MonoBehaviour {
     static public PointCloudGPU Instance;
     public Material matPointCloud;
     public Material matMesh;
-    private short[] particles;
-    ComputeBuffer buffer;
-    Texture2D texture;
-    int width = 0;
-    int height = 0;
-    private Camera cam;
+    public const int maxFrameDepth = 15;
+    private short[] _particles;
+    ComputeBuffer _buffer;
+    Texture2D _texture;
+    int _width = 0;
+    int _height = 0;
+    private Camera _cam;
+    private int _indexDepth = 0;
 
     private void Awake()
     {
@@ -37,41 +39,46 @@ public class PointCloudGPU : MonoBehaviour {
         NuitrackManager.DepthSensor.OnUpdateEvent += HandleOnDepthSensorUpdateEvent;
         NuitrackManager.ColorSensor.OnUpdateEvent += HandleOnColorSensorUpdateEvent;
         Cursor.visible = false;
-        cam = Camera.main;
+        _cam = Camera.main;
     }
 
     void HandleOnColorSensorUpdateEvent(nuitrack.ColorFrame frame)
     {
-        if (texture == null)
+        if (_texture == null)
         {
-            texture = new Texture2D(frame.Cols, frame.Rows, TextureFormat.RGB24, false);
-            matPointCloud.SetTexture("_MixTex", texture);
+            _texture = new Texture2D(frame.Cols, frame.Rows, TextureFormat.RGB24, false);
+            matPointCloud.SetTexture("_MixTex", _texture);
             matPointCloud.SetInt("_WidthTex", frame.Cols);
             matPointCloud.SetInt("_HeightTex", frame.Rows);
         }
-        texture.LoadRawTextureData(frame.Data, frame.DataSize);
-        texture.Apply();
+        _texture.LoadRawTextureData(frame.Data, frame.DataSize);
+        _texture.Apply();
     }
 
 
     // Update is called once per frame
-    void HandleOnDepthSensorUpdateEvent(nuitrack.DepthFrame frame) {
-        
-        if (buffer == null)
+    void HandleOnDepthSensorUpdateEvent(nuitrack.DepthFrame frame)
+    {
+        if (_buffer == null)
         {
+            int cols = frame.Cols;
+            int rows = frame.Rows;
             Debug.Log("Initialize compute buffer");
-            particles = new short[frame.Cols * frame.Rows];
-            buffer = new ComputeBuffer(frame.Cols * frame.Rows, sizeof(float));
-            width = frame.Cols;
-            height = frame.Rows;
-            matPointCloud.SetVector("_CamPos", cam.transform.position);
-            matPointCloud.SetBuffer("particleBuffer", buffer);
-            matPointCloud.SetInt("_Width", width);
-            matPointCloud.SetInt("_Height", height);
+            _particles = new short[cols * rows];
+            _buffer = new ComputeBuffer(cols * rows * maxFrameDepth, sizeof(float));
+            _width = cols;
+            _height = rows;
+            matPointCloud.SetVector("_CamPos", _cam.transform.position);
+            matPointCloud.SetBuffer("particleBuffer", _buffer);
+            matPointCloud.SetInt("_MaxFrame", maxFrameDepth);
+            matPointCloud.SetInt("_Width", _width);
+            matPointCloud.SetInt("_Height", _height);
           
         }
-        Marshal.Copy(frame.Data, particles, 0, frame.Cols * frame.Rows);
-        buffer.SetData(particles);
+        Marshal.Copy(frame.Data, _particles, 0, _width * _height);
+        _buffer.SetData(_particles, 0, _width * _height * _indexDepth, _width * _height);
+        matPointCloud.SetInt("_CurrentFrame", _indexDepth == 0 ? maxFrameDepth - 1 : _indexDepth - 1);
+        _indexDepth = (_indexDepth + 1) % maxFrameDepth;
     }
 
     private void Update()
@@ -85,16 +92,16 @@ public class PointCloudGPU : MonoBehaviour {
     private void OnRenderObject()
     {
         matPointCloud.SetPass(0);
-        Graphics.DrawProceduralNow(MeshTopology.Points, 1, width * height);
+        Graphics.DrawProceduralNow(MeshTopology.Points, 1, _width * _height);
         matPointCloud.SetPass(1);
         Graphics.DrawProceduralNow(MeshTopology.Points, 1, 18);
         matPointCloud.SetPass(2);
-        Graphics.DrawProceduralNow(MeshTopology.Points, 1, width * height);
+        Graphics.DrawProceduralNow(MeshTopology.Points, 1, _width * _height);
     }
     
     private void OnDestroy()
     {
-        buffer?.Release();
+        _buffer?.Release();
         // NuitrackManager.DepthSensor.OnUpdateEvent -= HandleOnDepthSensorUpdateEvent;
         // NuitrackManager.ColorSensor.OnUpdateEvent -= HandleOnColorSensorUpdateEvent;
     }

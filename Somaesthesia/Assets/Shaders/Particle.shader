@@ -77,6 +77,8 @@ Shader "Particle"
             uniform float _Rotation;
             float _Radius;
             float _RadiusParticles;
+            uint _MaxFrame;
+            uint _CurrentFrame;
 
             float rand(in float2 uv)
             {
@@ -87,14 +89,24 @@ Shader "Particle"
             PS_INPUT vert(uint instance_id : SV_instanceID)
             {
                 PS_INPUT o = (PS_INPUT)0;
-                if (segmentBuffer[instance_id] == 0 || instance_id % 30 > 0)
+                uint index = 0;
+                for (uint j = _CurrentFrame; index < _MaxFrame; j = j == 0 ? _MaxFrame - 1 : j - 1)
                 {
-                    o.keep.y = 0;
-                    return o;
+                    if (segmentBuffer[_Width * _Height * j + instance_id] != 1 || instance_id % (30 * (index + 1)) > 0)
+                    {
+                        o.keep.y = 0;
+                    }
+                    else
+                    {
+                        o.keep.y = j + 1;
+                        break;
+                    }
+                    index++;
                 }
-                else
+                if (o.keep.y == 0)
                 {
-                    o.keep.y = 1;
+                    o.keep.x = 0;
+                    return (o);
                 }
                 uint nb = 0;
                 uint stride = 0;
@@ -105,7 +117,7 @@ Shader "Particle"
                 {
                     float3 posSkelet = UnityObjectToClipPos(_Skeleton[i].Pos);
                     float dist = distance(posSkelet, pos);
-                    if (o.keep.y == 1 && dist < _SkeletonSize / 5)
+                    if (o.keep.y > 0 && dist < _SkeletonSize / 5)
                     {
                         o.keep.x = dist / (_SkeletonSize / 5);
                         break;
@@ -121,7 +133,8 @@ Shader "Particle"
                 }
                 o.position = float4((_CamPos.x + _Width / 2.0) / 200.0 - instance_id % _Width / 200.0,
                                     (_CamPos.y + _Height / 2.0) / 200.0 - instance_id / _Width / 200.0,
-                                    _CamPos.z - particleBuffer[instance_id] / 3000.0 - 2.0, 1.0f);
+                                    _CamPos.z - particleBuffer[_Width * _Height * o.keep.y + instance_id] / 3000.0 - 2.0, 1.0f);
+                o.keep.y = index;
                 return o;
             }
             
@@ -164,7 +177,7 @@ Shader "Particle"
                 o.keep.x = p[0].keep.x;
                 o.keep.y = p[0].keep.y;
                 float4 position = float4(p[0].position.x, p[0].position.y, p[0].position.z, p[0].position.w) + ClassicNoise(p[0].position.xyz) / 2.5;
-                float size = _RadiusParticles * (rand(position.xyz) * 0.25 + 0.75);
+                float size = _RadiusParticles * (rand(position.xyz) * 0.25 + 0.75) / (1 + (float)o.keep.y / 20);
                 float3 up = float3(0, 1, 0);
                 float3 look = _WorldSpaceCameraPos - p[0].position;
                 look.y = 0;
@@ -217,9 +230,10 @@ Shader "Particle"
 
             float4 frag(PS_INPUT i) : COLOR
             {
-                float4 tex = tex2D(_ParticleTex, i.uv);
                 float2 uv = float2(float(i.instance % _WidthTex) / (float)_WidthTex,
                                    float(i.instance / _WidthTex) / (float)_HeightTex); //i.uv;
+                float4 tex = tex2D(_ParticleTex, i.uv * tex2D(_MainTex, (uv * _MainTex_ST.xy + _SinTime.yz)));
+                tex.w /=  1 + i.keep.y / 20;
                 float n = float((_Radius + 1) * (_Radius + 1));
                 float4 col = tex2D(_MixTex, uv);
                 // col.b = 0;
@@ -482,47 +496,49 @@ Shader "Particle"
             uniform int _HeightTex;
             uniform float3 _CamPos;
             int _Offset;
+            int _CurrentFrame;
             
             PS_INPUT vert(uint instance_id : SV_instanceID)
             {
                 PS_INPUT o = (PS_INPUT)0;
+                int initPoint = _Width * _Height * _CurrentFrame;
                 o.position = float4((_CamPos.x + _Width / 2.0) / 200.0 - instance_id % _Width / 200.0,
                                     (_CamPos.y + _Height / 2.0) / 200.0 - instance_id / _Width / 200.0,
-                                    _CamPos.z - particleBuffer[instance_id] / 3000.0 - 2.0, 1.0f);
+                                    _CamPos.z - particleBuffer[initPoint + instance_id] / 3000.0 - 2.0, 1.0f);
                 o.instance = int(instance_id);
                 if (segmentBuffer[instance_id] == 0)
                 {
-                    o.keep = float2(0, 0);
+                    o.keep = float2(-1, 0);
                 }
                 else if ((instance_id % _Offset == 0 || instance_id % (_WidthTex * _Offset) == 0) && (instance_id + _Offset)
                     < (_WidthTex * _HeightTex) && ((int)instance_id - _Offset) >= 0 &&(instance_id + _WidthTex * _Offset) <
                     (_WidthTex * _HeightTex) && ((int)instance_id - _WidthTex * _Offset) >= 0)
                 {
-                    o.keep = float2(0, 0);
-                    if (segmentBuffer[(instance_id - _Offset)] == 0 && segmentBuffer[(instance_id + _Offset)] > 0)
+                    o.keep = float2(-1, 0);
+                    if (segmentBuffer[(initPoint + instance_id - _Offset)] == 0 && segmentBuffer[(initPoint + instance_id + _Offset)] > 0)
                     {
-                        o.keep.y = (float)((instance_id + _WidthTex * _Offset));
-                        o.keep.x = 1;
+                        o.keep.y = (float)(instance_id + _WidthTex * _Offset);
+                        o.keep.x = initPoint;
                     }
-                    else if (segmentBuffer[(instance_id + _Offset)] == 0 && segmentBuffer[(instance_id - _Offset)] > 0)
+                    else if (segmentBuffer[(initPoint + instance_id + _Offset)] == 0 && segmentBuffer[(initPoint + instance_id - _Offset)] > 0)
                     {
-                        o.keep.y = (float)((instance_id - _WidthTex * _Offset));
-                        o.keep.x = 1;
+                        o.keep.y = (float)(instance_id - _WidthTex * _Offset);
+                        o.keep.x = initPoint;
                     }
-                    else if (segmentBuffer[(instance_id - _WidthTex * _Offset)] == 0 && segmentBuffer[(instance_id + _WidthTex * _Offset)] > 0)
+                    else if (segmentBuffer[(initPoint + instance_id - _WidthTex * _Offset)] == 0 && segmentBuffer[(initPoint + instance_id + _WidthTex * _Offset)] > 0)
                     {
-                         o.keep.y = (float)((instance_id + _Offset));
-                         o.keep.x = 1;
+                         o.keep.y = (float)(instance_id + _Offset);
+                         o.keep.x = initPoint;
                     }
-                    else if (segmentBuffer[(instance_id + _WidthTex * _Offset)] == 0 && segmentBuffer[(instance_id - _WidthTex * _Offset)] > 0)
+                    else if (segmentBuffer[(initPoint + instance_id + _WidthTex * _Offset)] == 0 && segmentBuffer[(initPoint + instance_id - _WidthTex * _Offset)] > 0)
                     {
-                         o.keep.y = (float)((instance_id - _Offset));
-                         o.keep.x = 1;
+                         o.keep.y = (float)(instance_id - _Offset);
+                         o.keep.x = initPoint;
                     }
                 }
                 else
                 {
-                    o.keep = float2(0, 0);
+                    o.keep = float2(-1, 0);
                 }
                 return o;
             }
@@ -551,14 +567,14 @@ Shader "Particle"
             {
                 PS_INPUT o;
                 o.keep = p[0].keep;
-                if (o.keep.x == 0)
+                if (o.keep.x < 0)
                 {
                     return;
                 }
                 o.instance = p[0].instance;
                 float4 pos2 = float4((_CamPos.x + _Width / 2.0) / 200.0 - o.keep.y % _Width / 200.0,
                                     (_CamPos.y + _Height / 2.0) / 200.0 - o.keep.y / _Width / 200.0,
-                                    _CamPos.z - particleBuffer[(int)o.keep.y] / 3000.0 - 2.0, 1.0f);
+                                    _CamPos.z - particleBuffer[(int)o.keep.x + o.keep.y] / 3000.0 - 2.0, 1.0f);
                 const int nbVertex = clamp(_SkeletonSize, 0, 10);
                 float4 pos1 = UnityObjectToClipPos(p[0].position);
                 float4 pos2Clip = UnityObjectToClipPos(pos2);

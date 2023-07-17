@@ -1,13 +1,17 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class SegmentPaint : MonoBehaviour
 {
     //public int samples;
-    ComputeBuffer segmentBuffer;
-    int[] outSegment;
+    private int _indexSegment = 0;
+    ComputeBuffer _segmentBuffer;
+    int[] _outSegment;
+    private int _width;
+    private int _height;
 
     void Start()
     {
@@ -17,28 +21,28 @@ public class SegmentPaint : MonoBehaviour
 
     void OnDestroy()
     {
-        segmentBuffer?.Release();
+        _segmentBuffer?.Release();
         NuitrackManager.onUserTrackerUpdate -= ColorizeUser;
     }
 
     void ColorizeUser(nuitrack.UserFrame frame)
     {
-        int cols = frame.Cols;
-        int rows = frame.Rows;
-        if (segmentBuffer == null)
+       
+        if (_segmentBuffer == null)
         {
-            segmentBuffer = new ComputeBuffer(cols * rows, 4);
-            outSegment = new int[cols * rows]; 
-            PointCloudGPU.Instance.matPointCloud.SetBuffer("segmentBuffer", segmentBuffer);
+            _width = frame.Cols;
+            _height = frame.Rows;
+            _segmentBuffer = new ComputeBuffer(_width * _height * PointCloudGPU.maxFrameDepth, sizeof(int));
+            _outSegment = new int[_width * _height]; 
+            PointCloudGPU.Instance.matPointCloud.SetBuffer("segmentBuffer", _segmentBuffer);
         }
-        for (int i = 0; i < (cols * rows); i++)
+        for (int i = 0; i < (_width * _height); i++)
         {
-            outSegment[i] = 0;
-            if (frame[i] == 1)
-            {
-                outSegment[i] = 1;
-            }
+            _outSegment[i] = frame[i];
         }
-        segmentBuffer.SetData(outSegment);
+        // Marshal.Copy(frame.Data, _outSegment, 0, _width * _height);
+        _segmentBuffer.SetData(_outSegment, 0, _width * _height * _indexSegment, _width * _height);
+        _indexSegment = (_indexSegment + 1) % PointCloudGPU.maxFrameDepth;
+        // PointCloudGPU.Instance.matPointCloud.SetInt("_CurrentFrame", _indexSegment);
     }  
 }
