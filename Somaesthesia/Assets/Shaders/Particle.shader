@@ -296,7 +296,7 @@ Shader "Particle"
                 col.w = i.keep.x * tex.w;
                 if (col.w <= 0.01)
                 {
-                    return (col.zyxw);
+                    discard;
                 }
                 col = applyHSBEffect(col, float4(_Hue, _Sat, _Bri, _Con)) * (colTint.xyzw + 0.25);
                 col *= pow(tex, 2);
