@@ -69,11 +69,11 @@ Shader "Custom/Deformation"
                 uint nb = 0;
                 uint stride = 0;
                 _Skeleton.GetDimensions(nb , stride);
-                data.color.w = 0.95 - _SkeletonSize / 5;
+                data.color.w = 0.95 - _SkeletonSize;
                 for (int i = 0; i < nb; i++)
                 {
                     float curDist = distance((_Skeleton[i].Pos), UnityObjectToClipPos(data.vertex));
-                    if (curDist < _SkeletonSize)
+                    if (curDist < _SkeletonSize * 2.5)
                     {
                         data.vertex.xyz += sin(_Time * _Speed) * _Amplitude * (1 / curDist) * (SimplexNoise(
                             data.vertex) / 2.5);

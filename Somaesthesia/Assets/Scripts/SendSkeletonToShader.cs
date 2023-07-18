@@ -58,6 +58,8 @@ public class SendSkeletonToShader : MonoBehaviour
     [SerializeField] private float sizeSkeleton = 0.25f;
     [SerializeField] private float maxSkeleton = 15;
     private RenderTexture tmpTex = null;
+
+    [SerializeField] private float _speed = 5f;
     // [SerializeField] private MeshFilter meshBubble;
     // [SerializeField] private Material matBubble;
     // [SerializeField] private float scaleBubbles = 0.25f;
@@ -130,18 +132,18 @@ public class SendSkeletonToShader : MonoBehaviour
 
         if (_data.ResultsDone)
         {
-            float val = 50;
+            float val = 100;
             val -= (float)StandardDeviation(_data.ValIA);
             // val += 0.05f;
             // val *= _data.ValIA.Length;
-            if (val > maxSkeleton)
+            // if (val > maxSkeleton)
             {
-                sizeSkeleton = Mathf.Lerp(sizeSkeleton, val / maxSkeleton, Time.deltaTime);
+                sizeSkeleton = Mathf.Lerp(sizeSkeleton, val / maxSkeleton, Time.deltaTime  * (1 /_speed));
             }
-            else
-            {
-                sizeSkeleton = Mathf.Lerp(sizeSkeleton, val / maxSkeleton, 0.1f);
-            }
+            // else
+            // {
+                // sizeSkeleton = Mathf.Lerp(sizeSkeleton, val / maxSkeleton, 0.1f * (1 / _speed));
+            // }
 
             _data.ResultsDone = false;
         }

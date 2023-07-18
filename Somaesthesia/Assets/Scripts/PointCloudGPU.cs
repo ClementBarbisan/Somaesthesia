@@ -15,7 +15,7 @@ public class PointCloudGPU : MonoBehaviour {
     static public PointCloudGPU Instance;
     public Material matPointCloud;
     public Material matMesh;
-    public const int maxFrameDepth = 20;
+    public const int maxFrameDepth = 10;
     private short[] _particles;
     ComputeBuffer _buffer;
     Texture2D _texture;
@@ -78,14 +78,13 @@ public class PointCloudGPU : MonoBehaviour {
                 matPointCloud.SetInt("_Width", _width);
                 matPointCloud.SetInt("_Height", _height);
                 _instanceCount = _width * _height;
-                Debug.Log("width = " + _width + ", height = " + _height);
             }
             Marshal.Copy(frame.Data, _particles, 0, _width * _height);
             // void* managedBuffer = UnsafeUtility.AddressOf(ref _particles[0]);
             // UnsafeUtility.MemCpy(managedBuffer, (void *)frame.Data, frame.DataSize);
             _buffer.SetData(_particles, 0, _instanceCount * _indexDepth, _instanceCount);
             // matPointCloud.SetInt("_CurrentFrame", _indexDepth);        
-            matPointCloud.SetInt("_CurrentFrame", _indexDepth == 0 ? maxFrameDepth - 1 : _indexDepth - 1);
+            matPointCloud.SetInt("_CurrentFrameDepth", _indexDepth == 0 ? maxFrameDepth - 1 : _indexDepth - 1);
             _indexDepth = (_indexDepth + 1) % maxFrameDepth;
         }
     }

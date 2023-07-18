@@ -78,7 +78,7 @@ Shader "Particle"
             float _Radius;
             float _RadiusParticles;
             uint _MaxFrame;
-            uint _CurrentFrame;
+            uint _CurrentFrameDepth;
 
             float rand(in float2 uv)
             {
@@ -90,15 +90,15 @@ Shader "Particle"
             {
                 PS_INPUT o = (PS_INPUT)0;
                 uint index = 0;
-                for (uint j = _CurrentFrame; index < _MaxFrame; j = j == 0 ? _MaxFrame - 1 : j - 1)
+                for (uint j = _CurrentFrameDepth; index < _MaxFrame; j = j == 0 ? _MaxFrame - 1 : j - 1)
                 {
-                    if (segmentBuffer[_Width * _Height * j + instance_id] != 1 || instance_id % (30 * (index / 2 + 1)) > 0)
+                    if (segmentBuffer[_Width * _Height * j + instance_id] != 1 || instance_id % (30 * int(index * 2 + 1)) > 0)
                     {
                         o.keep.y = 0;
                     }
                     else
                     {
-                        o.keep.y = j + 1;
+                        o.keep.y = index + 1;
                         break;
                     }
                     index++;
@@ -117,9 +117,9 @@ Shader "Particle"
                 {
                     float3 posSkelet = UnityObjectToClipPos(_Skeleton[i].Pos);
                     float dist = distance(posSkelet, pos);
-                    if (o.keep.y > 0 && dist < _SkeletonSize / 5)
+                    if (o.keep.y > 0 && dist < _SkeletonSize)
                     {
-                        o.keep.x = dist / (_SkeletonSize / 5);
+                        o.keep.x = saturate(dist / (_SkeletonSize / 2));
                         break;
                     }
                     else
@@ -170,7 +170,7 @@ Shader "Particle"
             {
                 PS_INPUT o;
                 o.instance = p[0].instance;
-                if (p[0].keep.x < 0.01)
+                if (p[0].keep.x == 0)
                 {
                     return;
                 }
@@ -230,7 +230,7 @@ Shader "Particle"
 
             float4 frag(PS_INPUT i) : COLOR
             {
-                if (i.keep.x < 0.01)
+                if (i.keep.x == 0)
                 {
                     discard;
                 }
@@ -238,7 +238,7 @@ Shader "Particle"
                                    float(i.instance / _WidthTex) / (float)_HeightTex); //i.uv;
                 float4 tex = tex2D(_ParticleTex, i.uv);// * tex2D(_MainTex, (uv * _MainTex_ST.xy + _SinTime.yz)));
                 tex.w /=  1 + i.keep.y / 20;
-                 if (tex.w < 0.01)
+                 if (tex.w == 0)
                 {
                     discard;
                 }
@@ -294,7 +294,7 @@ Shader "Particle"
                     }
                 }
                 col.w = i.keep.x * tex.w;
-                if (col.w <= 0.01)
+                if (col.w == 0)
                 {
                     discard;
                 }
@@ -509,12 +509,12 @@ Shader "Particle"
             uniform int _HeightTex;
             uniform float3 _CamPos;
             int _Offset;
-            int _CurrentFrame;
+            int _CurrentFrameSegment;
             
             PS_INPUT vert(uint instance_id : SV_instanceID)
             {
                 PS_INPUT o = (PS_INPUT)0;
-                int initPoint = _Width * _Height * _CurrentFrame;
+                int initPoint = _Width * _Height * _CurrentFrameSegment;
                 o.position = float4((_CamPos.x + _Width / 2.0) / 200.0 - instance_id % _Width / 200.0,
                                     (_CamPos.y + _Height / 2.0) / 200.0 - instance_id / _Width / 200.0,
                                     _CamPos.z - particleBuffer[initPoint + instance_id] / 3000.0 - 2.0, 1.0f);
