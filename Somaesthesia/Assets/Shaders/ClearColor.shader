@@ -59,11 +59,11 @@ Shader "Custom/ClearColor"
                 for (int j = 0; j < nb; j++)
                 {
                     
-                    float2 xy = float2(_UVs[j].x / _ScreenParams.x, (_ScreenParams.y - _UVs[j].y) / _ScreenParams.y);
-                    float zwLength = length(_UVs[j].z) / (_ScreenParams.y) + length(_UVs[j].w) / (_ScreenParams.y);
-                    if (xy.x > 0 && xy.y > 0 && distance(xy, i.uv) <= zwLength * 1.5)
+                    float2 xy = float2(_UVs[j].x / _ScreenParams.x, _UVs[j].y / _ScreenParams.y);
+                    float zwLength = length(_UVs[j].z) / (_ScreenParams.y) / 2.5 + length(_UVs[j].w) / (_ScreenParams.y) / 2.5;
+                    // if (xy.x > 0 && xy.y > 0 && distance(xy, i.uv) <= zwLength * 2)
                     {
-                        val -= 1 - distance(xy, i.uv) / (zwLength * 1.5);
+                        val -= 1 / distance(xy * 0.5 + float2(0.5, 0.5), i.uv) * zwLength;// / (zwLength * 2);
                     }
                 }
                 val = saturate(val);
