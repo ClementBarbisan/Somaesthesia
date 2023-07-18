@@ -236,7 +236,7 @@ Shader "Particle"
                 }
                 float2 uv = float2(float(i.instance % _WidthTex) / (float)_WidthTex,
                                    float(i.instance / _WidthTex) / (float)_HeightTex); //i.uv;
-                float4 tex = tex2D(_ParticleTex, i.uv * tex2D(_MainTex, (uv * _MainTex_ST.xy + _SinTime.yz)));
+                float4 tex = tex2D(_ParticleTex, i.uv);// * tex2D(_MainTex, (uv * _MainTex_ST.xy + _SinTime.yz)));
                 tex.w /=  1 + i.keep.y / 20;
                  if (tex.w < 0.01)
                 {
@@ -298,7 +298,7 @@ Shader "Particle"
                 {
                     return (col.zyxw);
                 }
-                col = applyHSBEffect(col, float4(_Hue, _Sat, _Bri, _Con)) * (colTint.xyzw + 0.4);
+                col = applyHSBEffect(col, float4(_Hue, _Sat, _Bri, _Con)) * (colTint.xyzw + 0.25);
                 col *= pow(tex, 2);
                 return (col.zyxw);
             }
@@ -520,6 +520,7 @@ Shader "Particle"
                                     _CamPos.z - particleBuffer[initPoint + instance_id] / 3000.0 - 2.0, 1.0f);
                 // instance_id = instance_id / 2;
                 o.instance = int(instance_id);
+                
                 if (segmentBuffer[initPoint + instance_id] == 0)
                 {
                     o.keep = float2(-1, 0);
