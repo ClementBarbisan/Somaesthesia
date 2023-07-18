@@ -23,7 +23,7 @@ public class PointCloudGPU : MonoBehaviour {
     int _height = 0;
     private Camera _cam;
     private int _indexDepth = 0;
-    public int instanceCount;
+    private int _instanceCount;
 
     private void Awake()
     {
@@ -77,13 +77,13 @@ public class PointCloudGPU : MonoBehaviour {
                 matPointCloud.SetInt("_MaxFrame", maxFrameDepth);
                 matPointCloud.SetInt("_Width", _width);
                 matPointCloud.SetInt("_Height", _height);
-                instanceCount = _width * _height;
+                _instanceCount = _width * _height;
                 Debug.Log("width = " + _width + ", height = " + _height);
             }
             Marshal.Copy(frame.Data, _particles, 0, _width * _height);
             // void* managedBuffer = UnsafeUtility.AddressOf(ref _particles[0]);
             // UnsafeUtility.MemCpy(managedBuffer, (void *)frame.Data, frame.DataSize);
-            _buffer.SetData(_particles, 0, instanceCount * _indexDepth, instanceCount);
+            _buffer.SetData(_particles, 0, _instanceCount * _indexDepth, _instanceCount);
             // matPointCloud.SetInt("_CurrentFrame", _indexDepth);        
             matPointCloud.SetInt("_CurrentFrame", _indexDepth == 0 ? maxFrameDepth - 1 : _indexDepth - 1);
             _indexDepth = (_indexDepth + 1) % maxFrameDepth;
@@ -101,11 +101,11 @@ public class PointCloudGPU : MonoBehaviour {
     private void OnRenderObject()
     {
         matPointCloud.SetPass(0);
-        Graphics.DrawProceduralNow(MeshTopology.Points, 1, instanceCount);
+        Graphics.DrawProceduralNow(MeshTopology.Points, 1, _instanceCount);
         matPointCloud.SetPass(1);
         Graphics.DrawProceduralNow(MeshTopology.Points, 1, 18);
         matPointCloud.SetPass(2);
-        Graphics.DrawProceduralNow(MeshTopology.Points, 1, instanceCount);
+        Graphics.DrawProceduralNow(MeshTopology.Points, 1, _instanceCount);
     }
     
     private void OnDestroy()

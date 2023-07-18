@@ -10,7 +10,7 @@ Shader "Particle"
         _ParticleTex ("PointTex", 2D) = "white" {}
         _RadiusParticles ("Size particles", Range(0, 1)) = 0.05
         _Radius ("Size Strokes", Range(0, 20)) = 12
-        _Offset ("Offset Surround", Range(0, 20)) = 5
+        _Offset ("Offset Surround", Range(0, 50)) = 5
         _SizeCube ("Size cubes skeleton", Range(0, 2)) = 0.25
         _Hue ("Hue", Range(0, 2)) = 0.5 
         _Sat ("Saturation", Range(0, 1)) = 0.5 

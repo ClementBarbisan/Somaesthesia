@@ -117,15 +117,16 @@ public class SendSkeletonToShader : MonoBehaviour
     
     private void Update()
     {
-        if (_id == -1)
-        {
-            if (_bufferMove != null)
-            {
-                _bufferMove.SetData(listZero, 0, 0, maxMove);
-            }
-            sizeSkeleton = 0;
-            return;
-        }
+        // if (_id == -1)
+        // {
+        //     if (_bufferMove != null)
+        //     {
+        //         _bufferMove.SetData(listZero, 0, 0, maxMove);
+        //     }
+        //     sizeSkeleton = 0;
+        //     return;
+        // }
+        PointCloudGPU.Instance.matPointCloud.SetInt("_Offset", Mathf.Clamp(20 - (int)sizeSkeleton, 2, 20));
 
         if (_data.ResultsDone)
         {

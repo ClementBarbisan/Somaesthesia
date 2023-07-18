@@ -19,7 +19,7 @@ Material:
   m_CustomRenderQueue: 3000
   stringTagMap: {}
   disabledShaderPasses: []
-  m_LockedProperties: 
+  m_LockedProperties: _Hue
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -41,7 +41,7 @@ Material:
     - _Con: 8
     - _HighSpeedValue: 12
     - _Hue: 0
-    - _Offset: 3
+    - _Offset: 20
     - _Radius: 10
     - _RadiusParticles: 0.2
     - _Rotation: 10
