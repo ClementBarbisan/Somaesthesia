@@ -92,7 +92,7 @@ Shader "Particle"
                 uint index = 0;
                 for (uint j = _CurrentFrame; index < _MaxFrame; j = j == 0 ? _MaxFrame - 1 : j - 1)
                 {
-                    if (segmentBuffer[_Width * _Height * j + instance_id] != 1 || instance_id % (30 * (index + 1)) > 0)
+                    if (segmentBuffer[_Width * _Height * j + instance_id] != 1 || instance_id % (30 * (index / 2 + 1)) > 0)
                     {
                         o.keep.y = 0;
                     }
@@ -176,7 +176,7 @@ Shader "Particle"
                 }
                 o.keep.x = p[0].keep.x;
                 o.keep.y = p[0].keep.y;
-                float4 position = float4(p[0].position.x, p[0].position.y, p[0].position.z, p[0].position.w) + ClassicNoise(p[0].position.xyz) / 2.5;
+                float4 position = float4(p[0].position.x, p[0].position.y, p[0].position.z, p[0].position.w) + ClassicNoise(p[0].position.xyz) * (_SkeletonSize / 10);
                 float size = _RadiusParticles * (rand(position.xyz) * 0.25 + 0.75) / (1 + (float)o.keep.y / 20);
                 float3 up = float3(0, 1, 0);
                 float3 look = _WorldSpaceCameraPos - p[0].position;
@@ -230,10 +230,18 @@ Shader "Particle"
 
             float4 frag(PS_INPUT i) : COLOR
             {
+                if (i.keep.x < 0.01)
+                {
+                    discard;
+                }
                 float2 uv = float2(float(i.instance % _WidthTex) / (float)_WidthTex,
                                    float(i.instance / _WidthTex) / (float)_HeightTex); //i.uv;
                 float4 tex = tex2D(_ParticleTex, i.uv * tex2D(_MainTex, (uv * _MainTex_ST.xy + _SinTime.yz)));
                 tex.w /=  1 + i.keep.y / 20;
+                 if (tex.w < 0.01)
+                {
+                    discard;
+                }
                 float n = float((_Radius + 1) * (_Radius + 1));
                 float4 col = tex2D(_MixTex, uv);
                 // col.b = 0;
@@ -448,7 +456,12 @@ Shader "Particle"
             // Pixel shader
             float4 frag(PS_INPUT i) : COLOR
             {
-                return (float4(1.0f, 1.0f, 1.0f, 1.0f - _SkeletonSize / 2));
+                float w = saturate(1.0f - _SkeletonSize / 2);
+                if (w < 0.01)
+                {
+                    discard;
+                }
+                return (float4(1.0f, 1.0f, 1.0f, w));
             }
             ENDCG
         }
@@ -505,8 +518,9 @@ Shader "Particle"
                 o.position = float4((_CamPos.x + _Width / 2.0) / 200.0 - instance_id % _Width / 200.0,
                                     (_CamPos.y + _Height / 2.0) / 200.0 - instance_id / _Width / 200.0,
                                     _CamPos.z - particleBuffer[initPoint + instance_id] / 3000.0 - 2.0, 1.0f);
+                // instance_id = instance_id / 2;
                 o.instance = int(instance_id);
-                if (segmentBuffer[instance_id] == 0)
+                if (segmentBuffer[initPoint + instance_id] == 0)
                 {
                     o.keep = float2(-1, 0);
                 }
@@ -578,8 +592,8 @@ Shader "Particle"
                 const int nbVertex = clamp(_SkeletonSize, 0, 10);
                 float4 pos1 = UnityObjectToClipPos(p[0].position);
                 float4 pos2Clip = UnityObjectToClipPos(pos2);
-                AddVertex(o, lineStream,  pos1 + ClassicNoise(pos1.xyz) * (_SkeletonSize / 5),
-                           pos2Clip + ClassicNoise(pos2Clip.xyz) * (_SkeletonSize / 5), nbVertex);
+                AddVertex(o, lineStream,  pos1 + ClassicNoise(pos1.xyz) * (_SkeletonSize / 20),
+                           pos2Clip + ClassicNoise(pos2Clip.xyz) * (_SkeletonSize / 20), nbVertex);
             }
 
             float CalcLuminance(float3 color)
@@ -594,7 +608,7 @@ Shader "Particle"
 
             float4 frag(PS_INPUT i) : COLOR
             {
-                if (i.keep.x == 0)
+                if (i.keep.x < 0.01)
                 {
                     discard;
                     return (float4(0,0,0,0));

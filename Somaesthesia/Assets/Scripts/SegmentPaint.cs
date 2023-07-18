@@ -1,6 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using Intel.RealSense;
+using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -27,22 +30,25 @@ public class SegmentPaint : MonoBehaviour
 
     void ColorizeUser(nuitrack.UserFrame frame)
     {
-       
-        if (_segmentBuffer == null)
+        // unsafe
         {
-            _width = frame.Cols;
-            _height = frame.Rows;
-            _segmentBuffer = new ComputeBuffer(_width * _height * PointCloudGPU.maxFrameDepth, sizeof(int));
-            _outSegment = new int[_width * _height]; 
-            PointCloudGPU.Instance.matPointCloud.SetBuffer("segmentBuffer", _segmentBuffer);
+            if (_segmentBuffer == null)
+            {
+                _width = frame.Cols;
+                _height = frame.Rows;
+                _segmentBuffer = new ComputeBuffer(_width * _height * PointCloudGPU.maxFrameDepth, sizeof(int));
+                _outSegment = new int[_width * _height]; 
+                PointCloudGPU.Instance.matPointCloud.SetBuffer("segmentBuffer", _segmentBuffer);
+                Debug.Log("width = " + _width + ", height = " + _height);
+            }
+            for (int i = 0; i < (_width * _height); i++)
+            {
+               _outSegment[i] = frame[i];
+            }
+            // void* managedBuffer = UnsafeUtility.AddressOf(ref _outSegment[0]);
+            // UnsafeUtility.MemCpy(managedBuffer, (void *)frame.Data, frame.DataSize);
+            _segmentBuffer.SetData(_outSegment, 0, (_width * _height) * _indexSegment, (_width * _height));
+            _indexSegment = (_indexSegment + 1) % PointCloudGPU.maxFrameDepth;
         }
-        for (int i = 0; i < (_width * _height); i++)
-        {
-            _outSegment[i] = frame[i];
-        }
-        // Marshal.Copy(frame.Data, _outSegment, 0, _width * _height);
-        _segmentBuffer.SetData(_outSegment, 0, _width * _height * _indexSegment, _width * _height);
-        _indexSegment = (_indexSegment + 1) % PointCloudGPU.maxFrameDepth;
-        // PointCloudGPU.Instance.matPointCloud.SetInt("_CurrentFrame", _indexSegment);
     }  
 }
