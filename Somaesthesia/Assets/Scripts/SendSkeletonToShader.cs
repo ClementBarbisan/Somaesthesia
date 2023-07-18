@@ -132,18 +132,20 @@ public class SendSkeletonToShader : MonoBehaviour
 
         if (_data.ResultsDone)
         {
-            float val = 100;
-            val -= (float)StandardDeviation(_data.ValIA);
+            float val = Mathf.Clamp(90 - (_data.ValIA.Max() - _data.ValIA.Min()), 0, 90);
+            float[] arrayVal = _data.ValIA.Where(x => Mathf.Abs(x - _data.ValIA.Min()) > 1 &&
+                    Mathf.Abs(x - _data.ValIA.Max()) > 1).ToArray();
+            val *= Mathf.Clamp(arrayVal.Length, 1, 100);
             // val += 0.05f;
             // val *= _data.ValIA.Length;
-            // if (val > maxSkeleton)
+            if (val >= sizeSkeleton)
             {
                 sizeSkeleton = Mathf.Lerp(sizeSkeleton, val / maxSkeleton, Time.deltaTime  * (1 /_speed));
             }
-            // else
-            // {
-                // sizeSkeleton = Mathf.Lerp(sizeSkeleton, val / maxSkeleton, 0.1f * (1 / _speed));
-            // }
+            else
+            {
+                sizeSkeleton = Mathf.Lerp(sizeSkeleton, val / maxSkeleton, 0.05f * (1 / _speed));
+            }
 
             _data.ResultsDone = false;
         }
