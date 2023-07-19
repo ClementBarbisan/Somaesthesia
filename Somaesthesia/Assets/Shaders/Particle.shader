@@ -300,6 +300,8 @@ Shader "Particle"
                 }
                 col = applyHSBEffect(col, float4(_Hue, _Sat, _Bri, _Con)) * (colTint.xyzw + 0.25);
                 col *= pow(tex, 2);
+                col.xyzw *= 1.25;
+                col = saturate(col);
                 return (col.zyxw);
             }
             ENDCG
