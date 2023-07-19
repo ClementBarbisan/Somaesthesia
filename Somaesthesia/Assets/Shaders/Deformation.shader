@@ -19,7 +19,8 @@ Shader "Custom/Deformation"
             }
             LOD 100
             CGPROGRAM
-            #pragma surface surf Standard fullforwardshadows vertex:vert tessellate:tessEdge addshadow //alpha:fade
+            #pragma surface surf Standard vertex:vert tessellate:tessEdge
+            //Standard fullforwardshadows addshadow //alpha:fade
             #include "Packages/jp.keijiro.noiseshader/Shader/Common.hlsl"
             #include "Packages/jp.keijiro.noiseshader/Shader/ClassicNoise3D.hlsl"
             #include "Packages/jp.keijiro.noiseshader/Shader/SimplexNoise3D.hlsl"
@@ -70,6 +71,7 @@ Shader "Custom/Deformation"
                 uint stride = 0;
                 _Skeleton.GetDimensions(nb , stride);
                 float lengthSkel = length(tex2Dlod(_MainTex, float4(data.texcoord.xy, 0, 0)));
+                data.color = _Color;
                 data.color.w = 1 - _SkeletonSize;
                 for (int i = 0; i < nb; i++)
                 {
@@ -94,6 +96,12 @@ Shader "Custom/Deformation"
                 fixed3 c = _Color * IN.color;
                 // fixed4 c = _Color + IN.color;
                 o.Albedo = c.rgb;
+                o.Emission = saturate(c.rgb * 7.5);
+                o.Occlusion = 0;
+                o.Metallic = 0;
+                o.Smoothness = 0;
+                o.Normal = 1;
+                
                 float4x4 thresholdMatrix =
                     {  1.0 / 17.0,  9.0 / 17.0,  3.0 / 17.0, 11.0 / 17.0,
                         13.0 / 17.0,  5.0 / 17.0, 15.0 / 17.0,  7.0 / 17.0,
@@ -107,5 +115,5 @@ Shader "Custom/Deformation"
             }
             ENDCG
     }
-    Fallback "Diffuse"
+//    Fallback "Diffuse"
 }
