@@ -129,6 +129,7 @@ public class SendSkeletonToShader : MonoBehaviour
             return;
         }
         PointCloudGPU.Instance.matPointCloud.SetInt("_Offset", Mathf.Clamp(20 - (int)sizeSkeleton, 2, 20));
+        PointCloudGPU.Instance.matPointCloud.SetInt("_Offset", Mathf.Clamp(20 - (int)sizeSkeleton, 3, 20));
 
         if (_data.ResultsDone)
         {
