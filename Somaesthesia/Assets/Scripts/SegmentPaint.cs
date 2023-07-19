@@ -39,7 +39,6 @@ public class SegmentPaint : MonoBehaviour
                 _segmentBuffer = new ComputeBuffer(_width * _height * PointCloudGPU.maxFrameDepth, sizeof(int));
                 _outSegment = new int[_width * _height]; 
                 PointCloudGPU.Instance.matPointCloud.SetBuffer("segmentBuffer", _segmentBuffer);
-                Debug.Log("width = " + _width + ", height = " + _height);
             }
             for (int i = 0; i < (_width * _height); i++)
             {
@@ -48,6 +47,7 @@ public class SegmentPaint : MonoBehaviour
             // void* managedBuffer = UnsafeUtility.AddressOf(ref _outSegment[0]);
             // UnsafeUtility.MemCpy(managedBuffer, (void *)frame.Data, frame.DataSize);
             _segmentBuffer.SetData(_outSegment, 0, (_width * _height) * _indexSegment, (_width * _height));
+            PointCloudGPU.Instance.matPointCloud.SetInt("_CurrentFrame", _indexSegment);// == 0 ? PointCloudGPU.maxFrameDepth - 1 : _indexSegment - 1);
             _indexSegment = (_indexSegment + 1) % PointCloudGPU.maxFrameDepth;
         }
     }  
