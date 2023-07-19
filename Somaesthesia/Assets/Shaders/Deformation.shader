@@ -5,7 +5,6 @@ Shader "Custom/Deformation"
     {
         [PowerSlider(5.0)] _Speed ("Speed", Range (0.01, 100)) = 2
         [PowerSlider(5.0)] _Amplitude ("Amplitude", Range (0.01, 5)) = 0.25
-        _Distance ("Distance", Range(0, 10)) = 1
         _Color ("Color", Color) = (1,1,1,1)
         _ColorDisrupt ("Color Change", Color) = (1,0,0,1)
         _MainTex ("Albedo (RGB)", 2D) = "white" {}
@@ -52,7 +51,6 @@ Shader "Custom/Deformation"
             float _Speed;
             float _Amplitude;
             float _EdgeLength;
-            float _Distance;
 
             float rand(in float2 uv)
             {
