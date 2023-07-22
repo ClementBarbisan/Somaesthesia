@@ -374,7 +374,7 @@ Shader "Particle"
             }
 
 
-            void AddVertex(point PS_INPUT o, inout LineStream<PS_INPUT> lineStream, float4 pos1, float4 pos2,
+            void AddLine(point PS_INPUT o, inout LineStream<PS_INPUT> lineStream, float4 pos1, float4 pos2,
                            int nbVertex)
             {
                 float4 x = pos1;
@@ -404,7 +404,7 @@ Shader "Particle"
                 PS_INPUT o;
                 o.instance = p[0].instance;
                 // float2 screenPos = ComputeScreenPos(p[0].position);
-                const uint index = (uint)((p[0].instance + 1) % nb);
+                // const uint index = (uint)((p[0].instance + 1) % nb);
                 // if (i == p[0].instance)
                 // {
                 // i = (i + 1) % 18;
@@ -437,22 +437,28 @@ Shader "Particle"
                 const float4 G = UnityObjectToClipPos(mul(mat, float3(bottom.x, bottom.y, top.z)) + pos); // + noise2;
                 const float4 H = UnityObjectToClipPos(mul(mat, float3(bottom.x, bottom.y, bottom.z)) + pos);
                 // + noise2;
-                AddVertex(o, lineStream, A, G, nbVertex);
-                AddVertex(o, lineStream, G, F, nbVertex);
-                AddVertex(o, lineStream, F, B, nbVertex);
-                AddVertex(o, lineStream, B, A, nbVertex);
-                AddVertex(o, lineStream, C, H, nbVertex);
-                AddVertex(o, lineStream, H, E, nbVertex);
-                AddVertex(o, lineStream, E, D, nbVertex);
-                AddVertex(o, lineStream, D, C, nbVertex);
-                AddVertex(o, lineStream, A, C, nbVertex);
-                AddVertex(o, lineStream, G, H, nbVertex);
-                AddVertex(o, lineStream, F, E, nbVertex);
-                AddVertex(o, lineStream, B, D, nbVertex);
+                AddLine(o, lineStream, A, G, nbVertex);
+                AddLine(o, lineStream, G, F, nbVertex);
+                AddLine(o, lineStream, F, B, nbVertex);
+                AddLine(o, lineStream, B, A, nbVertex);
+                AddLine(o, lineStream, C, H, nbVertex);
+                AddLine(o, lineStream, H, E, nbVertex);
+                AddLine(o, lineStream, E, D, nbVertex);
+                AddLine(o, lineStream, D, C, nbVertex);
+                AddLine(o, lineStream, A, C, nbVertex);
+                AddLine(o, lineStream, G, H, nbVertex);
+                AddLine(o, lineStream, F, E, nbVertex);
+                AddLine(o, lineStream, B, D, nbVertex);
 
-
-                AddVertex(o, lineStream, UnityObjectToClipPos(p[0].position),
-                          UnityObjectToClipPos(float4(_Skeleton[index].Pos, 1.0)), nbVertex);
+                for (int i = 0; i < nb; i++)
+                {
+                    if (i != p[0].instance)
+                    {
+                        AddLine(o, lineStream, UnityObjectToClipPos(p[0].position),
+                          UnityObjectToClipPos(float4(_Skeleton[i].Pos, 1.0)), nbVertex);
+                    }
+                }
+                
             }
 
             // Pixel shader
@@ -560,7 +566,7 @@ Shader "Particle"
                 return o;
             }
             
-            void AddVertex(point PS_INPUT o, inout LineStream<PS_INPUT> lineStream, float4 pos1, float4 pos2,
+            void AddLine(point PS_INPUT o, inout LineStream<PS_INPUT> lineStream, float4 pos1, float4 pos2,
                            int nbVertex)
             {
                 float4 x = pos1;
@@ -595,7 +601,7 @@ Shader "Particle"
                 const int nbVertex = clamp(_SkeletonSize, 0, 10);
                 float4 pos1 = UnityObjectToClipPos(p[0].position);
                 float4 pos2Clip = UnityObjectToClipPos(pos2);
-                AddVertex(o, lineStream,  pos1 + ClassicNoise(pos1.xyz) * (_SkeletonSize / 20),
+                AddLine(o, lineStream,  pos1 + ClassicNoise(pos1.xyz) * (_SkeletonSize / 20),
                            pos2Clip + ClassicNoise(pos2Clip.xyz) * (_SkeletonSize / 20), nbVertex);
             }
 
