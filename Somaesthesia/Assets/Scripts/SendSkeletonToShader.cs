@@ -19,7 +19,6 @@ public struct Joints
     public float3x3 Matrice;
     public float Size;
 }
-
 public class SendSkeletonToShader : MonoBehaviour
 {
     private Skeleton _skeleton;
@@ -119,6 +118,8 @@ public class SendSkeletonToShader : MonoBehaviour
     
     private void Update()
     {
+        PointCloudGPU.Instance.matPointCloud.SetInt("_Offset", Mathf.Clamp((int)maxSkeleton
+                                                                           - (int)sizeSkeleton, 2, (int)maxSkeleton));
         if (_id == -1)
         {
             if (_bufferMove != null)
@@ -128,8 +129,6 @@ public class SendSkeletonToShader : MonoBehaviour
             sizeSkeleton = 0;
             return;
         }
-        PointCloudGPU.Instance.matPointCloud.SetInt("_Offset", Mathf.Clamp(20 - (int)sizeSkeleton, 2, 20));
-        PointCloudGPU.Instance.matPointCloud.SetInt("_Offset", Mathf.Clamp(20 - (int)sizeSkeleton, 3, 20));
 
         if (_data.ResultsDone)
         {
@@ -191,8 +190,8 @@ public class SendSkeletonToShader : MonoBehaviour
 
     private void OnPreRender()
     {
-        col.a = Mathf.Clamp(EasingFunction.EaseInCubicD(0.2f, 1f, (1 - sizeSkeleton / maxSkeleton)),
-            0.2f, 1f);
+        col.a = Mathf.Clamp(EasingFunction.EaseInCubicD(0.1f, 1f, (1 - sizeSkeleton / maxSkeleton)),
+            0.1f, 1f);
         matClear.color = col;
         Graphics.Blit(tmpTex, matClear, 1);
     }

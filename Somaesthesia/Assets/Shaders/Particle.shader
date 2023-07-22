@@ -403,31 +403,12 @@ Shader "Particle"
                 _Skeleton.GetDimensions(nb, stride);
                 PS_INPUT o;
                 o.instance = p[0].instance;
-                // float2 screenPos = ComputeScreenPos(p[0].position);
-                // const uint index = (uint)((p[0].instance + 1) % nb);
-                // if (i == p[0].instance)
-                // {
-                // i = (i + 1) % 18;
-                // }
-                // const int instanceDiv = clamp(nb / (_Time.z), 1, nb);
-                const int nbVertex = clamp(_SkeletonSize * 20, 0, nb);
+                const int nbVertex = clamp(_SkeletonSize * 10, 0, nb);
                 const float size = _SizeCube;
                 float3 top = size / 2;
                 float3 bottom = -size / 2;
-                // for (int i = o.instance; i < o.instance + instanceDiv; i++)
-                // {
-                // 	float3 pos = _Skeleton[i].Pos;
-                // 	top.xyz = max(top.xyz, pos.xyz);
-                // 	bottom.xyz = min(bottom.xyz, pos.xyz);
-                // }
-                // top.z = top.z / 5 + size;
-                // bottom.z = bottom.z / 5 - size;
-                // top.xy = top.xy / 2 + size;
-                // bottom.xy = bottom.xy / 2 - size;
                 float4 pos = p[0].position;
                 float3x3 mat = _Skeleton[p[0].instance].Matrice;
-                // const float noise1 = sin(_Time.x / 20) / 50 * nbVertex;
-                // const float noise2 = cos(_Time.x / 20) / 50 * nbVertex;
                 const float4 A = UnityObjectToClipPos(mul(mat, float3(bottom.x, top.y, top.z)) + pos); // + noise1;
                 const float4 B = UnityObjectToClipPos(mul(mat, float3(top.x, top.y, top.z)) + pos); // + noise1;
                 const float4 C = UnityObjectToClipPos(mul(mat, float3(bottom.x, top.y, bottom.z)) + pos); // + noise1;
@@ -436,7 +417,6 @@ Shader "Particle"
                 const float4 F = UnityObjectToClipPos(mul(mat, float3(top.x, bottom.y, top.z)) + pos); // + noise2;
                 const float4 G = UnityObjectToClipPos(mul(mat, float3(bottom.x, bottom.y, top.z)) + pos); // + noise2;
                 const float4 H = UnityObjectToClipPos(mul(mat, float3(bottom.x, bottom.y, bottom.z)) + pos);
-                // + noise2;
                 AddLine(o, lineStream, A, G, nbVertex);
                 AddLine(o, lineStream, G, F, nbVertex);
                 AddLine(o, lineStream, F, B, nbVertex);
@@ -464,12 +444,12 @@ Shader "Particle"
             // Pixel shader
             float4 frag(PS_INPUT i) : COLOR
             {
-                float w = saturate(1.0f - _SkeletonSize / 2);
+                float w = 1.0 - _SkeletonSize / (float)5;
                 if (w < 0.01)
                 {
                     discard;
                 }
-                return (float4(1.0f, 1.0f, 1.0f, w));
+                return (float4(1.0, 1.0, 1.0, w));
             }
             ENDCG
         }
