@@ -92,7 +92,7 @@ Shader "Particle"
                 uint index = 0;
                 for (uint j = _CurrentFrame; index < _MaxFrame; j = j == 0 ? _MaxFrame - 1 : j - 1)
                 {
-                    if (segmentBuffer[_Width * _Height * j + instance_id] != 1 || instance_id % (30 * int(index * 2 + 1)) > 0)
+                    if (segmentBuffer[_Width * _Height * j + instance_id] != 1 || instance_id % (30 * int(index + 1)) > 0)
                     {
                         o.keep.y = 0;
                     }
@@ -176,7 +176,7 @@ Shader "Particle"
                 }
                 o.keep.x = p[0].keep.x;
                 o.keep.y = p[0].keep.y;
-                float4 position = float4(p[0].position.x, p[0].position.y, p[0].position.z, p[0].position.w) + ClassicNoise(p[0].position.xyz) * (_SkeletonSize / 10);
+                float4 position = float4(p[0].position.x, p[0].position.y, p[0].position.z, p[0].position.w) + ClassicNoise(p[0].position.xyz) * (_SkeletonSize / 5);
                 float size = _RadiusParticles * (rand(position.xyz) * 0.25 + 0.75) / (1 + (float)o.keep.y / 20);
                 float3 up = float3(0, 1, 0);
                 float3 look = _WorldSpaceCameraPos - p[0].position;
@@ -237,7 +237,7 @@ Shader "Particle"
                 float2 uv = float2(float(i.instance % _WidthTex) / (float)_WidthTex,
                                    float(i.instance / _WidthTex) / (float)_HeightTex); //i.uv;
                 float4 tex = tex2D(_ParticleTex, i.uv);// * tex2D(_MainTex, (uv * _MainTex_ST.xy + _SinTime.yz)));
-                tex.w /=  1 + i.keep.y / 20;
+                // tex.w /=  1 + i.keep.y / 20;
                  if (tex.w == 0)
                 {
                     discard;

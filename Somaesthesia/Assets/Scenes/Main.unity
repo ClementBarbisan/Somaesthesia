@@ -787,8 +787,8 @@ MonoBehaviour:
   col: {r: 0, g: 0.45515132, b: 0.7075472, a: 1}
   maxMove: 15
   sizeSkeleton: 0
-  maxSkeleton: 20
-  _speed: 1
+  maxSkeleton: 10
+  _speed: 5
 --- !u!1 &1228864638
 GameObject:
   m_ObjectHideFlags: 0
