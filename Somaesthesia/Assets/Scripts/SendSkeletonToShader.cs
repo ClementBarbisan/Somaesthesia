@@ -6,6 +6,7 @@ using nuitrack;
 using nuitrack.device;
 using NuitrackSDK;
 using NuitrackSDK.Avatar;
+using TMPro;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -59,6 +60,10 @@ public class SendSkeletonToShader : MonoBehaviour
     private RenderTexture tmpTex = null;
 
     [SerializeField] private float _speed = 5f;
+    [SerializeField] private TextMeshProUGUI _prefabText;
+    [SerializeField] private Canvas _parentCanvas;
+
+    private RectTransform _rectTr;
     // [SerializeField] private MeshFilter meshBubble;
     // [SerializeField] private Material matBubble;
     // [SerializeField] private float scaleBubbles = 0.25f;
@@ -70,6 +75,7 @@ public class SendSkeletonToShader : MonoBehaviour
     void Start()
     {
         _data = GetComponent<ReceiveLabelsValue>();
+        _rectTr = _parentCanvas.GetComponent<RectTransform>();
         jointsList = new Joints[_jointsInfo.Length];
         cam = Camera.main;
         NuitrackManager.onUserTrackerUpdate += UserTrackerOnOnUpdateEvent;
@@ -145,6 +151,25 @@ public class SendSkeletonToShader : MonoBehaviour
             else
             {
                 sizeSkeleton = Mathf.Lerp(sizeSkeleton, val / maxSkeleton, 0.05f * (1 / _speed));
+            }
+
+            if (sizeSkeleton / maxSkeleton < 1f)
+            {
+                for (int j = 0; j < _data.TextIA.Length; j++)
+                {
+                    for (int i = 0; i < (int) (maxSkeleton - (maxSkeleton - val)) / 7; i++)
+                    {
+                        TextMeshProUGUI obj = Instantiate(_prefabText, _parentCanvas.transform);
+                        obj.transform.localPosition = new Vector3(Random.Range(-0.5f, 0.5f) * _rectTr.sizeDelta.x,
+                            Random.Range(-0.5f, 0.5f) * _rectTr.sizeDelta.y, 0);
+                        obj.text = _data.TextIA[j];
+                        Color col = obj.color;
+                        col.a = val / maxSkeleton / 5;
+                        obj.color = col;
+                    }
+                }
+
+               
             }
 
             _data.ResultsDone = false;
