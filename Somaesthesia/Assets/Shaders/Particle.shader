@@ -79,6 +79,7 @@ Shader "Particle"
             float _RadiusParticles;
             uint _MaxFrame;
             uint _CurrentFrame;
+            float3 _SpherePosition;
 
             float rand(in float2 uv)
             {
@@ -113,6 +114,8 @@ Shader "Particle"
                 _Skeleton.GetDimensions(nb, stride);
                 o.instance = int(instance_id);
                 float3 pos = UnityObjectToClipPos(o.position);
+                float3 posSphere = UnityObjectToClipPos(_SpherePosition);
+                
                 for (uint i = 0; i < nb; i++)
                 {
                     float3 posSkelet = UnityObjectToClipPos(_Skeleton[i].Pos);
@@ -120,6 +123,7 @@ Shader "Particle"
                     if (o.keep.y > 0 && dist < _SkeletonSize)
                     {
                         o.keep.x = saturate(dist * (_SkeletonSize / 2));
+                       
                         break;
                     }
                     else
@@ -134,6 +138,10 @@ Shader "Particle"
                 o.position = float4((_CamPos.x + _Width / 2.0) / 200.0 - instance_id % _Width / 200.0,
                                     (_CamPos.y + _Height / 2.0) / 200.0 - instance_id / _Width / 200.0,
                                     _CamPos.z - particleBuffer[_Width * _Height * o.keep.y + instance_id] / 3000.0 - 2.0, 1.0f);
+                if (distance(posSphere, o.position) < _SkeletonSize / 2)
+                {
+                    o.position.xyz = posSphere +  normalize(o.position - posSphere) * (_SkeletonSize / 1.5);
+                }
                 o.keep.y = index;
                 return o;
             }
