@@ -19,8 +19,8 @@ public class LaunchProcess : MonoBehaviour
         ProcessStartInfo prs = new ProcessStartInfo();
         prs.FileName = @"python";
         prs.Arguments =
-            "C:\\Git\\Somaesthesia\\mmaction2\\webcam_action_recognition.py c:\\tsn_imagenet-pretrained-r50_8xb32-1x1x8-100e_kinetics400-rgb.py" +
-            " c:\\best_acc_top1_epoch_20.pth c:\\label_kinetics_tiny.txt --device cuda:0 --inference-fps 60";
+            "C:\\Git\\Somaesthesia\\mmaction2\\webcam_action_recognition.py C:\\tanet_imagenet-pretrained-r50_8xb8-dense-1x1x8-100e_kinetics400-rgb.py" +
+            " C:\\tanet_imagenet-pretrained-r50_8xb8-dense-1x1x8-100e_kinetics400-rgb_20220919-a34346bc.pth c:\\label_map_k400.txt --device cuda:0 --inference-fps 60 --image";
         prs.CreateNoWindow = true;
         pr.StartInfo = prs;
 

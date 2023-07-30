@@ -138,8 +138,8 @@ public class SendSkeletonToShader : MonoBehaviour
 
         if (_data.ResultsDone)
         {
-            float val = Mathf.Clamp(90 - (_data.ValIA.Max() - _data.ValIA.Min()), 0, 90);
-            float[] arrayVal = _data.ValIA.Where(x => Mathf.Abs(x - _data.ValIA.Min()) > 1 &&
+            float val = Mathf.Clamp(80 - (_data.ValIA.Max() - _data.ValIA.Min()), 0, 80);
+            float[] arrayVal = _data.ValIA.Where(x => Mathf.Abs(x - _data.ValIA.Min()) > 10 &&
                     Mathf.Abs(x - _data.ValIA.Max()) > 1).ToArray();
             val *= Mathf.Clamp(arrayVal.Length, 1, 100);
             // val += 0.05f;
@@ -157,7 +157,7 @@ public class SendSkeletonToShader : MonoBehaviour
             {
                 for (int j = 0; j < _data.TextIA.Length; j++)
                 {
-                    for (int i = 0; i < (int) (maxSkeleton - (maxSkeleton - val)) / 7; i++)
+                    for (int i = 0; i < Mathf.CeilToInt((int)(maxSkeleton - (maxSkeleton - val)) / 10); i++)
                     {
                         TextMeshProUGUI obj = Instantiate(_prefabText, _parentCanvas.transform);
                         obj.transform.localPosition = new Vector3(Random.Range(-0.5f, 0.5f) * _rectTr.sizeDelta.x,

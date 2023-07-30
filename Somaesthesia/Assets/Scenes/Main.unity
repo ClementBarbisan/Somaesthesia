@@ -787,8 +787,8 @@ MonoBehaviour:
   col: {r: 0, g: 0.45515132, b: 0.7075472, a: 1}
   maxMove: 15
   sizeSkeleton: 0
-  maxSkeleton: 10
-  _speed: 0.25
+  maxSkeleton: 15
+  _speed: 1
   _prefabText: {fileID: 4481629025886409444, guid: 7717a6ac5e5f0ed47bfe54f46903acab,
     type: 3}
   _parentCanvas: {fileID: 1228864641}
