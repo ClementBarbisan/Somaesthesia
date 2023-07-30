@@ -788,7 +788,7 @@ MonoBehaviour:
   maxMove: 15
   sizeSkeleton: 0
   maxSkeleton: 15
-  _speed: 1
+  _speed: 5
   _prefabText: {fileID: 4481629025886409444, guid: 7717a6ac5e5f0ed47bfe54f46903acab,
     type: 3}
   _parentCanvas: {fileID: 1228864641}
@@ -1521,3 +1521,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76ecc365765f39c41a2d47b82c37402e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _nameProcess: tanet_imagenet-pretrained-r50_8xb8-dense-1x1x8-100e_kinetics400-rgb
+  _nameLabels: label_map_k400
