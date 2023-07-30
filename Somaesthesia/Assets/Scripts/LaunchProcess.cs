@@ -14,6 +14,8 @@ public class LaunchProcess : MonoBehaviour
     // Start is called before the first frame update
     private IntPtr windowUnity;
     Process pr = new Process();
+    [SerializeField] private string _nameProcess = "tanet_imagenet-pretrained-r50_8xb8-dense-1x1x8-100e_kinetics400-rgb";
+    [SerializeField] private string _nameLabels = "label_map_k400";
     void OnEnable()
     {
         windowUnity = (IntPtr) GetActiveWindow();
@@ -22,9 +24,9 @@ public class LaunchProcess : MonoBehaviour
         prs.FileName = "C:\\webcam_action_recognition\\webcam_action_recognition.exe";
         prs.UseShellExecute = true;
         prs.Arguments =
-            "C:\\tanet_imagenet-pretrained-r50_8xb8-dense-1x1x8-100e_kinetics400-rgb.py" +
-            " C:\\tanet_imagenet-pretrained-r50_8xb8-dense-1x1x8-100e_kinetics400-rgb_20220919-a34346bc.pth" +
-            " C:\\label_map_k400.txt --device cuda:0 --inference-fps 60 --image True";
+            "C:\\" + _nameProcess + ".py" +
+            " C:\\" + _nameProcess + ".pth" +
+            " C:\\" + _nameLabels + ".txt --device cuda:0 --inference-fps 60 --image True";
         pr.StartInfo = prs;
 
         ThreadStart ths = new ThreadStart(() => pr.Start());
