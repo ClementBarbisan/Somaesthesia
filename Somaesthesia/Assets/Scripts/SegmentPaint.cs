@@ -15,6 +15,7 @@ public class SegmentPaint : MonoBehaviour
     int[] _outSegment;
     private int _width;
     private int _height;
+    unsafe void* managedBuffer;
 
     void Start()
     {
@@ -30,7 +31,7 @@ public class SegmentPaint : MonoBehaviour
 
     void ColorizeUser(nuitrack.UserFrame frame)
     {
-        // unsafe
+        unsafe
         {
             if (_segmentBuffer == null)
             {
@@ -38,13 +39,13 @@ public class SegmentPaint : MonoBehaviour
                 _height = frame.Rows;
                 _segmentBuffer = new ComputeBuffer(_width * _height * PointCloudGPU.maxFrameDepth, sizeof(int));
                 _outSegment = new int[_width * _height]; 
+                managedBuffer = UnsafeUtility.AddressOf(ref _outSegment[0]);
                 PointCloudGPU.Instance.matPointCloud.SetBuffer("segmentBuffer", _segmentBuffer);
             }
             for (int i = 0; i < (_width * _height); i++)
             {
                _outSegment[i] = frame[i];
             }
-            // void* managedBuffer = UnsafeUtility.AddressOf(ref _outSegment[0]);
             // UnsafeUtility.MemCpy(managedBuffer, (void *)frame.Data, frame.DataSize);
             _segmentBuffer.SetData(_outSegment, 0, (_width * _height) * _indexSegment, (_width * _height));
             PointCloudGPU.Instance.matPointCloud.SetInt("_CurrentFrame", _indexSegment);// == 0 ? PointCloudGPU.maxFrameDepth - 1 : _indexSegment - 1);

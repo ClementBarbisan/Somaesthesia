@@ -452,7 +452,7 @@ Shader "Particle"
             // Pixel shader
             float4 frag(PS_INPUT i) : COLOR
             {
-                float w = 1.0 - _SkeletonSize / (float)5;
+                float w = 1.0 - _SkeletonSize / 3.5;
                 if (w < 0.01)
                 {
                     discard;

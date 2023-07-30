@@ -64,6 +64,8 @@ public class SendSkeletonToShader : MonoBehaviour
     [SerializeField] private Canvas _parentCanvas;
 
     private RectTransform _rectTr;
+
+    private List<TextMeshProUGUI> _listTexts;
     // [SerializeField] private MeshFilter meshBubble;
     // [SerializeField] private Material matBubble;
     // [SerializeField] private float scaleBubbles = 0.25f;
@@ -155,17 +157,30 @@ public class SendSkeletonToShader : MonoBehaviour
 
             if (sizeSkeleton / maxSkeleton < 1f)
             {
+                int valueT = (int) ((maxSkeleton - (maxSkeleton - val)) / maxSkeleton);
                 for (int j = 0; j < _data.TextIA.Length; j++)
                 {
-                    for (int i = 0; i < Mathf.CeilToInt((int)(maxSkeleton - (maxSkeleton - val)) / 10); i++)
+                    if (_listTexts == null)
                     {
-                        TextMeshProUGUI obj = Instantiate(_prefabText, _parentCanvas.transform);
-                        obj.transform.localPosition = new Vector3(Random.Range(-0.5f, 0.5f) * _rectTr.sizeDelta.x,
+                        _listTexts = new List<TextMeshProUGUI>(_data.TextIA.Length * 5);
+                    }
+
+                    for (int i = 0; i < valueT; i++)
+                    {
+                        if (_listTexts.Count <= j * valueT + i)
+                        {
+                            _listTexts.Add(Instantiate(_prefabText, _parentCanvas.transform));
+                        }
+                        else if (_listTexts[j * valueT + i].color.a > 0)
+                        {
+                            continue;
+                        }
+                        _listTexts[j * valueT + i].transform.localPosition = new Vector3(Random.Range(-0.5f, 0.5f) * _rectTr.sizeDelta.x,
                             Random.Range(-0.5f, 0.5f) * _rectTr.sizeDelta.y, 0);
-                        obj.text = _data.TextIA[j];
-                        Color col = obj.color;
-                        col.a = val / maxSkeleton / 5;
-                        obj.color = col;
+                        _listTexts[j * valueT + i].text = _data.TextIA[j];
+                        Color color = _listTexts[j * valueT + i].color;
+                        color.a = val / maxSkeleton / 5;
+                        _listTexts[j * valueT + i].color = color;
                     }
                 }
 

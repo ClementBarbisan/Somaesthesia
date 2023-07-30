@@ -12,25 +12,38 @@ Shader "Custom/Deformation"
     }
     SubShader
     {
-            Tags
-            {
-                "RenderType"="Opaque"
-            }
-            LOD 100
+        Tags
+        {
+            "RenderType"="Opaque"
+        }
+        LOD 100
+        Pass
+        {
             CGPROGRAM
-            #pragma surface surf Standard vertex:vert tessellate:tessEdge
-            //Standard fullforwardshadows addshadow //alpha:fade
-            #include "Packages/jp.keijiro.noiseshader/Shader/Common.hlsl"
-            #include "Packages/jp.keijiro.noiseshader/Shader/ClassicNoise3D.hlsl"
+            #pragma vertex vert
+            #pragma fragment frag
+            // #pragma tessellate tessEdge
+            #pragma multi_compile_fog
+   //Standard fullforwardshadows addshadow //alpha:fade
             #include "Packages/jp.keijiro.noiseshader/Shader/SimplexNoise3D.hlsl"
-            #include "Tessellation.cginc"
+            // #include "Tessellation.cginc"
+            #include "UnityCG.cginc"
             #pragma target 5.0
 
-            struct Input {
-                float4 screenPos;
+            struct appdata
+            {
+                float4 vertex : POSITION;
+                float2 texcoord : TEXCOORD0;
                 float4 color : COLOR;
             };
-#ifdef SHADER_API_D3D11
+            
+             struct v2f
+            {
+                float2 uv : TEXCOORD0;
+                float4 vertex : SV_POSITION;
+                float4 color : COLOR;
+                float4 screenPos: TEXCOORD1;
+            };
             struct Joints
             {
                 float3 Pos;
@@ -39,7 +52,6 @@ Shader "Custom/Deformation"
             };
 
             StructuredBuffer<Joints> _Skeleton;
-#endif
             float _SkeletonSize;
             fixed4 _Color;
             float4 _ColorDisrupt;
@@ -58,13 +70,14 @@ Shader "Custom/Deformation"
                 return abs(noise.x + noise.y) * 0.5;
             }
             
-            float4 tessEdge(appdata_full v0, appdata_full v1, appdata_full v2)
+            // float4 tessEdge(appdata v0, appdata v1, appdata v2)
+            // {
+            //     return UnityEdgeLengthBasedTess(v0.vertex, v1.vertex, v2.vertex, _EdgeLength);
+            // }
+            
+            v2f vert(appdata data)
             {
-                return UnityEdgeLengthBasedTess(v0.vertex, v1.vertex, v2.vertex, _EdgeLength);
-            }
-            void vert(inout appdata_full data)
-            {
-                #ifdef SHADER_API_D3D11
+                v2f o;
                 uint nb = 0;
                 uint stride = 0;
                 _Skeleton.GetDimensions(nb , stride);
@@ -74,32 +87,31 @@ Shader "Custom/Deformation"
                 for (int i = 0; i < nb; i++)
                 {
                     float curDist = distance((_Skeleton[i].Pos), UnityObjectToClipPos(data.vertex));
-                    if (curDist < _SkeletonSize * 2.5 * lengthSkel)
+                    if (curDist < _SkeletonSize * lengthSkel)
                     {
                         data.vertex.xyz += sin(_Time * _Speed) * _Amplitude * (1 / curDist) * (SimplexNoise(
                             data.vertex) / 2.5);
-                        float val = 1 - (curDist / (_SkeletonSize * 2.5 * lengthSkel));
+                        float val = 1 - (curDist / (_SkeletonSize * lengthSkel));
                         data.color.rgb = _ColorDisrupt * val;
                         data.color.w -= val;
                         data.color.rgb *= tex2Dlod(_MainTex, float4(data.texcoord.xy * _MainTex_ST.xy + _MainTex_ST.zw, 0, 0));
-                        return;
+                        o.color = data.color;
+                        o.vertex = UnityObjectToClipPos(data.vertex);
+                        o.screenPos = ComputeScreenPos(o.vertex);
+                        o.uv = data.texcoord;
+                        return (o);
                     }
                 }
-#endif
+                o.color = data.color;
+                o.vertex = UnityObjectToClipPos(data.vertex);
+                o.screenPos = ComputeScreenPos(o.vertex);
+                o.uv = data.texcoord;
+                return (o);
             }
 
-            void surf(Input IN, inout SurfaceOutputStandard o)
+            float4 frag(v2f i) : COLOR
             {
-                // Albedo comes from a texture tinted by color
-                fixed3 c = _Color * IN.color;
-                // fixed4 c = _Color + IN.color;
-                o.Albedo = c.rgb;
-                o.Emission = saturate(c.rgb * 7.5);
-                o.Occlusion = 0;
-                o.Metallic = 0;
-                o.Smoothness = 0;
-                o.Normal = 1;
-                
+                float4 c = _Color * i.color;
                 float4x4 thresholdMatrix =
                     {  1.0 / 17.0,  9.0 / 17.0,  3.0 / 17.0, 11.0 / 17.0,
                         13.0 / 17.0,  5.0 / 17.0, 15.0 / 17.0,  7.0 / 17.0,
@@ -107,11 +119,14 @@ Shader "Custom/Deformation"
                         16.0 / 17.0,  8.0 / 17.0, 14.0 / 17.0,  6.0 / 17.0
                     };
                 float4x4 _RowAccess = { 1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1 };
-                float2 pos = IN.screenPos.xy / IN.screenPos.w;
+                float2 pos = i.screenPos.xy / i.screenPos.w;
                 pos *= _ScreenParams.xy; // pixel position
-                clip(IN.color.w - thresholdMatrix[fmod(pos.x, 4)] * _RowAccess[fmod(pos.y, 4)]);
+                clip(c.w - thresholdMatrix[fmod(pos.x, 4)] * _RowAccess[fmod(pos.y, 4)]);
+                return (c);
             }
             ENDCG
+        }
+ 
     }
 //    Fallback "Diffuse"
 }

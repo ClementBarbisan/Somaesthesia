@@ -19,7 +19,6 @@ public class FadeOut : MonoBehaviour
     {
         if (_text.color.a <= 0)
         {
-            Destroy(this.gameObject);
             return;
         }
 
