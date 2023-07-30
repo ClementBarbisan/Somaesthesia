@@ -505,12 +505,12 @@ Shader "Particle"
             uniform int _HeightTex;
             uniform float3 _CamPos;
             int _Offset;
-            int _CurrentFrame;
+            uint _CurrentFrame;
             
             PS_INPUT vert(uint instance_id : SV_instanceID)
             {
                 PS_INPUT o = (PS_INPUT)0;
-                int initPoint = _Width * _Height * _CurrentFrame;
+                const uint initPoint = _Width * _Height * _CurrentFrame;
                 o.position = float4((_CamPos.x + _Width / 2.0) / 200.0 - instance_id % _Width / 200.0,
                                     (_CamPos.y + _Height / 2.0) / 200.0 - instance_id / _Width / 200.0,
                                     _CamPos.z - particleBuffer[initPoint + instance_id] / 3000.0 - 2.0, 1.0f);
@@ -578,7 +578,7 @@ Shader "Particle"
             {
                 PS_INPUT o;
                 o.keep = p[0].keep;
-                if (o.keep.x < 0)
+                if (o.keep.x == -1)
                 {
                     return;
                 }
@@ -605,7 +605,7 @@ Shader "Particle"
 
             float4 frag(PS_INPUT i) : COLOR
             {
-                if (i.keep.x < 0.01)
+                if (i.keep.x == -1)
                 {
                     discard;
                     return (float4(0,0,0,0));

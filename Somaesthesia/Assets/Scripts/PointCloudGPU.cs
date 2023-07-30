@@ -15,7 +15,7 @@ public class PointCloudGPU : MonoBehaviour {
     static public PointCloudGPU Instance;
     public Material matPointCloud;
     public Material matMesh;
-    public const int maxFrameDepth = 1;
+    public const int maxFrameDepth = 10;
     private short[] _particles;
     ComputeBuffer _buffer;
     Texture2D _texture;
