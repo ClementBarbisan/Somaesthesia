@@ -15,7 +15,7 @@ public class PointCloudGPU : MonoBehaviour {
     static public PointCloudGPU Instance;
     public Material matPointCloud;
     public Material matMesh;
-    public const int maxFrameDepth = 10;
+    public const int maxFrameDepth = 15;
     private short[] _particles;
     ComputeBuffer _buffer;
     Texture2D _texture;
@@ -74,9 +74,9 @@ public class PointCloudGPU : MonoBehaviour {
                 _height = rows;
                 matPointCloud.SetVector("_CamPos", _cam.transform.position);
                 matPointCloud.SetBuffer("particleBuffer", _buffer);
-                matPointCloud.SetInt("_MaxFrame", maxFrameDepth);
-                matPointCloud.SetInt("_Width", _width);
-                matPointCloud.SetInt("_Height", _height);
+                Shader.SetGlobalInteger("_MaxFrame", maxFrameDepth);
+                matPointCloud.SetInteger("_Width", _width);
+                matPointCloud.SetInteger("_Height", _height);
                 _instanceCount = _width * _height;
             }
             Marshal.Copy(frame.Data, _particles, 0, _instanceCount);
@@ -98,12 +98,17 @@ public class PointCloudGPU : MonoBehaviour {
 
     private void OnRenderObject()
     {
-        matPointCloud.SetPass(0);
-        Graphics.DrawProceduralNow(MeshTopology.Points, 1, _instanceCount);
+       
         matPointCloud.SetPass(1);
         Graphics.DrawProceduralNow(MeshTopology.Points, 1, 18);
+       
+        matPointCloud.SetPass(0);
+        Graphics.DrawProceduralNow(MeshTopology.Points, 1, _instanceCount);
+        // matPointCloud.SetPass(3);
+        // Graphics.DrawProceduralNow(MeshTopology.Points, 1, _instanceCount);
         matPointCloud.SetPass(2);
         Graphics.DrawProceduralNow(MeshTopology.Points, 1, _instanceCount);
+       
     }
     
     private void OnDestroy()

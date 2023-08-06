@@ -261,7 +261,7 @@ public class SendSkeletonToShader : MonoBehaviour
         _skeleton = skeletondata.GetSkeletonByID(_id);
         if (_buffer == null)
         {
-            _buffer = new ComputeBuffer(_jointsInfo.Length * PointCloudGPU.maxFrameDepth, sizeof(float) * 13);
+            _buffer = new ComputeBuffer(_jointsInfo.Length, sizeof(float) * 13);
             Shader.SetGlobalBuffer("_Skeleton", _buffer);
             Shader.SetGlobalFloat("_SkeletonSize", sizeSkeleton);
         }
@@ -296,7 +296,7 @@ public class SendSkeletonToShader : MonoBehaviour
               
             }
 
-            while (jointsList.Count > _jointsInfo.Length * PointCloudGPU.maxFrameDepth)
+            while (jointsList.Count > _jointsInfo.Length)
             {
                 jointsList.Dequeue();
             }
