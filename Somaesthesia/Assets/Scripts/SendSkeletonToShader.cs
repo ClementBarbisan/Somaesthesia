@@ -51,7 +51,7 @@ public class SendSkeletonToShader : MonoBehaviour
         nuitrack.JointType.RightAnkle,
         nuitrack.JointType.RightFoot,
     };
-    Joints[] jointsList;
+    Queue<Joints> jointsList = new Queue<Joints>();
     private int _id = -1;
     private Camera cam;
     [SerializeField] private int maxMove = 15;
@@ -66,6 +66,8 @@ public class SendSkeletonToShader : MonoBehaviour
     private RectTransform _rectTr;
 
     private List<TextMeshProUGUI> _listTexts;
+
+    private int _currentFrame = 0;
     // [SerializeField] private MeshFilter meshBubble;
     // [SerializeField] private Material matBubble;
     // [SerializeField] private float scaleBubbles = 0.25f;
@@ -78,7 +80,7 @@ public class SendSkeletonToShader : MonoBehaviour
     {
         _data = GetComponent<ReceiveLabelsValue>();
         _rectTr = _parentCanvas.GetComponent<RectTransform>();
-        jointsList = new Joints[_jointsInfo.Length];
+        // jointsList = new Joints[_jointsInfo.Length];
         cam = Camera.main;
         NuitrackManager.onUserTrackerUpdate += UserTrackerOnOnUpdateEvent;
         NuitrackManager.SkeletonTracker.OnSkeletonUpdateEvent += SkeletonTrackerOnOnSkeletonUpdateEvent;
@@ -259,7 +261,9 @@ public class SendSkeletonToShader : MonoBehaviour
         _skeleton = skeletondata.GetSkeletonByID(_id);
         if (_buffer == null)
         {
-            _buffer = new ComputeBuffer(_jointsInfo.Length, sizeof(float) * 13);
+            _buffer = new ComputeBuffer(_jointsInfo.Length * PointCloudGPU.maxFrameDepth, sizeof(float) * 13);
+            Shader.SetGlobalBuffer("_Skeleton", _buffer);
+            Shader.SetGlobalFloat("_SkeletonSize", sizeSkeleton);
         }
         if (_skeleton != null)
         {
@@ -288,11 +292,19 @@ public class SendSkeletonToShader : MonoBehaviour
                     // newJoint.Pos.y), Mathf.Max(posMax.z, newJoint.Pos.z));
                 // posMin = new Vector3(Mathf.Min(posMin.x, newJoint.Pos.x), Mathf.Min(posMin.y,
                     // newJoint.Pos.y), Mathf.Min(posMin.z, newJoint.Pos.z));
-                jointsList[i] = newJoint;
+                jointsList.Enqueue(newJoint);
+              
             }
-            _buffer.SetData(jointsList);
-            Shader.SetGlobalBuffer("_Skeleton", _buffer);
-            Shader.SetGlobalFloat("_SkeletonSize", sizeSkeleton);
+
+            while (jointsList.Count > _jointsInfo.Length * PointCloudGPU.maxFrameDepth)
+            {
+                jointsList.Dequeue();
+            }
+
+            _buffer.SetData(jointsList.ToArray());//, 0, jointsList.Length * _currentFrame, jointsList.Length);
+            // _currentFrame = (_currentFrame + 1) % PointCloudGPU.maxFrameDepth;
+          
+            
         }
     }
 }

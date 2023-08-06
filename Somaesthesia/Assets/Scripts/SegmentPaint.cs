@@ -48,7 +48,7 @@ public class SegmentPaint : MonoBehaviour
             }
             // UnsafeUtility.MemCpy(managedBuffer, (void *)frame.Data, frame.DataSize);
             _segmentBuffer.SetData(_outSegment, 0, (_width * _height) * _indexSegment, (_width * _height));
-            PointCloudGPU.Instance.matPointCloud.SetInt("_CurrentFrame", _indexSegment);// == 0 ? PointCloudGPU.maxFrameDepth - 1 : _indexSegment - 1);
+            Shader.SetGlobalInteger("_CurrentFrame", _indexSegment);// == 0 ? PointCloudGPU.maxFrameDepth - 1 : _indexSegment - 1);
             _indexSegment = (_indexSegment + 1) % PointCloudGPU.maxFrameDepth;
         }
     }  

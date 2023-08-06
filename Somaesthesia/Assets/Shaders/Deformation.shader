@@ -52,6 +52,7 @@ Shader "Custom/Deformation"
             };
 
             StructuredBuffer<Joints> _Skeleton;
+            int _CurrentFrame;
             float _SkeletonSize;
             fixed4 _Color;
             float4 _ColorDisrupt;
@@ -84,7 +85,8 @@ Shader "Custom/Deformation"
                 float lengthSkel = length(tex2Dlod(_MainTex, float4(data.texcoord.xy, 0, 0)));
                 data.color = _Color;
                 data.color.w = 1 - _SkeletonSize / 3.5;
-                for (int i = 0; i < nb; i++)
+                int skeletonFrame = 0;
+                for (int i = skeletonFrame; i < skeletonFrame + nb; i++)
                 {
                     float curDist = distance((_Skeleton[i].Pos), UnityObjectToClipPos(data.vertex));
                     if (curDist < _SkeletonSize * lengthSkel)
