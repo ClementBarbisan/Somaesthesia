@@ -130,15 +130,16 @@ public class SendSkeletonToShader : MonoBehaviour
     {
         PointCloudGPU.Instance.matPointCloud.SetInt("_Offset", Mathf.Clamp(((int)maxSkeleton
                                                                            - (int)sizeSkeleton) * 2, 2, (int)maxSkeleton * 2));
-        if (_id == -1)
-        {
-            if (_bufferMove != null)
-            {
-                _bufferMove.SetData(listZero, 0, 0, maxMove);
-            }
-            sizeSkeleton = 0;
-            return;
-        }
+        PointCloudGPU.Instance.curlNoise.SetFloat("_speed", Mathf.Clamp(sizeSkeleton / maxSkeleton, 0, 0.75f));
+        // if (_id == -1)
+        // {
+        //     if (_bufferMove != null)
+        //     {
+        //         _bufferMove.SetData(listZero, 0, 0, maxMove);
+        //     }
+        //     sizeSkeleton = 0;
+        //     return;
+        // }
 
         if (_data.ResultsDone)
         {
@@ -268,9 +269,6 @@ public class SendSkeletonToShader : MonoBehaviour
         if (_skeleton != null)
         {
             Vector3 posCam = cam.transform.position;
-            // posMax = Vector3.negativeInfinity;
-            // posMin = Vector3.positiveInfinity;
-            // center = Vector3.zero;
             for (int i = 0; i < _jointsInfo.Length; i++)
             {
                 Joints newJoint = new Joints();
@@ -284,16 +282,7 @@ public class SendSkeletonToShader : MonoBehaviour
                 newJoint.Pos = new Vector3(posCam.x - newJoint.Pos.x / 450f, posCam.y + newJoint.Pos.y / 450f,
                     posCam.z - newJoint.Pos.z / 650f);
                 newJoint.Size = sizeSkeleton;
-                // if (_jointsInfo[i] == JointType.Waist)
-                // {
-                    // center = newJoint.Pos;
-                // }
-                // posMax = new Vector3(Mathf.Max(posMax.x, newJoint.Pos.x), Mathf.Max(posMax.y,
-                    // newJoint.Pos.y), Mathf.Max(posMax.z, newJoint.Pos.z));
-                // posMin = new Vector3(Mathf.Min(posMin.x, newJoint.Pos.x), Mathf.Min(posMin.y,
-                    // newJoint.Pos.y), Mathf.Min(posMin.z, newJoint.Pos.z));
                 jointsList.Enqueue(newJoint);
-              
             }
 
             while (jointsList.Count > _jointsInfo.Length)

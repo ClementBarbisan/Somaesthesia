@@ -52,7 +52,6 @@ Shader "Particle"
             // Particle's data, shared with the compute shader
             Buffer<float> particleBuffer;
             Buffer<int> segmentBuffer;
-            RWBuffer<float3> oldParticles;
             #ifdef SHADER_API_D3D11
             struct Joints
             {
@@ -182,7 +181,7 @@ Shader "Particle"
                 }
                 o.keep.x = p[0].keep.x;
                 o.keep.y = p[0].keep.y;
-                float4 position = float4(p[0].position.x, p[0].position.y, p[0].position.z, p[0].position.w) + ClassicNoise(p[0].position.xyz) * (_SkeletonSize / 5);
+                float4 position = float4(p[0].position.x, p[0].position.y, p[0].position.z, p[0].position.w) + ClassicNoise(p[0].position.xyz) * (_SkeletonSize / 10);
                 float size = _RadiusParticles * (rand(position.xyz) * 0.25 + 0.75) / (1 + (float)o.keep.y / 20);
                 float3 up = float3(0, 1, 0);
                 float3 look = _WorldSpaceCameraPos - p[0].position;
@@ -615,6 +614,179 @@ Shader "Particle"
             ENDCG
         }
          Pass
+        {
+            Tags
+            {
+                "Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Transparent"
+            }
+            ZWrite Off
+            Blend SrcAlpha OneMinusSrcAlpha
+            Cull back
+            LOD 100
+            CGPROGRAM
+            #pragma target 4.6
+
+            #pragma vertex vert
+            #pragma geometry geom
+            #pragma fragment frag multi_compile_instancing
+            #include "Packages/jp.keijiro.noiseshader/Shader/Common.hlsl"
+            #include "Packages/jp.keijiro.noiseshader/Shader/ClassicNoise3D.hlsl"
+            #include "UnityCG.cginc"
+
+            // Pixel shader input
+            struct PS_INPUT
+            {
+                float4 position : SV_POSITION;
+                uint instance : SV_InstanceID;
+                float2 keep : TEXCOORD0;
+                float2 alpha : TEXCOORD1;
+            };
+
+            // Particle's data, shared with the compute shader
+            Buffer<float> particleBuffer;
+            Buffer<int> segmentBuffer;
+            RWBuffer<float3> oldParticles;
+            #ifdef SHADER_API_D3D11
+            struct Joints
+            {
+                float3 Pos;
+                float3x3 Matrice;
+                float Size;
+            };
+
+            StructuredBuffer<Joints> _Skeleton;
+            #endif
+            float _SkeletonSize;
+
+            // Properties variables
+            uniform int _Width;
+            uniform int _Height;
+            uniform float3 _CamPos;
+            uniform float _Rotation;
+            float _Radius;
+            float _RadiusParticles;
+            uint _MaxFrame;
+            int _CurrentFrame;
+
+            float rand(in float2 uv)
+            {
+                float2 noise = (frac(sin(dot(uv, float2(12.9898, 78.233) * 2.0)) * 43758.5453));
+                return abs(noise.x + noise.y) * 0.5;
+            }
+
+            PS_INPUT vert(uint instance_id : SV_instanceID)
+            {
+                PS_INPUT o = (PS_INPUT)0;
+                uint index = 0;
+                for (uint j = _CurrentFrame; index < _MaxFrame; j = j == 0 ? _MaxFrame - 1 : j - 1)
+                {
+                    if (segmentBuffer[_Width * _Height * j + instance_id] != 1 || instance_id % (30 * int(index + 1)) > 0)
+                    {
+                        o.keep.y = 0;
+                    }
+                    else
+                    {
+                        o.keep.y = index + 1;
+                        break;
+                    }
+                    index++;
+                }
+                if (o.keep.y == 0)
+                {
+                    o.keep.x = 0;
+                    return (o);
+                }
+                o.instance = int(instance_id);
+                o.position = float4((_CamPos.x + _Width / 2.0) / 200.0 - instance_id % _Width / 200.0,
+                                    (_CamPos.y + _Height / 2.0) / 200.0 - instance_id / _Width / 200.0,
+                                    _CamPos.z - particleBuffer[_Width * _Height * o.keep.y + instance_id] / 3000.0 - 2.0, 1.0f);
+                float3 pos = UnityObjectToClipPos(o.position);
+
+                for (uint i = 0; i < 18; i++)
+                {
+                    float3 posSkelet = UnityObjectToClipPos(_Skeleton[i].Pos);
+                    float dist = distance(posSkelet, pos);
+                    if (o.keep.y > 0 && dist < _SkeletonSize)
+                    {
+                        o.keep.x = saturate(dist * (_SkeletonSize / 2));
+                       
+                        break;
+                    }
+                    else
+                    {
+                        o.keep.x = 0;
+                    }
+                }
+                if (o.keep.x == 0)
+                {
+                    return o;
+                }
+             
+                o.keep.y = index;
+                return o;
+            }
+
+            void AddLine(point PS_INPUT o, inout LineStream<PS_INPUT> lineStream, float4 pos, int index, int nbVertex, int stride)
+            {
+                o.position = pos;
+                o.alpha.x = 0.5;
+                lineStream.Append(o);
+                for (int i = 1; i < nbVertex; i++)
+                {
+                    o.alpha.x -= o.alpha.x / nbVertex;
+                    float3 x = UnityObjectToClipPos(_Skeleton[index + stride * (i)].Pos).xyz;
+                    float3 y = UnityObjectToClipPos(_Skeleton[index + stride * (i - 1)].Pos).xyz;
+                    if (distance(x, y) > 0.2 || distance(x, y) < 0.05)
+                    {
+                        break;
+                    }
+                    pos.xyz += (x - y);
+                    o.position = pos;
+                    lineStream.Append(o);
+                }
+                // lineStream.RestartStrip();
+            }
+            
+            [maxvertexcount(30)]
+            void geom(point PS_INPUT p[1], inout LineStream<PS_INPUT> lineStream)
+            {
+                PS_INPUT o;
+                o.instance = p[0].instance;
+                if (p[0].keep.x == 0)
+                {
+                    return;
+                }
+                o.keep.x = p[0].keep.x;
+                o.keep.y = p[0].keep.y;
+                float4 position = UnityObjectToClipPos(float4(p[0].position.x, p[0].position.y, p[0].position.z, p[0].position.w));
+                int index = 0;
+                float distTotal = 5;
+                for (int i = 0; i < 18; i++)
+                {
+                    float3 posSkelet = UnityObjectToClipPos(_Skeleton[i].Pos);
+                    float dist = distance(posSkelet, position);
+                    if (dist < distTotal)
+                    {
+                        index = i;
+                        distTotal = dist;
+                    }
+                }
+                o.alpha.y = 0;
+                AddLine(o, lineStream, position, index, _MaxFrame, 18);
+            }
+            
+
+            float4 frag(PS_INPUT i) : COLOR
+            {
+                if (i.keep.x == 0 || i.alpha.x == 0)
+                {
+                    discard;
+                }
+                return (float4(1, 1, 1, i.alpha.x));
+            }
+            ENDCG
+        }
+           Pass
         {
             Tags
             {

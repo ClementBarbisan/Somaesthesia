@@ -328,6 +328,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 348830707, guid: e999ace05c586574fa1b964016f28531, type: 3}
+      propertyPath: curlNoise
+      value: 
+      objectReference: {fileID: 7200000, guid: 15e5fe276ccc6614f93543278c21a29d, type: 3}
+    - target: {fileID: 348830707, guid: e999ace05c586574fa1b964016f28531, type: 3}
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
@@ -339,6 +343,10 @@ PrefabInstance:
       propertyPath: parentMesh
       value: 
       objectReference: {fileID: 1669223331}
+    - target: {fileID: 348830707, guid: e999ace05c586574fa1b964016f28531, type: 3}
+      propertyPath: matCurlNoise
+      value: 
+      objectReference: {fileID: 2100000, guid: 4a2ec3da7b5284c4cadb68d12f138d7e, type: 2}
     - target: {fileID: 1720015687, guid: e999ace05c586574fa1b964016f28531, type: 3}
       propertyPath: m_Enabled
       value: 0
@@ -537,7 +545,7 @@ MonoBehaviour:
   sensorId: 0
   useCurrentUserTracker: 1
   userID: 1
-  jointConfidence: 0.1
+  jointConfidence: 0.01
   waist: {fileID: 1669223347}
   torso: {fileID: 1669223346}
   collar: {fileID: 1669223345}
