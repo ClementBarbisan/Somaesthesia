@@ -53,7 +53,6 @@ public class SegmentPaint : MonoBehaviour
             _segmentBuffer.SetData(_outSegment, 0, (_width * _height) * _indexSegment, (_width * _height));
             Shader.SetGlobalInteger("_CurrentFrame", _indexSegment);// == 0 ? PointCloudGPU.maxFrameDepth - 1 : _indexSegment - 1);
             PointCloudGPU.Instance.curlNoise.SetInt("_CurrentFrame", _indexSegment);
-            PointCloudGPU.Instance.matCurlNoise.SetInt("_CurrentFrame", _indexSegment);
             _indexSegment = (_indexSegment + 1) % PointCloudGPU.maxFrameDepth;
         }
     }  

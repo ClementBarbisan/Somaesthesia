@@ -158,7 +158,7 @@ public class SendSkeletonToShader : MonoBehaviour
                 sizeSkeleton = Mathf.Lerp(sizeSkeleton, val / maxSkeleton, 0.05f * (1 / _speed));
             }
 
-            if (sizeSkeleton / maxSkeleton < 1f)
+            if (sizeSkeleton / maxSkeleton < 1f && _prefabText != null)
             {
                 int valueT = (int) ((maxSkeleton - (maxSkeleton - val)) / maxSkeleton);
                 for (int j = 0; j < _data.TextIA.Length; j++)

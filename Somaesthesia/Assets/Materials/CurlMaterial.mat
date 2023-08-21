@@ -78,10 +78,10 @@ Material:
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
-    - _Offset: 24
+    - _Offset: 2
     - _Parallax: 0.02
-    - _Radius: 10
-    - _RadiusParticles: 0.2
+    - _Radius: 3
+    - _RadiusParticles: 0.05
     - _Sat: 0.5
     - _SizeCube: 0.25
     - _SmoothnessTextureChannel: 0

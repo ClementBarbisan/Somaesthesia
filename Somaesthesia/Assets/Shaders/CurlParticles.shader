@@ -1,4 +1,4 @@
-Shader "Unlit/CurlParticles"
+Shader "CurlParticles"
 {
     Properties
     {
@@ -85,18 +85,8 @@ Shader "Unlit/CurlParticles"
             PS_INPUT vert(uint instance_id : SV_instanceID)
             {
                 PS_INPUT o = (PS_INPUT)0;
-                if (segmentBuffer[instance_id] == 1)
-                {
-                    o.keep.x = 1;
-                }
-                else
-                {
-                    o.keep.x = 0;
-                    return (o);
-                }
                 o.instance = int(instance_id);
                 o.position = float4(particles[o.instance].position, 1.0);
-                // float3 pos = UnityObjectToClipPos(o.position);
                 o.keep.x = saturate(_SkeletonSize / 2);
                 // for (uint i = 0; i < 18; i++)
                 // {

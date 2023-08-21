@@ -1,25 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
-using Intel.RealSense.Math;
-using Kino;
-using NuitrackSDK;
-using TMPro;
-using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
-using UnityEditor.PackageManager.Requests;
-using UnityEditor.Rendering;
+﻿using System.Runtime.InteropServices;
 using UnityEngine;
-using UnityEngine.Rendering;
-using UnityEngine.Serialization;
 using Debug = UnityEngine.Debug;
+using Random = UnityEngine.Random;
 
 public class PointCloudGPU : MonoBehaviour {
 
     public static PointCloudGPU Instance;
     public Material matPointCloud;
-    public Material matMesh;
     public Material matCurlNoise;
     public ComputeShader curlNoise;
     public const int maxFrameDepth = 15;
@@ -34,6 +21,12 @@ public class PointCloudGPU : MonoBehaviour {
     private int _instanceCount;
     private Particle[] _particlesCurl;
     private int _kernel;
+
+    [SerializeField] private bool cubes;
+    [SerializeField] private bool particles;
+    [SerializeField] private bool curlNoiseActive;
+    [SerializeField] private bool contours;
+
     // private ComputeBuffer _curlMatParticles;
     struct Particle
     {
@@ -99,7 +92,6 @@ public class PointCloudGPU : MonoBehaviour {
                 matPointCloud.SetVector("_CamPos", _cam.transform.position);
                 matPointCloud.SetBuffer("particleBuffer", _buffer);
                 matCurlNoise.SetBuffer("depth", _buffer);
-                Shader.SetGlobalInteger("_MaxFrame", maxFrameDepth);
                 matPointCloud.SetInteger("_Width", _width);
                 matPointCloud.SetInteger("_Height", _height);
                 _instanceCount = _width * _height;
@@ -114,6 +106,7 @@ public class PointCloudGPU : MonoBehaviour {
                 curlNoise.SetVector("_CamPos", _cam.transform.position);
                 matCurlNoise.SetVector("_CamPos", _cam.transform.position);
                 curlNoise.SetFloat("deltaTime", Time.deltaTime);
+                Shader.SetGlobalInteger("_MaxFrame", maxFrameDepth);
             }
             Marshal.Copy(frame.Data, _particles, 0, _instanceCount);
             // void* managedBuffer = UnsafeUtility.AddressOf(ref _particles[0]);
@@ -144,29 +137,34 @@ public class PointCloudGPU : MonoBehaviour {
     
     private void OnRenderObject()
     {
+        if (cubes)
+        {
+            matPointCloud.SetPass(1);
+            Graphics.DrawProceduralNow(MeshTopology.Points, 1, 18);
+        }
+        if (particles)
+        {
+            matPointCloud.SetPass(0);
+            Graphics.DrawProceduralNow(MeshTopology.Points, 1, _instanceCount);
+        }
+        if (curlNoiseActive)
+        {
+            matCurlNoise.SetPass(0);
+            Graphics.DrawProceduralNow(MeshTopology.Points, 1, _instanceCount);
+        }
        
-        matPointCloud.SetPass(1);
-        Graphics.DrawProceduralNow(MeshTopology.Points, 1, 18);
-        //
-        // matPointCloud.SetPass(0);
-        // Graphics.DrawProceduralNow(MeshTopology.Points, 1, _instanceCount);
-        //
-        matCurlNoise.SetPass(0);
-        Graphics.DrawProceduralNow(MeshTopology.Points, 1, _instanceCount);
         // matPointCloud.SetPass(3);
         // Graphics.DrawProceduralNow(MeshTopology.Points, 1, _instanceCount);
-        
-        matPointCloud.SetPass(2);
-        Graphics.DrawProceduralNow(MeshTopology.Points, 1, _instanceCount);
-        
+        if (contours)
+        {
+            matPointCloud.SetPass(2);
+            Graphics.DrawProceduralNow(MeshTopology.Points, 1, _instanceCount);
+        }
     }
     
     private void OnDestroy()
     {
         _buffer?.Release();
         _particleBuffer?.Release();
-        // _curlMatParticles?.Release();
-        // NuitrackManager.DepthSensor.OnUpdateEvent -= HandleOnDepthSensorUpdateEvent;
-        // NuitrackManager.ColorSensor.OnUpdateEvent -= HandleOnColorSensorUpdateEvent;
     }
 }
