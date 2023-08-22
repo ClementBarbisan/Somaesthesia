@@ -84,8 +84,8 @@ void CSParticle(uint3 id : SV_DispatchThreadID)
 	}
 	// subtract the life based on deltaTime
 	particleBuffer[id.x].life -= deltaTime;
-	particleBuffer[id.x].position += curlNoise(particleBuffer[id.x].position) * (_speed / 10) + particleBuffer[id.x].velocity * _speed;
-
+	particleBuffer[id.x].position += curlNoise(particleBuffer[id.x].position) * (_speed / 10);
+	particleBuffer[id.x].velocity += curlNoise(particleBuffer[id.x].position) * (_speed / 10);
 
 	if (particleBuffer[id.x].life < 0)
 	{
@@ -101,10 +101,7 @@ void CSParticle(uint3 id : SV_DispatchThreadID)
 									_CamPos.z - positionBuffer[_Width * _Height * _CurrentFrame + id.x] / 3000.0 - 2.0);
 		// reset the life of this particle
 		particleBuffer[id.x].life = float(rand_xorshift()) * (1.0 / 4294967296.0) * 2;
-		particleBuffer[id.x].velocity = float3((_CamPos.x + _Width / 2.0) / 200.0 - id.x % _Width / 200.0,
-									(_CamPos.y + _Height / 2.0) / 200.0 - id.x / _Width / 200.0,
-									_CamPos.z - positionBuffer[_Width * _Height * clamp(_CurrentFrame - 1, 0, 50) + id.x] / 3000.0 - 2.0)
-									- particleBuffer[id.x].position ;
+		particleBuffer[id.x].velocity = normalF3;
 	}
 
 }

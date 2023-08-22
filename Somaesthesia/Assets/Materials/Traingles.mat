@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: ParticleMat
-  m_Shader: {fileID: 4800000, guid: 745ed6b3aceaf394ca5a64212f8a6b2c, type: 3}
+  m_Name: Traingles
+  m_Shader: {fileID: 4800000, guid: feabf4b1d319a6d429b869e6a7316cdc, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -16,7 +16,7 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
+  m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
   m_LockedProperties: _Hue
@@ -41,9 +41,9 @@ Material:
     - _Con: 8
     - _HighSpeedValue: 12
     - _Hue: 0
-    - _Offset: 8
-    - _Radius: 10
-    - _RadiusParticles: 0.2
+    - _Offset: 28
+    - _Radius: 1
+    - _RadiusParticles: 0.1
     - _Rotation: 10
     - _Sat: 0.5
     - _Size: 0.25

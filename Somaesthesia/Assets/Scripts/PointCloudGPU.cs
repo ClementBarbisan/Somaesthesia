@@ -7,6 +7,7 @@ public class PointCloudGPU : MonoBehaviour {
 
     public static PointCloudGPU Instance;
     public Material matPointCloud;
+    public Material matTriangles;
     public Material matCurlNoise;
     public ComputeShader curlNoise;
     public const int maxFrameDepth = 15;
@@ -26,6 +27,8 @@ public class PointCloudGPU : MonoBehaviour {
     [SerializeField] private bool particles;
     [SerializeField] private bool curlNoiseActive;
     [SerializeField] private bool contours;
+    [SerializeField] private bool triangles;
+    [SerializeField] private float speedCurl;
 
     // private ComputeBuffer _curlMatParticles;
     struct Particle
@@ -62,6 +65,9 @@ public class PointCloudGPU : MonoBehaviour {
             matPointCloud.SetTexture("_MixTex", _texture);
             matPointCloud.SetInt("_WidthTex", frame.Cols);
             matPointCloud.SetInt("_HeightTex", frame.Rows);
+            matTriangles.SetTexture("_MixTex", _texture);
+            matTriangles.SetInt("_WidthTex", frame.Cols);
+            matTriangles.SetInt("_HeightTex", frame.Rows);
             matCurlNoise.SetTexture("_MixTex", _texture);
             matCurlNoise.SetInt("_WidthTex", frame.Cols);
             matCurlNoise.SetInt("_HeightTex", frame.Rows);
@@ -90,15 +96,20 @@ public class PointCloudGPU : MonoBehaviour {
                 _width = cols;
                 _height = rows;
                 matPointCloud.SetVector("_CamPos", _cam.transform.position);
+                matTriangles.SetVector("_CamPos", _cam.transform.position);
+                matTriangles.SetBuffer("particleBuffer", _buffer);
                 matPointCloud.SetBuffer("particleBuffer", _buffer);
                 matCurlNoise.SetBuffer("depth", _buffer);
                 matPointCloud.SetInteger("_Width", _width);
                 matPointCloud.SetInteger("_Height", _height);
+                matTriangles.SetInteger("_Width", _width);
+                matTriangles.SetInteger("_Height", _height);
                 _instanceCount = _width * _height;
                 _kernel = curlNoise.FindKernel("CSParticle");
                 curlNoise.SetBuffer(_kernel, "positionBuffer", _buffer);
                 curlNoise.SetBuffer(_kernel, "particleBuffer", _particleBuffer);
                 matCurlNoise.SetBuffer("particles", _particleBuffer);
+                matTriangles.SetBuffer("particles", _particleBuffer);
                 curlNoise.SetInt("_Height", _height);
                 matCurlNoise.SetInt("_Height", _height);
                 curlNoise.SetInt("_Width", _width);
@@ -122,6 +133,7 @@ public class PointCloudGPU : MonoBehaviour {
     {
         if (_buffer != null)
         {
+            curlNoise.SetFloat("_speed", speedCurl);
             curlNoise.Dispatch(_kernel, 1200, 1 ,1);
         }
     }
@@ -152,7 +164,13 @@ public class PointCloudGPU : MonoBehaviour {
             matCurlNoise.SetPass(0);
             Graphics.DrawProceduralNow(MeshTopology.Points, 1, _instanceCount);
         }
-       
+
+        if (triangles)
+        {
+            matTriangles.SetPass(0);
+            Graphics.DrawProceduralNow(MeshTopology.Points, 1, _instanceCount);
+        }
+
         // matPointCloud.SetPass(3);
         // Graphics.DrawProceduralNow(MeshTopology.Points, 1, _instanceCount);
         if (contours)

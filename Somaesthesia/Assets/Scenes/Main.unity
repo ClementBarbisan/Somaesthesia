@@ -324,6 +324,10 @@ PrefabInstance:
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 348830707, guid: e999ace05c586574fa1b964016f28531, type: 3}
+      propertyPath: contours
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 348830707, guid: e999ace05c586574fa1b964016f28531, type: 3}
       propertyPath: kuwahara
       value: 
       objectReference: {fileID: 2100000, guid: d35d2d6ff5241c6408ea4d791fe5b5cf, type: 2}
@@ -344,6 +348,14 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8400000, guid: 609d8facebd8c8e4686f8f88d2fd6b5d, type: 2}
     - target: {fileID: 348830707, guid: e999ace05c586574fa1b964016f28531, type: 3}
+      propertyPath: speedCurl
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 348830707, guid: e999ace05c586574fa1b964016f28531, type: 3}
+      propertyPath: triangles
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 348830707, guid: e999ace05c586574fa1b964016f28531, type: 3}
       propertyPath: parentMesh
       value: 
       objectReference: {fileID: 1669223331}
@@ -351,6 +363,10 @@ PrefabInstance:
       propertyPath: matCurlNoise
       value: 
       objectReference: {fileID: 2100000, guid: 4a2ec3da7b5284c4cadb68d12f138d7e, type: 2}
+    - target: {fileID: 348830707, guid: e999ace05c586574fa1b964016f28531, type: 3}
+      propertyPath: matTriangles
+      value: 
+      objectReference: {fileID: 2100000, guid: ccea03a89e0c2d74783731b5821a151d, type: 2}
     - target: {fileID: 1720015687, guid: e999ace05c586574fa1b964016f28531, type: 3}
       propertyPath: m_Enabled
       value: 0
@@ -649,7 +665,7 @@ MonoBehaviour:
   matClear: {fileID: 2100000, guid: 65b12f4dbc31cfa4fb1648623210e77a, type: 2}
   col: {r: 0, g: 0, b: 0, a: 1}
   maxMove: 15
-  sizeSkeleton: 1
+  sizeSkeleton: 0
   maxSkeleton: 15
   _speed: 5
   _prefabText: {fileID: 0}

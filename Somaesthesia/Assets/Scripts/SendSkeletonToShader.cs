@@ -129,8 +129,8 @@ public class SendSkeletonToShader : MonoBehaviour
     private void Update()
     {
         PointCloudGPU.Instance.matPointCloud.SetInt("_Offset", Mathf.Clamp(((int)maxSkeleton
-                                                                           - (int)sizeSkeleton) * 2, 2, (int)maxSkeleton * 2));
-        PointCloudGPU.Instance.curlNoise.SetFloat("_speed", Mathf.Clamp(sizeSkeleton / maxSkeleton, 0, 0.75f));
+                                                                            - (int)sizeSkeleton) * 2, 2, (int)maxSkeleton * 2));
+        // PointCloudGPU.Instance.curlNoise.SetFloat("_speed", Mathf.Clamp(sizeSkeleton / maxSkeleton, 0, 0.5f));
         // if (_id == -1)
         // {
         //     if (_bufferMove != null)
@@ -210,6 +210,8 @@ public class SendSkeletonToShader : MonoBehaviour
 
             _data.MoveDone = false;
         }
+        Shader.SetGlobalFloat("_SkeletonSize", sizeSkeleton);
+
 /*
         Random.InitState(42);
         for (int i = 0; i < jointsList.Length; i++)
@@ -233,8 +235,8 @@ public class SendSkeletonToShader : MonoBehaviour
 
     private void OnPreRender()
     {
-        col.a = Mathf.Clamp(EasingFunction.EaseInCubicD(0.1f, 1f, (1 - sizeSkeleton / maxSkeleton)),
-            0.1f, 1f);
+        col.a = Mathf.Clamp(EasingFunction.EaseInCubicD(0.02f, 1f, (1 - sizeSkeleton / maxSkeleton)),
+            0.02f, 1f);
         matClear.color = col;
         Graphics.Blit(tmpTex, matClear, 1);
     }
@@ -264,7 +266,7 @@ public class SendSkeletonToShader : MonoBehaviour
         {
             _buffer = new ComputeBuffer(_jointsInfo.Length, sizeof(float) * 13);
             Shader.SetGlobalBuffer("_Skeleton", _buffer);
-            Shader.SetGlobalFloat("_SkeletonSize", sizeSkeleton);
+            Shader.SetGlobalFloat("_MaxSize", maxSkeleton);
         }
         if (_skeleton != null)
         {

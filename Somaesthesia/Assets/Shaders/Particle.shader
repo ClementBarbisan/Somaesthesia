@@ -583,8 +583,7 @@ Shader "Particle"
                 const int nbVertex = clamp(_SkeletonSize, 0, 10);
                 float4 pos1 = UnityObjectToClipPos(p[0].position);
                 float4 pos2Clip = UnityObjectToClipPos(pos2);
-                AddLine(o, lineStream,  pos1 + ClassicNoise(pos1.xyz) * (_SkeletonSize / 20),
-                           pos2Clip + ClassicNoise(pos2Clip.xyz) * (_SkeletonSize / 20), nbVertex);
+                AddLine(o, lineStream,  pos1,pos2Clip, nbVertex);
             }
 
             float CalcLuminance(float3 color)

@@ -42,6 +42,7 @@ public class SegmentPaint : MonoBehaviour
                 // managedBuffer = UnsafeUtility.AddressOf(ref _outSegment[0]);
                 PointCloudGPU.Instance.matPointCloud.SetBuffer("segmentBuffer", _segmentBuffer);
                 PointCloudGPU.Instance.matCurlNoise.SetBuffer("segmentBuffer", _segmentBuffer);
+                PointCloudGPU.Instance.matTriangles.SetBuffer("segmentBuffer", _segmentBuffer);
                 PointCloudGPU.Instance.curlNoise.SetBuffer(PointCloudGPU.Instance.curlNoise.FindKernel("CSParticle"),
                     "segmentation", _segmentBuffer);
             }
