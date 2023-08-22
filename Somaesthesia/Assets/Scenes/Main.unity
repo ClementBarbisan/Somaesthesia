@@ -301,7 +301,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 11436578, guid: e999ace05c586574fa1b964016f28531, type: 3}
       propertyPath: initEvent.m_PersistentCalls.m_Calls.Array.data[3].m_Arguments.m_BoolArgument
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 11436578, guid: e999ace05c586574fa1b964016f28531, type: 3}
       propertyPath: initEvent.m_PersistentCalls.m_Calls.Array.data[4].m_Arguments.m_BoolArgument
@@ -667,7 +667,7 @@ MonoBehaviour:
   maxMove: 15
   sizeSkeleton: 0
   maxSkeleton: 15
-  _speed: 5
+  _speed: 2
   _prefabText: {fileID: 0}
   _parentCanvas: {fileID: 1228864641}
 --- !u!4 &975926592 stripped

@@ -553,16 +553,16 @@ Shader "Particle"
             {
                 float4 x = pos1;
                 float4 y = pos2;
-                o.position = x + _SinTime.z * (_SkeletonSize / 20);
+                o.position = x;
                 lineStream.Append(o);
                 float4 dir = y - x;
                 for (int i = 1; i < nbVertex; i++)
                 {
                     float4 p = x + dir * ((float)i / (float)nbVertex);
-                    o.position = p + _SinTime.z* (_SkeletonSize / 20);
+                    o.position = p;
                     lineStream.Append(o);
                 }
-                o.position = y + _SinTime.z * (_SkeletonSize / 20);
+                o.position = y;
                 lineStream.Append(o);
                 lineStream.RestartStrip();
             }

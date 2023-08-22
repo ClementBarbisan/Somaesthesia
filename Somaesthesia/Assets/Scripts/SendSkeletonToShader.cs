@@ -128,8 +128,8 @@ public class SendSkeletonToShader : MonoBehaviour
     
     private void Update()
     {
-        PointCloudGPU.Instance.matPointCloud.SetInt("_Offset", Mathf.Clamp(((int)maxSkeleton
-                                                                            - (int)sizeSkeleton) * 2, 2, (int)maxSkeleton * 2));
+        PointCloudGPU.Instance.matPointCloud.SetInt("_Offset", Mathf.Clamp((int)(maxSkeleton
+                                                                            - sizeSkeleton) * 2, 2, (int)maxSkeleton * 2));
         // PointCloudGPU.Instance.curlNoise.SetFloat("_speed", Mathf.Clamp(sizeSkeleton / maxSkeleton, 0, 0.5f));
         // if (_id == -1)
         // {
