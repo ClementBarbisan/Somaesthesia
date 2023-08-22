@@ -60,7 +60,7 @@ Shader "Custom/ClearColor"
                 {
                     
                     float2 xy = float2(_UVs[j].x / _ScreenParams.x, _UVs[j].y / _ScreenParams.y);
-                    float zwLength = length(_UVs[j]) / length(_ScreenParams.xy) / 3;
+                    float zwLength = length(_UVs[j]) / length(_ScreenParams.xy) / 2;
                     // if (xy.x > 0 && xy.y > 0 && distance(xy, i.uv) <= zwLength * 2)
                     {
                         val -= 1 / distance(xy * 0.5 + float2(0.5, 0.5), i.uv) * zwLength;// / (zwLength * 2);
