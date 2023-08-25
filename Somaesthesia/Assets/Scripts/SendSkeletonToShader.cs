@@ -180,7 +180,7 @@ public class SendSkeletonToShader : MonoBehaviour
                         continue;
                     }
                     _listTexts[j].text = _data.TextIA[j];
-                    if (_data.ValIA[j] < 0.2f)
+                    if (_data.ValIA[j] < 0.05f)
                     {
                         continue;
                     }
