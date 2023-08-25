@@ -45,6 +45,8 @@ public class SegmentPaint : MonoBehaviour
                 PointCloudGPU.Instance.matTriangles.SetBuffer("segmentBuffer", _segmentBuffer);
                 PointCloudGPU.Instance.curlNoise.SetBuffer(PointCloudGPU.Instance.curlNoise.FindKernel("CSParticle"),
                     "segmentation", _segmentBuffer);
+                PointCloudGPU.Instance.fall.SetBuffer(PointCloudGPU.Instance.fall.FindKernel("CSParticle"),
+                    "segmentation", _segmentBuffer);
             }
             for (int i = 0; i < (_width * _height); i++)
             {
@@ -54,6 +56,7 @@ public class SegmentPaint : MonoBehaviour
             _segmentBuffer.SetData(_outSegment, 0, (_width * _height) * _indexSegment, (_width * _height));
             Shader.SetGlobalInteger("_CurrentFrame", _indexSegment);// == 0 ? PointCloudGPU.maxFrameDepth - 1 : _indexSegment - 1);
             PointCloudGPU.Instance.curlNoise.SetInt("_CurrentFrame", _indexSegment);
+            PointCloudGPU.Instance.fall.SetInt("_CurrentFrame", _indexSegment);
             _indexSegment = (_indexSegment + 1) % PointCloudGPU.maxFrameDepth;
         }
     }  

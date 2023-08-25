@@ -1,0 +1,107 @@
+// https://github.com/keijiro/NoiseShader
+#include "Packages/jp.keijiro.noiseshader/Shader/SimplexNoise3D.hlsl"
+
+#pragma kernel CSParticle
+
+// Particle's data
+struct Particle
+{
+	float3 position;
+	float3 velocity;
+	float life;
+};
+
+// Particle's data, shared with the shader
+RWStructuredBuffer<Particle> particleBuffer;
+Buffer<float> positionBuffer;
+Buffer<int> segmentation;
+float3 _CamPos;
+int _Height;
+int _Width;
+uint _CurrentFrame;
+float _speed;
+// Variables set from the CPU
+float deltaTime;
+
+float nrand(float2 uv)
+{
+	return frac(sin(dot(uv, float2(12.9898, 78.233))) * 43758.5453);
+}
+
+uint rng_state;
+
+
+uint rand_xorshift()
+{
+	// Xorshift algorithm from George Marsaglia's paper
+	rng_state ^= (rng_state << 13);
+	rng_state ^= (rng_state >> 17);
+	rng_state ^= (rng_state << 5);
+	return rng_state;
+}
+
+// https://github.com/cabbibo/glsl-curl-noise/blob/master/curl.glsl
+float3 snoiseVec3(float3 x) {
+
+	float s = SimplexNoise(x);
+	float s1 = SimplexNoise(float3(x.y - 19.1, x.z + 33.4, x.x + 47.2));
+	float s2 = SimplexNoise(float3(x.z + 74.2, x.x - 124.5, x.y + 99.4));
+	float3 c = float3(s, s1, s2);
+	return c;
+}
+
+
+float3 curlNoise(float3 p) {
+
+	const float e = .1;
+	float3 dx = float3(e, 0.0, 0.0);
+	float3 dy = float3(0.0, e, 0.0);
+	float3 dz = float3(0.0, 0.0, e);
+
+	float3 p_x0 = snoiseVec3(p - dx);
+	float3 p_x1 = snoiseVec3(p + dx);
+	float3 p_y0 = snoiseVec3(p - dy);
+	float3 p_y1 = snoiseVec3(p + dy);
+	float3 p_z0 = snoiseVec3(p - dz);
+	float3 p_z1 = snoiseVec3(p + dz);
+
+	float x = p_y1.z - p_y0.z - p_z1.y + p_z0.y;
+	float y = p_z1.x - p_z0.x - p_x1.z + p_x0.z;
+	float z = p_x1.y - p_x0.y - p_y1.x + p_y0.x;
+	
+	const float divisor = 1.0 / (2.0 * e);
+	return normalize(float3(x, y, z) * divisor);
+
+}
+
+[numthreads(256, 1, 1)]
+void CSParticle(uint3 id : SV_DispatchThreadID)
+{
+	if (segmentation[_Width * _Height * _CurrentFrame + id.x] != 1)
+	{
+		particleBuffer[id.x].life = 0;
+		return;
+	}
+	// subtract the life based on deltaTime
+	particleBuffer[id.x].life -= deltaTime;
+	particleBuffer[id.x].position -= float3(0, 1, 0) * (_speed / 10);
+	particleBuffer[id.x].velocity += curlNoise(particleBuffer[id.x].position) * (_speed / 10);
+
+	if (particleBuffer[id.x].life < 0)
+	{
+		// http://www.reedbeta.com/blog/quick-and-easy-gpu-random-numbers-in-d3d11/
+		rng_state = id.x;
+		float f0 = float(rand_xorshift()) * (1.0 / 4294967296.0) - 0.5;
+		float f1 = float(rand_xorshift()) * (1.0 / 4294967296.0) - 0.5;
+		float f2 = float(rand_xorshift()) * (1.0 / 4294967296.0) - 0.5;
+		float3 normalF3 = normalize(float3(f0, f1, f2)) * 0.2f;
+		normalF3 *= float(rand_xorshift()) * (1.0 / 4294967296.0);
+		particleBuffer[id.x].position = float3((_CamPos.x + _Width / 2.0) / 200.0 - id.x % _Width / 200.0,
+									(_CamPos.y + _Height / 2.0) / 200.0 - id.x / _Width / 200.0,
+									_CamPos.z - positionBuffer[_Width * _Height * _CurrentFrame + id.x] / 3000.0 - 2.0);
+		// reset the life of this particle
+		particleBuffer[id.x].life = float(rand_xorshift()) * (1.0 / 4294967296.0) * 2;
+		particleBuffer[id.x].velocity = normalF3;
+	}
+
+}

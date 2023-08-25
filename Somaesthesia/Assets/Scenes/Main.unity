@@ -301,7 +301,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 11436578, guid: e999ace05c586574fa1b964016f28531, type: 3}
       propertyPath: initEvent.m_PersistentCalls.m_Calls.Array.data[3].m_Arguments.m_BoolArgument
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 11436578, guid: e999ace05c586574fa1b964016f28531, type: 3}
       propertyPath: initEvent.m_PersistentCalls.m_Calls.Array.data[4].m_Arguments.m_BoolArgument
@@ -322,6 +322,14 @@ PrefabInstance:
     - target: {fileID: 11436578, guid: e999ace05c586574fa1b964016f28531, type: 3}
       propertyPath: initEvent.m_PersistentCalls.m_Calls.Array.data[5].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 348830707, guid: e999ace05c586574fa1b964016f28531, type: 3}
+      propertyPath: fall
+      value: 
+      objectReference: {fileID: 7200000, guid: 7f4ecc3a8d21246439fb3cfa0ed4ea2f, type: 3}
+    - target: {fileID: 348830707, guid: e999ace05c586574fa1b964016f28531, type: 3}
+      propertyPath: cubes
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 348830707, guid: e999ace05c586574fa1b964016f28531, type: 3}
       propertyPath: contours
@@ -353,7 +361,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 348830707, guid: e999ace05c586574fa1b964016f28531, type: 3}
       propertyPath: triangles
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 348830707, guid: e999ace05c586574fa1b964016f28531, type: 3}
       propertyPath: parentMesh
@@ -367,6 +375,14 @@ PrefabInstance:
       propertyPath: matTriangles
       value: 
       objectReference: {fileID: 2100000, guid: ccea03a89e0c2d74783731b5821a151d, type: 2}
+    - target: {fileID: 348830707, guid: e999ace05c586574fa1b964016f28531, type: 3}
+      propertyPath: computeShader
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 348830707, guid: e999ace05c586574fa1b964016f28531, type: 3}
+      propertyPath: curlNoiseActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1720015687, guid: e999ace05c586574fa1b964016f28531, type: 3}
       propertyPath: m_Enabled
       value: 0
@@ -665,9 +681,9 @@ MonoBehaviour:
   matClear: {fileID: 2100000, guid: 65b12f4dbc31cfa4fb1648623210e77a, type: 2}
   col: {r: 0, g: 0, b: 0, a: 1}
   maxMove: 15
-  sizeSkeleton: 0
+  sizeSkeleton: 3
   maxSkeleton: 15
-  _speed: 2
+  _speed: 20
   _prefabText: {fileID: 0}
   _parentCanvas: {fileID: 1228864641}
 --- !u!4 &975926592 stripped

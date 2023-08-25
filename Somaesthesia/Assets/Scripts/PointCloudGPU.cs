@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Debug = UnityEngine.Debug;
 using Random = UnityEngine.Random;
 
@@ -10,6 +11,7 @@ public class PointCloudGPU : MonoBehaviour {
     public Material matTriangles;
     public Material matCurlNoise;
     public ComputeShader curlNoise;
+    public ComputeShader fall;
     public const int maxFrameDepth = 15;
     private short[] _particles;
     ComputeBuffer _buffer;
@@ -21,11 +23,13 @@ public class PointCloudGPU : MonoBehaviour {
     private int _indexDepth = 0;
     private int _instanceCount;
     private Particle[] _particlesCurl;
-    private int _kernel;
+    private int _kernelCurl;
+    private int _kernelFall;
 
+    [SerializeField] private bool computeCurl;
     [SerializeField] private bool cubes;
     [SerializeField] private bool particles;
-    [SerializeField] private bool curlNoiseActive;
+    [FormerlySerializedAs("curlNoiseActive")] [SerializeField] private bool computeShader;
     [SerializeField] private bool contours;
     [SerializeField] private bool triangles;
     [SerializeField] private float speedCurl;
@@ -105,18 +109,25 @@ public class PointCloudGPU : MonoBehaviour {
                 matTriangles.SetInteger("_Width", _width);
                 matTriangles.SetInteger("_Height", _height);
                 _instanceCount = _width * _height;
-                _kernel = curlNoise.FindKernel("CSParticle");
-                curlNoise.SetBuffer(_kernel, "positionBuffer", _buffer);
-                curlNoise.SetBuffer(_kernel, "particleBuffer", _particleBuffer);
+                _kernelCurl = curlNoise.FindKernel("CSParticle");
+                _kernelFall = fall.FindKernel("CSParticle");
+                curlNoise.SetBuffer(_kernelCurl, "positionBuffer", _buffer);
+                curlNoise.SetBuffer(_kernelCurl, "particleBuffer", _particleBuffer);
+                curlNoise.SetInt("_Height", _height);
+                curlNoise.SetInt("_Width", _width);
+                curlNoise.SetVector("_CamPos", _cam.transform.position);
+                curlNoise.SetFloat("deltaTime", Time.deltaTime);
+                fall.SetBuffer(_kernelCurl, "positionBuffer", _buffer);
+                fall.SetBuffer(_kernelCurl, "particleBuffer", _particleBuffer);
+                fall.SetInt("_Height", _height);
+                fall.SetInt("_Width", _width);
+                fall.SetVector("_CamPos", _cam.transform.position);
+                fall.SetFloat("deltaTime", Time.deltaTime);
                 matCurlNoise.SetBuffer("particles", _particleBuffer);
                 matTriangles.SetBuffer("particles", _particleBuffer);
-                curlNoise.SetInt("_Height", _height);
                 matCurlNoise.SetInt("_Height", _height);
-                curlNoise.SetInt("_Width", _width);
                 matCurlNoise.SetInt("_Width", _width);
-                curlNoise.SetVector("_CamPos", _cam.transform.position);
                 matCurlNoise.SetVector("_CamPos", _cam.transform.position);
-                curlNoise.SetFloat("deltaTime", Time.deltaTime);
                 Shader.SetGlobalInteger("_MaxFrame", maxFrameDepth);
             }
             Marshal.Copy(frame.Data, _particles, 0, _instanceCount);
@@ -129,18 +140,34 @@ public class PointCloudGPU : MonoBehaviour {
     }
 
 
-    private void DispathcCompute()
+    private void DispatchCurlNoise()
     {
         if (_buffer != null)
         {
             curlNoise.SetFloat("_speed", speedCurl);
-            curlNoise.Dispatch(_kernel, 1200, 1 ,1);
+            curlNoise.Dispatch(_kernelCurl, 1200, 1 ,1);
+        }
+    }
+    
+    private void DispatchFall()
+    {
+        if (_buffer != null)
+        {
+            fall.SetFloat("_speed", speedCurl);
+            fall.Dispatch(_kernelFall, 1200, 1 ,1);
         }
     }
 
     private void Update()
     {
-        DispathcCompute();
+        if (computeCurl)
+        {
+            DispatchCurlNoise();
+        }
+        else
+        {
+            DispatchFall();
+        }
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             Application.Quit();
@@ -159,7 +186,7 @@ public class PointCloudGPU : MonoBehaviour {
             matPointCloud.SetPass(0);
             Graphics.DrawProceduralNow(MeshTopology.Points, 1, _instanceCount);
         }
-        if (curlNoiseActive)
+        if (computeShader)
         {
             matCurlNoise.SetPass(0);
             Graphics.DrawProceduralNow(MeshTopology.Points, 1, _instanceCount);
