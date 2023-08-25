@@ -33,6 +33,7 @@ public class PointCloudGPU : MonoBehaviour {
     [SerializeField] private bool contours;
     [SerializeField] private bool triangles;
     [SerializeField] private float speedCurl;
+    [SerializeField] private bool debug;
 
     // private ComputeBuffer _curlMatParticles;
     struct Particle
@@ -144,7 +145,10 @@ public class PointCloudGPU : MonoBehaviour {
     {
         if (_buffer != null)
         {
-            curlNoise.SetFloat("_speed", speedCurl);
+            if (debug)
+            {
+                curlNoise.SetFloat("_speed", speedCurl);
+            }
             curlNoise.Dispatch(_kernelCurl, 1200, 1 ,1);
         }
     }
@@ -153,7 +157,10 @@ public class PointCloudGPU : MonoBehaviour {
     {
         if (_buffer != null)
         {
-            fall.SetFloat("_speed", speedCurl);
+            if (debug)
+            {
+                fall.SetFloat("_speed", speedCurl);
+            }
             fall.Dispatch(_kernelFall, 1200, 1 ,1);
         }
     }

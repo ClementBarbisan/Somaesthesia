@@ -65,7 +65,7 @@ public class SendSkeletonToShader : MonoBehaviour
 
     private RectTransform _rectTr;
 
-    private List<TextMeshProUGUI> _listTexts;
+    private List<TextMeshProUGUI> _listTexts = new List<TextMeshProUGUI>();
 
     private int _currentFrame = 0;
     // [SerializeField] private MeshFilter meshBubble;
@@ -130,16 +130,17 @@ public class SendSkeletonToShader : MonoBehaviour
     {
         PointCloudGPU.Instance.matPointCloud.SetInt("_Offset", Mathf.Clamp((int)(maxSkeleton
                                                                             - sizeSkeleton) * 2, 2, (int)maxSkeleton * 2));
-        // PointCloudGPU.Instance.curlNoise.SetFloat("_speed", Mathf.Clamp(sizeSkeleton / maxSkeleton, 0, 0.5f));
-        // if (_id == -1)
-        // {
-        //     if (_bufferMove != null)
-        //     {
-        //         _bufferMove.SetData(listZero, 0, 0, maxMove);
-        //     }
-        //     sizeSkeleton = 0;
-        //     return;
-        // }
+        PointCloudGPU.Instance.curlNoise.SetFloat("_speed", Mathf.Clamp(sizeSkeleton / maxSkeleton, 0, 0.5f));
+        PointCloudGPU.Instance.fall.SetFloat("_speed", Mathf.Clamp(sizeSkeleton / maxSkeleton, 0, 0.5f));
+        if (_id == -1)
+        {
+            if (_bufferMove != null)
+            {
+                _bufferMove.SetData(listZero, 0, 0, maxMove);
+            }
+            sizeSkeleton = 0;
+            return;
+        }
 
         if (_data.ResultsDone)
         {
@@ -158,38 +159,40 @@ public class SendSkeletonToShader : MonoBehaviour
                 sizeSkeleton = Mathf.Lerp(sizeSkeleton, val / maxSkeleton, 0.05f * (1 / _speed));
             }
 
-            if (sizeSkeleton / maxSkeleton < 1f && _prefabText != null)
+            if (sizeSkeleton / maxSkeleton <= 1f && _prefabText != null)
             {
-                int valueT = (int) ((maxSkeleton - (maxSkeleton - val)) / maxSkeleton);
+                if (_listTexts == null)
+                {
+                    _listTexts = new List<TextMeshProUGUI>(_data.TextIA.Length);
+                }
                 for (int j = 0; j < _data.TextIA.Length; j++)
                 {
-                    if (_listTexts == null)
+                    if (_listTexts.Count <= j)
                     {
-                        _listTexts = new List<TextMeshProUGUI>(_data.TextIA.Length * 5);
+                        _listTexts.Add(Instantiate(_prefabText, _parentCanvas.transform));
+                        _listTexts[^1].rectTransform.offsetMin = Vector2.zero;
+                        _listTexts[^1].rectTransform.anchorMin = Vector2.zero;
+                        _listTexts[^1].rectTransform.offsetMax = Vector2.zero;
+                        _listTexts[^1].rectTransform.anchorMax = Vector2.one;
                     }
-
-                    for (int i = 0; i < valueT; i++)
+                    else if (_listTexts[j].color.a > 0)
                     {
-                        if (_listTexts.Count <= j * valueT + i)
-                        {
-                            _listTexts.Add(Instantiate(_prefabText, _parentCanvas.transform));
-                        }
-                        else if (_listTexts[j * valueT + i].color.a > 0)
-                        {
-                            continue;
-                        }
-                        _listTexts[j * valueT + i].transform.localPosition = new Vector3(Random.Range(-0.5f, 0.5f) * _rectTr.sizeDelta.x,
-                            Random.Range(-0.5f, 0.5f) * _rectTr.sizeDelta.y, 0);
-                        _listTexts[j * valueT + i].text = _data.TextIA[j];
-                        Color color = _listTexts[j * valueT + i].color;
-                        color.a = val / maxSkeleton / 5;
-                        _listTexts[j * valueT + i].color = color;
+                        continue;
                     }
+                    _listTexts[j].text = _data.TextIA[j];
+                    if (_data.ValIA[j] < 0.2f)
+                    {
+                        continue;
+                    }
+                    _listTexts[j].transform.localPosition = new Vector3(Random.Range(-0.5f, 0.5f) * _rectTr.sizeDelta.x / 2,
+                        Random.Range(-0.5f, 0.5f) * _rectTr.sizeDelta.y / 2, 0) * Mathf.Clamp01(val / 80)
+                        - new Vector3(_rectTr.sizeDelta.x / 2, _rectTr.sizeDelta.y / 2, 0);
+                    _listTexts[j].fontSize = 275 * (1 - Mathf.Clamp01(val / 80));
+                    Color color = _listTexts[j].color;
+                    color.a = val / maxSkeleton / 5;
+                    _listTexts[j].color = color;
                 }
-
-               
             }
-
             _data.ResultsDone = false;
         }
 

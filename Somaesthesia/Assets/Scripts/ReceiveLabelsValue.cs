@@ -34,6 +34,10 @@ public class ReceiveLabelsValue : MonoBehaviour
     private int _valIndex = 0;
     private void Start()
     {
+        for (int i = 0; i < Display.displays.Length; i++)
+        {
+            Display.displays[i].Activate();
+        }
         Application.targetFrameRate = 60;
         QualitySettings.vSyncCount = 2;
         ThreadStart ts = new ThreadStart(GetInfo);
