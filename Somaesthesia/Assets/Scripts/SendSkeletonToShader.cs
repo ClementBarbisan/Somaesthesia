@@ -68,6 +68,8 @@ public class SendSkeletonToShader : MonoBehaviour
     private List<TextMeshProUGUI> _listTexts = new List<TextMeshProUGUI>();
 
     private int _currentFrame = 0;
+
+    [SerializeField] private bool debug;
     // [SerializeField] private MeshFilter meshBubble;
     // [SerializeField] private Material matBubble;
     // [SerializeField] private float scaleBubbles = 0.25f;
@@ -132,7 +134,7 @@ public class SendSkeletonToShader : MonoBehaviour
                                                                             - sizeSkeleton) * 2, 2, (int)maxSkeleton * 2));
         PointCloudGPU.Instance.curlNoise.SetFloat("_speed", Mathf.Clamp(sizeSkeleton / maxSkeleton, 0, 0.5f));
         PointCloudGPU.Instance.fall.SetFloat("_speed", Mathf.Clamp(sizeSkeleton / maxSkeleton, 0, 0.5f));
-        if (_id == -1)
+        if (_id == -1 && !debug)
         {
             if (_bufferMove != null)
             {
@@ -238,7 +240,8 @@ public class SendSkeletonToShader : MonoBehaviour
 
     private void OnPreRender()
     {
-        col.a = Mathf.Clamp(EasingFunction.EaseInCubicD(0.02f, 1f, (1 - sizeSkeleton / maxSkeleton)),
+        matClear.SetFloat("_RandValue", 1.1f - sizeSkeleton / maxSkeleton);
+        col.a = Mathf.Clamp(EasingFunction.EaseInCubicD(0.02f, 1f, (1 - sizeSkeleton / (maxSkeleton / 2))),
             0.02f, 1f);
         matClear.color = col;
         Graphics.Blit(tmpTex, matClear, 1);

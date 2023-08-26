@@ -4,6 +4,7 @@ Shader "Custom/ClearColor"
     {
         _MainTex ("Texture", 2D) = "white" {}
         _Color ("Color", Color) = (1,1,1,1)
+        _RandValue("Dont update color value", Range(0, 1.1)) = 0.5
     }
     SubShader
     {
@@ -48,6 +49,8 @@ Shader "Custom/ClearColor"
             StructuredBuffer<float4> _UVs;
             
             float SkeletonSize;
+
+           
             
             fixed4 frag (v2f i) : SV_Target
             {
@@ -78,6 +81,7 @@ Shader "Custom/ClearColor"
             #pragma vertex vert
             #pragma fragment frag
             #include "UnityCG.cginc"
+            #include "Packages/jp.keijiro.noiseshader/Shader/SimplexNoise3D.hlsl"
 
             struct appdata
             {
@@ -90,6 +94,15 @@ Shader "Custom/ClearColor"
                 float2 uv : TEXCOORD0;
                 float4 vertex : SV_POSITION;
             };
+
+            float SkeletonSize;
+            float _RandValue;
+
+            float rand(in float2 uv)
+            {
+                float2 noise = (frac(sin(dot(uv, float2(12.9898, 78.233) * 2.0)) * 43758.5453));
+                return abs(noise.x + noise.y) * 0.5;
+            }
 
             v2f vert (appdata v)
             {
@@ -105,6 +118,8 @@ Shader "Custom/ClearColor"
             fixed4 frag (v2f i) : SV_Target
             {
                 fixed4 col = tex2D(_MainTex, i.uv) * _Color;
+                if (rand(i.uv) >= _RandValue)
+                    return (float4(0,0,0,0));
                 return col;
             }
             ENDCG
