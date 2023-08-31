@@ -34,6 +34,7 @@ public class PointCloudGPU : MonoBehaviour {
     [SerializeField] private bool triangles;
     [SerializeField] private float speedCurl;
     [SerializeField] private bool debug;
+    public bool skeleton;
 
     // private ComputeBuffer _curlMatParticles;
     struct Particle
@@ -183,6 +184,8 @@ public class PointCloudGPU : MonoBehaviour {
     
     private void OnRenderObject()
     {
+        if (!skeleton)
+            return;
         if (cubes)
         {
             matPointCloud.SetPass(1);

@@ -23,6 +23,7 @@ public struct Joints
 
 public class SendSkeletonToShader : MonoBehaviour
 {
+    [SerializeField] private GameObject character;
     private Skeleton _skeleton;
     private BoundingBox _boxUser;
     private ComputeBuffer _buffer;
@@ -31,7 +32,7 @@ public class SendSkeletonToShader : MonoBehaviour
     private List<Vector4> listZero = new List<Vector4>();
     [SerializeField] private Material matClear;
     [SerializeField] private Color col;
-
+        
     nuitrack.JointType[] _jointsInfo = new nuitrack.JointType[]
     {
         nuitrack.JointType.Head,
@@ -141,10 +142,13 @@ public class SendSkeletonToShader : MonoBehaviour
                 _bufferMove.SetData(listZero, 0, 0, maxMove);
             }
 
+            PointCloudGPU.Instance.skeleton = false;
             sizeSkeleton = 0;
+            character.SetActive(false);
             return;
         }
-
+        PointCloudGPU.Instance.skeleton = true;
+        character.SetActive(true);
         if (_data.ResultsDone)
         {
             int index = 0;
