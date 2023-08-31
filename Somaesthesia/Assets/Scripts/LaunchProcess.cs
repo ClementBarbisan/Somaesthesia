@@ -16,6 +16,8 @@ public class LaunchProcess : MonoBehaviour
     Process pr = new Process();
     [SerializeField] private string _nameProcess = "tanet_imagenet-pretrained-r50_8xb8-dense-1x1x8-100e_kinetics400-rgb";
     [SerializeField] private string _nameLabels = "label_map_k400";
+    [SerializeField] private bool image;
+
     void OnEnable()
     {
         windowUnity = (IntPtr) GetActiveWindow();
@@ -26,7 +28,12 @@ public class LaunchProcess : MonoBehaviour
         prs.Arguments =
             "C:\\" + _nameProcess + ".py" +
             " C:\\" + _nameProcess + ".pth" +
-            " C:\\" + _nameLabels + ".txt --device cuda:0 --inference-fps 60";
+            " C:\\" + _nameLabels + ".txt --device cuda:0";
+        if (image)
+        {
+            prs.Arguments += " --image True";
+        }
+
         pr.StartInfo = prs;
 
         ThreadStart ths = new ThreadStart(() => pr.Start());

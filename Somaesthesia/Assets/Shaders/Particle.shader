@@ -500,6 +500,7 @@ Shader "Particle"
             uniform float3 _CamPos;
             int _Offset;
             int _CurrentFrame;
+            float _MaxSize;
             
             PS_INPUT vert(uint instance_id : SV_instanceID)
             {
@@ -608,7 +609,7 @@ Shader "Particle"
                 // float4 col = tex2D(_MainTex, uv);
                 // col = saturate(col) * CalcLuminance(col);
                 // col.xyz = max(col.x, max(col.y, col.z));
-                return (float4(1,1,1,1));
+                return (float4(1,1,1,(1 - _SkeletonSize / _MaxSize)));
             }
             ENDCG
         }

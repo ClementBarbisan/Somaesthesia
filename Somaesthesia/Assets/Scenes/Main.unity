@@ -297,7 +297,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 11436578, guid: e999ace05c586574fa1b964016f28531, type: 3}
       propertyPath: initEvent.m_PersistentCalls.m_Calls.Array.data[2].m_Arguments.m_BoolArgument
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 11436578, guid: e999ace05c586574fa1b964016f28531, type: 3}
       propertyPath: initEvent.m_PersistentCalls.m_Calls.Array.data[3].m_Arguments.m_BoolArgument
@@ -330,6 +330,10 @@ PrefabInstance:
     - target: {fileID: 348830707, guid: e999ace05c586574fa1b964016f28531, type: 3}
       propertyPath: cubes
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 348830707, guid: e999ace05c586574fa1b964016f28531, type: 3}
+      propertyPath: debug
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 348830707, guid: e999ace05c586574fa1b964016f28531, type: 3}
       propertyPath: contours
@@ -687,11 +691,11 @@ MonoBehaviour:
   maxMove: 15
   sizeSkeleton: 0
   maxSkeleton: 10
-  _speed: 5
+  _speed: 0.5
   _prefabText: {fileID: 4481629025886409444, guid: 7717a6ac5e5f0ed47bfe54f46903acab,
     type: 3}
   _parentCanvas: {fileID: 1228864641}
-  debug: 1
+  debug: 0
 --- !u!4 &975926592 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 4bb09cccb13b5954682f33cd16bd7665,
@@ -1420,8 +1424,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76ecc365765f39c41a2d47b82c37402e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _nameProcess: tanet_imagenet-pretrained-r50_8xb8-dense-1x1x8-100e_kinetics400-rgb
-  _nameLabels: label_map_k400
+  _nameProcess: faille
+  _nameLabels: label_faille
+  image: 1
 --- !u!1 &2110555741
 GameObject:
   m_ObjectHideFlags: 0
