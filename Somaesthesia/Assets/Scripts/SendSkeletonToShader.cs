@@ -164,12 +164,13 @@ public class SendSkeletonToShader : MonoBehaviour
 
             if (_positiveLabels.Contains(_data.TextIA[index]))
             {
-                sizeSkeleton += Time.deltaTime * (1 / _speed) * Mathf.Clamp01(_data.ValIA[index] / 100);
+                sizeSkeleton += Time.deltaTime * (1 / _speed) * maxSkeleton * Mathf.Clamp01(_data.ValIA[index] / 100);
             }
             else if (_negativeLabels.Contains(_data.TextIA[index]))
             {
-                sizeSkeleton -= Time.deltaTime * (1 / _speed) * Mathf.Clamp01(_data.ValIA[index] / 100);
+                sizeSkeleton -= Time.deltaTime * (1 / _speed) * maxSkeleton * 2 * Mathf.Clamp01(_data.ValIA[index] / 100);
             }
+            sizeSkeleton = Mathf.Clamp(sizeSkeleton, 0, maxSkeleton);
             // float val = Mathf.Clamp(90 - (_data.ValIA.Max() - _data.ValIA.Min()), 0, 90);
             // float[] arrayVal = _data.ValIA.Where(x => Mathf.Abs(x - _data.ValIA.Min()) > 10 &&
             //         Mathf.Abs(x - _data.ValIA.Max()) > 1).ToArray();
@@ -253,7 +254,7 @@ public class SendSkeletonToShader : MonoBehaviour
     private void OnPreRender()
     {
         // matClear.SetFloat("_RandValue", 1.1f - sizeSkeleton / maxSkeleton);
-        col.a = Mathf.Clamp(1 - sizeSkeleton / (maxSkeleton / 2), 0.02f, 1f);
+        col.a = Mathf.Clamp(1 - sizeSkeleton / maxSkeleton, 0.02f, 1f);
         matClear.color = col;
         Graphics.Blit(tmpTex, matClear, 1);
     }
