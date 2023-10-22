@@ -78,6 +78,7 @@ public class SendSkeletonToShader : MonoBehaviour
     [SerializeField] private List<string> _positiveLabels;
 
     [SerializeField] private List<string> _negativeLabels;
+    private AudioSource audioSource;
 
     // Start is called before the first frame update
     void Start()
@@ -92,6 +93,8 @@ public class SendSkeletonToShader : MonoBehaviour
         {
             listZero.Add(Vector4.zero);
         }
+        audioSource = GetComponent<AudioSource>();
+        audioSource.Play();
     }
 
     private void UserTrackerOnOnUpdateEvent(UserFrame frame)
@@ -249,6 +252,24 @@ public class SendSkeletonToShader : MonoBehaviour
         }
 
         Shader.SetGlobalFloat("_SkeletonSize", sizeSkeleton);
+    }
+
+    private void OnAudioFilterRead(float[] data, int channels)
+    {
+        System.Random rng = new System.Random();
+        int dataLen = data.Length / channels;
+        float average = data.Sum() / (dataLen / 5);
+        int n = 0;
+        while (n < dataLen)
+        {
+            int i = 0;
+            while (i < channels)
+            {
+                data[n * channels + i] = average * (1 - sizeSkeleton/maxSkeleton) + data[n * channels + i] * (sizeSkeleton / maxSkeleton);
+                i++;
+            }
+            n++;
+        }
     }
 
     private void OnPreRender()
