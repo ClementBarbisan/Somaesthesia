@@ -274,7 +274,7 @@ public class SendSkeletonToShader : MonoBehaviour
 
     private void OnPreRender()
     {
-        // matClear.SetFloat("_RandValue", 1.1f - sizeSkeleton / maxSkeleton);
+        matClear.SetFloat("_RandValue", 1.1f - sizeSkeleton / maxSkeleton);
         col.a = Mathf.Clamp(1 - sizeSkeleton / maxSkeleton, 0.02f, 1f);
         matClear.color = col;
         Graphics.Blit(tmpTex, matClear, 1);

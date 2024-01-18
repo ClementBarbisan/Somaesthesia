@@ -119,7 +119,7 @@ Shader "Custom/ClearColor"
             {
                 fixed4 col = tex2D(_MainTex, i.uv) * _Color;
                 if (rand(i.uv) >= _RandValue)
-                    return (float4(0,0,0,0));
+                    discard;
                 return col;
             }
             ENDCG
