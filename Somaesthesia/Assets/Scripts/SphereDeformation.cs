@@ -18,7 +18,6 @@ public class SphereDeformation : MonoBehaviour
         Vector3 pos = transform.position;
         transform.position = new Vector3(Mathf.PerlinNoise(pos.x, pos.y) * Mathf.Cos(Time.time) * 1.5f,Mathf.PerlinNoise(pos.z, pos.y)* Mathf.Sin(Time.time) * 1.5f,
             Mathf.PerlinNoise(pos.x, pos.z)* Mathf.Cos(Time.time) * Mathf.Sin(Time.time));
-        PointCloudGPU.Instance.matPointCloud.SetVector("_SpherePosition", transform.position + initPos);
     }
 
     private void OnDrawGizmos()

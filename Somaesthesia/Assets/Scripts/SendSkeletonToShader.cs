@@ -32,6 +32,7 @@ public class SendSkeletonToShader : MonoBehaviour
     private List<Vector4> listZero = new List<Vector4>();
     [SerializeField] private Material matClear;
     [SerializeField] private Color col;
+    private MeshRenderer[] _characterMaterials;
         
     nuitrack.JointType[] _jointsInfo = new nuitrack.JointType[]
     {
@@ -95,6 +96,7 @@ public class SendSkeletonToShader : MonoBehaviour
         }
         audioSource = GetComponent<AudioSource>();
         audioSource.Play();
+        _characterMaterials = character.GetComponentsInChildren<MeshRenderer>(true);
     }
 
     private void UserTrackerOnOnUpdateEvent(UserFrame frame)
@@ -134,23 +136,16 @@ public class SendSkeletonToShader : MonoBehaviour
 
     private void Update()
     {
-        PointCloudGPU.Instance.matPointCloud.SetInt("_Offset", Mathf.Clamp((int) (maxSkeleton
-            - sizeSkeleton) * 2, 2, (int) maxSkeleton * 2));
-        PointCloudGPU.Instance.curlNoise.SetFloat("_speed", Mathf.Clamp(sizeSkeleton / maxSkeleton, 0, 0.5f));
-        PointCloudGPU.Instance.fall.SetFloat("_speed", Mathf.Clamp(sizeSkeleton / maxSkeleton, 0, 0.5f));
         if (_id == -1 && !debug)
         {
             if (_bufferMove != null)
             {
                 _bufferMove.SetData(listZero, 0, 0, maxMove);
             }
-
-            PointCloudGPU.Instance.skeleton = false;
             sizeSkeleton = 0;
             character.SetActive(false);
             return;
         }
-        PointCloudGPU.Instance.skeleton = true;
         character.SetActive(true);
         if (_data.ResultsDone)
         {
@@ -174,6 +169,12 @@ public class SendSkeletonToShader : MonoBehaviour
                 sizeSkeleton -= Time.deltaTime * (1 / _speed) * maxSkeleton * 2 * Mathf.Clamp01(_data.ValIA[index] / 100);
             }
             sizeSkeleton = Mathf.Clamp(sizeSkeleton, 0, maxSkeleton);
+            foreach (MeshRenderer render in _characterMaterials)
+            {
+                Material cacheMat = render.material;
+                cacheMat.color = new Color(cacheMat.color.r, cacheMat.color.g,
+                    cacheMat.color.b, 1f - sizeSkeleton / maxSkeleton);
+            }
             // float val = Mathf.Clamp(90 - (_data.ValIA.Max() - _data.ValIA.Min()), 0, 90);
             // float[] arrayVal = _data.ValIA.Where(x => Mathf.Abs(x - _data.ValIA.Min()) > 10 &&
             //         Mathf.Abs(x - _data.ValIA.Max()) > 1).ToArray();
@@ -274,7 +275,7 @@ public class SendSkeletonToShader : MonoBehaviour
 
     private void OnPreRender()
     {
-        // matClear.SetFloat("_RandValue", 1.1f - sizeSkeleton / maxSkeleton);
+        matClear.SetFloat("_RandValue", 1.1f - sizeSkeleton / maxSkeleton);
         col.a = Mathf.Clamp(1 - sizeSkeleton / maxSkeleton, 0.02f, 1f);
         matClear.color = col;
         Graphics.Blit(tmpTex, matClear, 1);
@@ -282,8 +283,7 @@ public class SendSkeletonToShader : MonoBehaviour
 
     void OnRenderImage(RenderTexture src, RenderTexture dest)
     {
-        // Graphics.Blit(src, dest, matClear, 0);
-        Graphics.Blit(src, tmpTex); //, matClear, 0);
+        Graphics.Blit(src, tmpTex);
     }
 
     private void OnDestroy()

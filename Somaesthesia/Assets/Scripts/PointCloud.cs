@@ -3,14 +3,18 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using nuitrack;
+using TMPro.EditorUtilities;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.VFX;
 
 public class PointCloud : MonoBehaviour
 {
+    [DllImport("kernel32.dll", EntryPoint = "CopyMemory", SetLastError = false)]
+    public static extern void CopyMemory(IntPtr dest, IntPtr src, uint count);
+    
     private GraphicsBuffer _depthBuffer;
-
+    [SerializeField]
     private Texture2D _color;
     [SerializeField]
     private VisualEffect _vfx;
@@ -80,7 +84,6 @@ public class PointCloud : MonoBehaviour
         }
         _color.LoadRawTextureData(frame.Data, frame.DataSize);
         _color.Apply();
-        _vfx.Reinit();
     }
 
     private void OnDestroy()
