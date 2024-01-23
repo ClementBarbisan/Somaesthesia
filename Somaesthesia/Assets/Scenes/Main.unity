@@ -181,7 +181,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 11436578, guid: e999ace05c586574fa1b964016f28531, type: 3}
       propertyPath: mirror
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 11436578, guid: e999ace05c586574fa1b964016f28531, type: 3}
       propertyPath: asyncInit
@@ -468,7 +468,7 @@ MonoBehaviour:
   sensorId: 0
   useCurrentUserTracker: 1
   userID: 1
-  jointConfidence: 0.1
+  jointConfidence: 0.75
   waist: {fileID: 1669223347}
   torso: {fileID: 1669223346}
   collar: {fileID: 1669223345}

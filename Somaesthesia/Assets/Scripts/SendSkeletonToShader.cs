@@ -147,11 +147,11 @@ public class SendSkeletonToShader : MonoBehaviour
 
             PointCloudGPU.Instance.skeleton = false;
             sizeSkeleton = 0;
-            character.SetActive(false);
+            // character.SetActive(false);
             return;
         }
         PointCloudGPU.Instance.skeleton = true;
-        character.SetActive(true);
+        // character.SetActive(true);
         if (_data.ResultsDone)
         {
             int index = 0;
