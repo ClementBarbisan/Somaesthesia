@@ -733,6 +733,7 @@ MonoBehaviour:
   - Tortion
   - VogueGlitch
   - ZigZag
+  - GlitchFloorMax
   _negativeLabels:
   - ArmsUp
   - FloatingArms
@@ -742,6 +743,7 @@ MonoBehaviour:
   - FloorBase
   - LateralStep
   - XPose
+  - HandSide
 --- !u!82 &591904946
 AudioSource:
   m_ObjectHideFlags: 0
