@@ -12,7 +12,7 @@ public class PointCloudGPU : MonoBehaviour {
     public Material matCurlNoise;
     public ComputeShader curlNoise;
     public ComputeShader fall;
-    public const int maxFrameDepth = 15;
+    public const int maxFrameDepth = 25;
     private short[] _particles;
     ComputeBuffer _buffer;
     ComputeBuffer _particleBuffer;
