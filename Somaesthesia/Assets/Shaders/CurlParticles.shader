@@ -139,7 +139,7 @@ Shader "CurlParticles"
                 o.instance = p[0].instance;
                 o.keep.x = p[0].keep.x;
                 o.keep.y = p[0].keep.y;
-                if (p[0].keep.x == 0 || particles[o.instance].life <= 0)
+                if (p[0].keep.x <= 0 || particles[o.instance].life <= 0)
                 {
                     return;
                 }
@@ -201,7 +201,7 @@ Shader "CurlParticles"
 
             float4 frag(PS_INPUT i) : COLOR
             {
-                if (i.keep.x == 0)
+                if (i.keep.x <= 0)
                 {
                     discard;
                 }
@@ -209,7 +209,7 @@ Shader "CurlParticles"
                                    float(i.instance / _WidthTex) / (float)_HeightTex); //i.uv;
                 float4 tex = tex2D(_ParticleTex, i.uv); // * tex2D(_MainTex, (uv * _MainTex_ST.xy + _SinTime.yz)));
                 // tex.w /=  1 + i.keep.y / 20;
-                if (tex.w == 0)
+                if (tex.w <= 0)
                 {
                     discard;
                 }
