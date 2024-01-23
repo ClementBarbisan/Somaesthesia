@@ -14,7 +14,6 @@ public class PointCloud : MonoBehaviour
     public static extern void CopyMemory(IntPtr dest, IntPtr src, uint count);
     
     private GraphicsBuffer _depthBuffer;
-    [SerializeField]
     private Texture2D _color;
     [SerializeField]
     private VisualEffect _vfx;

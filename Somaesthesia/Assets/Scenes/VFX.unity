@@ -693,7 +693,7 @@ VFXRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1027184227}
   m_Enabled: 1
-  m_CastShadows: 1
+  m_CastShadows: 0
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -732,7 +732,7 @@ VisualEffect:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1027184227}
   m_Enabled: 1
-  m_Asset: {fileID: 8926484042661614526, guid: d7c62328f4a949842bb393cdf95dfa38, type: 3}
+  m_Asset: {fileID: 8926484042661614526, guid: 7a0a076e09eeb217f84b73b8e5e8b64f, type: 3}
   m_InitialEventName: OnPlay
   m_InitialEventNameOverriden: 0
   m_StartSeed: 0
@@ -810,7 +810,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71cd07c1427200e41ace0e51a45fc710, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _color: {fileID: 8400000, guid: 62b1dc0f731de164aae563824511995a, type: 2}
   _vfx: {fileID: 1027184229}
 --- !u!1 &1032317415
 GameObject:
@@ -971,7 +970,7 @@ PrefabInstance:
     - target: {fileID: 2222131262993591890, guid: 31cd8f133813f864a9ee86e9c019aa7e,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 1
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 2222131262993591890, guid: 31cd8f133813f864a9ee86e9c019aa7e,
         type: 3}
