@@ -143,7 +143,7 @@ public class SendSkeletonToShader : MonoBehaviour
                 _bufferMove.SetData(listZero, 0, 0, maxMove);
             }
             sizeSkeleton = 0;
-            character.SetActive(false);
+            // character.SetActive(false);
             return;
         }
         character.SetActive(true);

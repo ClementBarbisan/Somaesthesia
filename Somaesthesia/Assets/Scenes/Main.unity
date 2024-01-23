@@ -468,7 +468,7 @@ MonoBehaviour:
   sensorId: 0
   useCurrentUserTracker: 1
   userID: 1
-  jointConfidence: 0.1
+  jointConfidence: 0.75
   waist: {fileID: 1669223347}
   torso: {fileID: 1669223346}
   collar: {fileID: 1669223345}
