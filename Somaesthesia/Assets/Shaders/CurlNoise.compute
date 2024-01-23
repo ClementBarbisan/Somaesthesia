@@ -77,7 +77,7 @@ float3 curlNoise(float3 p) {
 [numthreads(256, 1, 1)]
 void CSParticle(uint3 id : SV_DispatchThreadID)
 {
-	if (segmentation[_Width * _Height * _CurrentFrame + id.x] != 1)
+	if (segmentation[_Width * _Height * _CurrentFrame + id.x] == 0)
 	{
 		particleBuffer[id.x].life = 0;
 		return;
