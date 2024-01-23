@@ -361,7 +361,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 348830707, guid: e999ace05c586574fa1b964016f28531, type: 3}
       propertyPath: debug
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 348830707, guid: e999ace05c586574fa1b964016f28531, type: 3}
       propertyPath: contours
@@ -717,12 +717,11 @@ MonoBehaviour:
   _prefabText: {fileID: 4481629025886409444, guid: 7717a6ac5e5f0ed47bfe54f46903acab,
     type: 3}
   _parentCanvas: {fileID: 1228864641}
-  debug: 1
+  debug: 0
   _positiveLabels:
   - GlitchFloorBase
   - GlitchMacarena
   - GlitchRobot
-  - Back
   - EgyptStuff
   - FootGap
   - GlitchFloorSemi
@@ -736,20 +735,13 @@ MonoBehaviour:
   - ZigZag
   _negativeLabels:
   - ArmsUp
-  - ChinHand
-  - CrossedArms
-  - Flexion
   - FloatingArms
-  - HeadHands
-  - Hello
   - HipsHand
-  - Jump
   - LateralArms
   - LateralStep
-  - Legs
-  - FloatingLegs
   - FloorBase
-  - LateralSteps
+  - LateralStep
+  - XPose
 --- !u!82 &591904946
 AudioSource:
   m_ObjectHideFlags: 0
