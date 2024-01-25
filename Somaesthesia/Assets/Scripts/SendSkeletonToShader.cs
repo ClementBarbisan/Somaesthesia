@@ -300,11 +300,11 @@ public class SendSkeletonToShader : MonoBehaviour
 
                     if (_labelsPos.Contains(_data.TextIA[j]))
                     {
-                        _listTexts[j].text = (_labelsPos[_data.TextIA[j]] != "" ? _labelsPos[_data.TextIA[j]] : _data.TextIA[j]);
+                        _listTexts[j].text = (_labelsPos[_data.TextIA[j]] != String.Empty ? _labelsPos[_data.TextIA[j]] : _data.TextIA[j]);
                     }   
                     else if (_labelsNeg.Contains(_data.TextIA[j]))
                     {
-                        _listTexts[j].text = (_labelsNeg[_data.TextIA[j]] != "" ? _labelsNeg[_data.TextIA[j]] : _data.TextIA[j]);
+                        _listTexts[j].text = (_labelsNeg[_data.TextIA[j]] != String.Empty ? _labelsNeg[_data.TextIA[j]] : _data.TextIA[j]);
                     }
                     if (_data.ValIA[j] < 5f)
                     {
