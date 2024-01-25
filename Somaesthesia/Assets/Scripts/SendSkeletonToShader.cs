@@ -33,7 +33,83 @@ public class SendSkeletonToShader : MonoBehaviour
     private List<Vector4> listZero = new List<Vector4>();
     [SerializeField] private Material matClear;
     [SerializeField] private Color col;
-        
+
+    [Serializable]
+    struct Labels
+    {
+        public List<Label> labels;
+
+        public bool Contains(string val)
+        {
+            foreach (Label lab in labels)
+            {
+                if (lab.label == val)
+                {
+                    return (true);
+                }
+            }
+
+            return (false);
+        }
+
+        public int GetIndex(string val)
+        {
+            for (int i = 0; i < labels.Count; i++)
+            {
+                if (labels[i].label == val)
+                {
+                    return (i);
+                }
+            }
+
+            return (-1);
+        }
+
+        public string this[int index]
+        {
+            get => labels[index].value;
+            set
+            {
+                Label label = labels[index];
+                label.value = (string) value;
+            }
+        }
+
+        public string this[string key]
+        {
+            get
+            {
+                foreach (Label lab in labels)
+                {
+                    if (lab.label == (string) key)
+                        return (lab.value);
+                }
+
+                return (null);
+            }
+
+            set
+            {
+                foreach (Label lab in labels)
+                {
+                    Label label = lab;
+                    if (label.label == (string) key)
+                        label.value = (string) value;
+                }
+
+                ;
+            }
+        }
+    }
+
+    [Serializable]
+    struct Label
+    {
+        public string label;
+        public string value;
+
+    }
+
     nuitrack.JointType[] _jointsInfo = new nuitrack.JointType[]
     {
         nuitrack.JointType.Head,
@@ -75,7 +151,8 @@ public class SendSkeletonToShader : MonoBehaviour
     private int _currentFrame = 0;
 
     [SerializeField] private bool debug;
-
+    [SerializeField] private Labels _labelsPos;
+    [SerializeField] private Labels _labelsNeg;
     [SerializeField] private List<string> _positiveLabels;
 
     [SerializeField] private List<string> _negativeLabels;
@@ -175,11 +252,11 @@ public class SendSkeletonToShader : MonoBehaviour
                 }
             }
 
-            if (index != -1 && _positiveLabels.Contains(_data.TextIA[index]))
+            if (index != -1 && _labelsPos.Contains(_data.TextIA[index]))
             {
                 sizeSkeleton += Time.deltaTime * (1 / _speed) * maxSkeleton * Mathf.Clamp01(_data.ValIA[index] / 100);
             }
-            else if (index != -1 && _negativeLabels.Contains(_data.TextIA[index]))
+            else if (index != -1 && _labelsNeg.Contains(_data.TextIA[index]))
             {
                 sizeSkeleton -= Time.deltaTime * (1 / _speed) * maxSkeleton * 2 * Mathf.Clamp01(_data.ValIA[index] / 100);
             }
@@ -221,7 +298,14 @@ public class SendSkeletonToShader : MonoBehaviour
                         continue;
                     }
 
-                    _listTexts[j].text = _data.TextIA[j];
+                    if (_labelsPos.Contains(_data.TextIA[j]))
+                    {
+                        _listTexts[j].text = (_labelsPos[_data.TextIA[j]] != "" ? _labelsPos[_data.TextIA[j]] : _data.TextIA[j]);
+                    }   
+                    else if (_labelsNeg.Contains(_data.TextIA[j]))
+                    {
+                        _listTexts[j].text = (_labelsNeg[_data.TextIA[j]] != "" ? _labelsNeg[_data.TextIA[j]] : _data.TextIA[j]);
+                    }
                     if (_data.ValIA[j] < 5f)
                     {
                         continue;
