@@ -145,7 +145,7 @@ public class SendSkeletonToShader : MonoBehaviour
             - sizeSkeleton) * 2, 2, (int) maxSkeleton * 2));
         PointCloudGPU.Instance.curlNoise.SetFloat("_speed", Mathf.Clamp(sizeSkeleton / maxSkeleton, 0, 0.5f));
         PointCloudGPU.Instance.fall.SetFloat("_speed", Mathf.Clamp(sizeSkeleton / maxSkeleton, 0, 0.5f));
-        if (_id == -1 && !debug)
+        if (_id <= 0 && !debug)
         {
             if (_bufferMove != null)
             {
@@ -154,6 +154,8 @@ public class SendSkeletonToShader : MonoBehaviour
 
             PointCloudGPU.Instance.skeleton = false;
             sizeSkeleton = 0;
+            audioSourceFirst.volume = Mathf.Clamp(0.7f - sizeSkeleton / maxSkeleton, 0, 0.7f);
+            audioSourceSecond.volume = sizeSkeleton / maxSkeleton;
             // character.SetActive(false);
             return;
         }
@@ -166,7 +168,7 @@ public class SendSkeletonToShader : MonoBehaviour
             float max = 0;
             for (int i = 0; i < _data.ValIA.Length; i++)
             {
-                if (_data.ValIA[i] > max && _data.ValIA[i] > 0.8f)
+                if (_data.ValIA[i] > max && _data.ValIA[i] > 75f)
                 {
                     index = i;
                     max = _data.ValIA[i];
@@ -220,7 +222,7 @@ public class SendSkeletonToShader : MonoBehaviour
                     }
 
                     _listTexts[j].text = _data.TextIA[j];
-                    if (_data.ValIA[j] < 0.05f)
+                    if (_data.ValIA[j] < 5f)
                     {
                         continue;
                     }
@@ -240,7 +242,7 @@ public class SendSkeletonToShader : MonoBehaviour
 
             _data.ResultsDone = false;
         }
-        audioSourceFirst.volume = 1f - sizeSkeleton / maxSkeleton;
+        audioSourceFirst.volume = Mathf.Clamp(0.7f - sizeSkeleton / maxSkeleton, 0, 0.7f);
         audioSourceSecond.volume = sizeSkeleton / maxSkeleton;
 
         if (_data.MoveDone)
