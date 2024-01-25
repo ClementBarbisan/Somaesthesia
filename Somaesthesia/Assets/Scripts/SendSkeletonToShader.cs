@@ -10,6 +10,7 @@ using TMPro;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.Serialization;
 using Joint = nuitrack.Joint;
 using Random = UnityEngine.Random;
 using Vector3 = UnityEngine.Vector3;
@@ -79,7 +80,10 @@ public class SendSkeletonToShader : MonoBehaviour
     [SerializeField] private List<string> _positiveLabels;
 
     [SerializeField] private List<string> _negativeLabels;
-    private AudioSource audioSource;
+    [FormerlySerializedAs("audioSource")] [SerializeField]
+    private AudioSource audioSourceFirst;
+
+    [SerializeField] private AudioSource audioSourceSecond;
 
     // Start is called before the first frame update
     void Start()
@@ -94,9 +98,11 @@ public class SendSkeletonToShader : MonoBehaviour
         {
             listZero.Add(Vector4.zero);
         }
-        audioSource = GetComponent<AudioSource>();
-        audioSource.Play();
-        _characterMaterials = character.GetComponentsInChildren<MeshRenderer>(true);
+
+        audioSourceFirst.volume = 1f;
+        audioSourceSecond.volume = 0f;
+        audioSourceFirst.Play();
+        audioSourceSecond.Play();
     }
 
     private void UserTrackerOnOnUpdateEvent(UserFrame frame)
@@ -149,22 +155,22 @@ public class SendSkeletonToShader : MonoBehaviour
         character.SetActive(true);
         if (_data.ResultsDone)
         {
-            int index = 0;
+            int index = -1;
             float max = 0;
             for (int i = 0; i < _data.ValIA.Length; i++)
             {
-                if (_data.ValIA[i] > max)
+                if (_data.ValIA[i] > max && _data.ValIA[i] > 0.8f)
                 {
                     index = i;
                     max = _data.ValIA[i];
                 }
             }
 
-            if (_positiveLabels.Contains(_data.TextIA[index]))
+            if (index != -1 && _positiveLabels.Contains(_data.TextIA[index]))
             {
                 sizeSkeleton += Time.deltaTime * (1 / _speed) * maxSkeleton * Mathf.Clamp01(_data.ValIA[index] / 100);
             }
-            else if (_negativeLabels.Contains(_data.TextIA[index]))
+            else if (index != -1 && _negativeLabels.Contains(_data.TextIA[index]))
             {
                 sizeSkeleton -= Time.deltaTime * (1 / _speed) * maxSkeleton * 2 * Mathf.Clamp01(_data.ValIA[index] / 100);
             }
@@ -233,6 +239,8 @@ public class SendSkeletonToShader : MonoBehaviour
 
             _data.ResultsDone = false;
         }
+        audioSourceFirst.volume = 1f - sizeSkeleton / maxSkeleton;
+        audioSourceSecond.volume = sizeSkeleton / maxSkeleton;
 
         if (_data.MoveDone)
         {
@@ -255,23 +263,23 @@ public class SendSkeletonToShader : MonoBehaviour
         Shader.SetGlobalFloat("_SkeletonSize", sizeSkeleton);
     }
 
-    private void OnAudioFilterRead(float[] data, int channels)
-    {
-        System.Random rng = new System.Random();
-        int dataLen = data.Length / channels;
-        float average = data.Sum() / (dataLen / 5);
-        int n = 0;
-        while (n < dataLen)
-        {
-            int i = 0;
-            while (i < channels)
-            {
-                data[n * channels + i] = average * (1 - sizeSkeleton/maxSkeleton) + data[n * channels + i] * (sizeSkeleton / maxSkeleton);
-                i++;
-            }
-            n++;
-        }
-    }
+    // private void OnAudioFilterRead(float[] data, int channels)
+    // {
+    //     System.Random rng = new System.Random();
+    //     int dataLen = data.Length / channels;
+    //     float average = data.Sum() / (dataLen / 5);
+    //     int n = 0;
+    //     while (n < dataLen)
+    //     {
+    //         int i = 0;
+    //         while (i < channels)
+    //         {
+    //             data[n * channels + i] = average * (1 - sizeSkeleton/maxSkeleton) + data[n * channels + i] * (sizeSkeleton / maxSkeleton);
+    //             i++;
+    //         }
+    //         n++;
+    //     }
+    // }
 
     private void OnPreRender()
     {
