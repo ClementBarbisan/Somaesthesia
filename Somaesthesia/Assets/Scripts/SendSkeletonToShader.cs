@@ -222,7 +222,7 @@ public class SendSkeletonToShader : MonoBehaviour
             - sizeSkeleton) * 2, 2, (int) maxSkeleton * 2));
         PointCloudGPU.Instance.curlNoise.SetFloat("_speed", Mathf.Clamp(sizeSkeleton / maxSkeleton, 0, 0.5f));
         PointCloudGPU.Instance.fall.SetFloat("_speed", Mathf.Clamp(sizeSkeleton / maxSkeleton, 0, 0.5f));
-        if (_id <= 0 && !debug)
+        if (_id == -1 && !debug)
         {
             if (_bufferMove != null)
             {
