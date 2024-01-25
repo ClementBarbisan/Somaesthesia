@@ -24,7 +24,6 @@ public struct Joints
 
 public class SendSkeletonToShader : MonoBehaviour
 {
-    [SerializeField] private GameObject character;
     private Skeleton _skeleton;
     private BoundingBox _boxUser;
     private ComputeBuffer _buffer;
