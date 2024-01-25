@@ -253,12 +253,6 @@ public class SendSkeletonToShader : MonoBehaviour
                 sizeSkeleton -= Time.deltaTime * (1 / _speed) * maxSkeleton * 2 * Mathf.Clamp01(_data.ValIA[index] / 100);
             }
             sizeSkeleton = Mathf.Clamp(sizeSkeleton, 0, maxSkeleton);
-            foreach (MeshRenderer render in _characterMaterials)
-            {
-                Material cacheMat = render.material;
-                cacheMat.color = new Color(cacheMat.color.r, cacheMat.color.g,
-                    cacheMat.color.b, 1f - sizeSkeleton / maxSkeleton);
-            }
             // float val = Mathf.Clamp(90 - (_data.ValIA.Max() - _data.ValIA.Min()), 0, 90);
             // float[] arrayVal = _data.ValIA.Where(x => Mathf.Abs(x - _data.ValIA.Min()) > 10 &&
             //         Mathf.Abs(x - _data.ValIA.Max()) > 1).ToArray();
