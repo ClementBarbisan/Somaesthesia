@@ -152,7 +152,7 @@ public class SendSkeletonToShader : MonoBehaviour
             // character.SetActive(false);
             return;
         }
-        character.SetActive(true);
+        // character.SetActive(true);
         if (_data.ResultsDone)
         {
             int index = -1;

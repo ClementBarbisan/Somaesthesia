@@ -1007,26 +1007,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 5489851698334371737, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: m_ClearFlags
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 5489851698334371737, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: m_BackGroundColor.b
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5489851698334371737, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: m_BackGroundColor.g
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5489851698334371737, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: m_BackGroundColor.r
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
         type: 3}
       propertyPath: character
@@ -1034,149 +1014,9 @@ PrefabInstance:
       objectReference: {fileID: 1669223331}
     - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
         type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: sizeSkeleton
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
       propertyPath: _parentCanvas
       value: 
       objectReference: {fileID: 1228864641}
-    - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: _negativeLabels.Array.size
-      value: 7
-      objectReference: {fileID: 0}
-    - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: _positiveLabels.Array.size
-      value: 14
-      objectReference: {fileID: 0}
-    - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: _negativeLabels.Array.data[1]
-      value: FloatingArms
-      objectReference: {fileID: 0}
-    - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: _negativeLabels.Array.data[2]
-      value: HipsHand
-      objectReference: {fileID: 0}
-    - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: _negativeLabels.Array.data[3]
-      value: LateralArms
-      objectReference: {fileID: 0}
-    - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: _negativeLabels.Array.data[4]
-      value: LateralStep
-      objectReference: {fileID: 0}
-    - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: _negativeLabels.Array.data[5]
-      value: XPose
-      objectReference: {fileID: 0}
-    - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: _negativeLabels.Array.data[6]
-      value: FloorBase
-      objectReference: {fileID: 0}
-    - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: _negativeLabels.Array.data[7]
-      value: LateralSteps
-      objectReference: {fileID: 0}
-    - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: _negativeLabels.Array.data[8]
-      value: LateralSteps
-      objectReference: {fileID: 0}
-    - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: _negativeLabels.Array.data[9]
-      value: LateralSteps
-      objectReference: {fileID: 0}
-    - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: _positiveLabels.Array.data[3]
-      value: EgyptStuff
-      objectReference: {fileID: 0}
-    - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: _positiveLabels.Array.data[4]
-      value: FootGap
-      objectReference: {fileID: 0}
-    - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: _positiveLabels.Array.data[5]
-      value: GlitchFloorSemi
-      objectReference: {fileID: 0}
-    - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: _positiveLabels.Array.data[6]
-      value: GlitchInclination
-      objectReference: {fileID: 0}
-    - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: _positiveLabels.Array.data[7]
-      value: GlitchLimbo
-      objectReference: {fileID: 0}
-    - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: _positiveLabels.Array.data[8]
-      value: GlitchTwist
-      objectReference: {fileID: 0}
-    - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: _positiveLabels.Array.data[9]
-      value: RearCurve
-      objectReference: {fileID: 0}
-    - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: _negativeLabels.Array.data[10]
-      value: LateralSteps
-      objectReference: {fileID: 0}
-    - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: _negativeLabels.Array.data[11]
-      value: LateralSteps
-      objectReference: {fileID: 0}
-    - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: _negativeLabels.Array.data[12]
-      value: LateralSteps
-      objectReference: {fileID: 0}
-    - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: _negativeLabels.Array.data[13]
-      value: LateralSteps
-      objectReference: {fileID: 0}
-    - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: _positiveLabels.Array.data[10]
-      value: TopArmStraight
-      objectReference: {fileID: 0}
-    - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: _positiveLabels.Array.data[11]
-      value: Tortion
-      objectReference: {fileID: 0}
-    - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: _positiveLabels.Array.data[12]
-      value: VogueGlitch
-      objectReference: {fileID: 0}
-    - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: _positiveLabels.Array.data[13]
-      value: ZigZag
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1403,7 +1243,7 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 4bb09cccb13b5954682f33cd16bd7665,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1082271958561512970, guid: 4bb09cccb13b5954682f33cd16bd7665,
         type: 3}
