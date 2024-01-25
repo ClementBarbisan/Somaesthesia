@@ -721,8 +721,6 @@ MonoBehaviour:
   debug: 0
   _labelsPos:
     labels:
-    - label: GlitchFloorBase
-      value: 
     - label: GlitchMacarena
       value: 
     - label: GlitchRobot
@@ -765,8 +763,6 @@ MonoBehaviour:
       value: 
     - label: FloorBase
       value: 
-    - label: LateralStep
-      value: 
     - label: XPose
       value: 
     - label: HandSide
@@ -774,7 +770,6 @@ MonoBehaviour:
     - label: Legs
       value: 
   _positiveLabels:
-  - GlitchFloorBase
   - GlitchMacarena
   - GlitchRobot
   - EgyptStuff
@@ -796,7 +791,6 @@ MonoBehaviour:
   - LateralArms
   - LateralStep
   - FloorBase
-  - LateralStep
   - XPose
   - HandSide
   - Legs
