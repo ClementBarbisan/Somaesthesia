@@ -719,6 +719,60 @@ MonoBehaviour:
     type: 3}
   _parentCanvas: {fileID: 1228864641}
   debug: 0
+  _labelsPos:
+    labels:
+    - label: GlitchFloorBase
+      value: 
+    - label: GlitchMacarena
+      value: 
+    - label: GlitchRobot
+      value: 
+    - label: EgyptStuff
+      value: 
+    - label: FootGap
+      value: 
+    - label: GlitchFloorSemi
+      value: 
+    - label: GlitchInclination
+      value: 
+    - label: GlitchLimbo
+      value: 
+    - label: GlitchTwist
+      value: 
+    - label: RearCurve
+      value: 
+    - label: TopArmStraight
+      value: 
+    - label: Tortion
+      value: 
+    - label: VogueGlitch
+      value: 
+    - label: ZigZag
+      value: 
+    - label: GlitchFloorMax
+      value: 
+  _labelsNeg:
+    labels:
+    - label: ArmsUp
+      value: 
+    - label: FloatingArms
+      value: 
+    - label: HipsHand
+      value: 
+    - label: LateralArms
+      value: 
+    - label: LateralStep
+      value: 
+    - label: FloorBase
+      value: 
+    - label: LateralStep
+      value: 
+    - label: XPose
+      value: 
+    - label: HandSide
+      value: 
+    - label: Legs
+      value: 
   _positiveLabels:
   - GlitchFloorBase
   - GlitchMacarena
