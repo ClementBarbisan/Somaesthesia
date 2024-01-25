@@ -149,6 +149,8 @@ public class SendSkeletonToShader : MonoBehaviour
                 _bufferMove.SetData(listZero, 0, 0, maxMove);
             }
             sizeSkeleton = 0;
+            audioSourceFirst.volume = Mathf.Clamp(0.7f - sizeSkeleton / maxSkeleton, 0, 0.7f);
+            audioSourceSecond.volume = sizeSkeleton / maxSkeleton;
             // character.SetActive(false);
             return;
         }
@@ -159,7 +161,7 @@ public class SendSkeletonToShader : MonoBehaviour
             float max = 0;
             for (int i = 0; i < _data.ValIA.Length; i++)
             {
-                if (_data.ValIA[i] > max && _data.ValIA[i] > 0.8f)
+                if (_data.ValIA[i] > max && _data.ValIA[i] > 75f)
                 {
                     index = i;
                     max = _data.ValIA[i];
@@ -219,7 +221,7 @@ public class SendSkeletonToShader : MonoBehaviour
                     }
 
                     _listTexts[j].text = _data.TextIA[j];
-                    if (_data.ValIA[j] < 0.05f)
+                    if (_data.ValIA[j] < 5f)
                     {
                         continue;
                     }
@@ -239,7 +241,7 @@ public class SendSkeletonToShader : MonoBehaviour
 
             _data.ResultsDone = false;
         }
-        audioSourceFirst.volume = 1f - sizeSkeleton / maxSkeleton;
+        audioSourceFirst.volume = Mathf.Clamp(0.7f - sizeSkeleton / maxSkeleton, 0, 0.7f);
         audioSourceSecond.volume = sizeSkeleton / maxSkeleton;
 
         if (_data.MoveDone)
