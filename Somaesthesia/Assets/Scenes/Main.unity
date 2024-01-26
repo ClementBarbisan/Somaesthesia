@@ -721,8 +721,6 @@ MonoBehaviour:
   debug: 0
   _labelsPos:
     labels:
-    - label: GlitchFloorBase
-      value: 
     - label: GlitchMacarena
       value: 
     - label: GlitchRobot
@@ -754,27 +752,24 @@ MonoBehaviour:
   _labelsNeg:
     labels:
     - label: ArmsUp
-      value: 
+      value: Haut-les-mains
     - label: FloatingArms
-      value: 
+      value: "D\xE9marrer"
     - label: HipsHand
-      value: 
+      value: "Coud\xE9e franche"
     - label: LateralArms
-      value: 
+      value: Bras
     - label: LateralStep
-      value: 
+      value: "Pas chass\xE9"
     - label: FloorBase
-      value: 
-    - label: LateralStep
-      value: 
+      value: Ras le sol
     - label: XPose
-      value: 
+      value: X
     - label: HandSide
-      value: 
+      value: "M\xE9ditation"
     - label: Legs
-      value: 
+      value: Equilibre
   _positiveLabels:
-  - GlitchFloorBase
   - GlitchMacarena
   - GlitchRobot
   - EgyptStuff
@@ -796,7 +791,6 @@ MonoBehaviour:
   - LateralArms
   - LateralStep
   - FloorBase
-  - LateralStep
   - XPose
   - HandSide
   - Legs
@@ -1794,7 +1788,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76ecc365765f39c41a2d47b82c37402e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _nameProcess: faille
+  _nameProcess: faille_25012024
   _nameLabels: label_faille
   image: 0
 --- !u!1 &2110555741
