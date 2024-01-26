@@ -93,7 +93,7 @@ Shader "Particle"
                 uint index = 0;
                 for (uint j = _CurrentFrame; index < _MaxFrame; j = j == 0 ? _MaxFrame - 1 : j - 1)
                 {
-                    if (segmentBuffer[_Width * _Height * j + instance_id] == 0 || instance_id % (30 * int(index + 1)) > 0)
+                    if (segmentBuffer[_Width * _Height * j + instance_id] != 1 || instance_id % (30 * int(index + 1)) == 1)
                     {
                         o.keep.y = 0;
                     }
@@ -512,7 +512,7 @@ Shader "Particle"
                 // instance_id = instance_id / 2;
                 o.instance = int(instance_id);
                 
-                if (segmentBuffer[initPoint + instance_id] == 0)
+                if (segmentBuffer[initPoint + instance_id] != 1)
                 {
                     o.keep = float2(-1, 0);
                 }
@@ -680,7 +680,7 @@ Shader "Particle"
                 uint index = 0;
                 for (uint j = _CurrentFrame; index < _MaxFrame; j = j == 0 ? _MaxFrame - 1 : j - 1)
                 {
-                    if (segmentBuffer[_Width * _Height * j + instance_id] == 0 || instance_id % (30 * int(index + 1)) > 0)
+                    if (segmentBuffer[_Width * _Height * j + instance_id] != 1 || instance_id % (30 * int(index + 1)) > 0)
                     {
                         o.keep.y = 0;
                     }
