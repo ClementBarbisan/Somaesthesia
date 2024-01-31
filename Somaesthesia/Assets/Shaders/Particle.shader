@@ -338,7 +338,6 @@ Shader "Particle"
                 uint instance : SV_InstanceID;
             };
 
-            #ifdef SHADER_API_D3D11
             struct Joints
             {
                 float3 Pos;
@@ -347,10 +346,8 @@ Shader "Particle"
             };
 
             StructuredBuffer<Joints> _Skeleton;
-            #endif
             float _SkeletonSize;
             float  _SizeCube;
-            int _CurrentFrame;
 
             float rand(in float2 uv)
             {
@@ -492,27 +489,25 @@ Shader "Particle"
                 return abs(noise.x + noise.y) * 0.5;
             }
 
-            uniform sampler2D _MainTex;
             uniform int _Width;
             uniform int _WidthTex;
             uniform int _Height;
             uniform int _HeightTex;
             uniform float3 _CamPos;
             int _Offset;
-            int _CurrentFrame;
             float _MaxSize;
             
             PS_INPUT vert(uint instance_id : SV_instanceID)
             {
                 PS_INPUT o = (PS_INPUT)0;
-                const uint initPoint = _Width * _Height * _CurrentFrame;
+                // const uint initPoint = _Width * _Height * _CurrentFrame;
                 o.position = float4((_CamPos.x + _Width / 2.0) / 200.0 - instance_id % _Width / 200.0,
                                     (_CamPos.y + _Height / 2.0) / 200.0 - instance_id / _Width / 200.0,
-                                    _CamPos.z - particleBuffer[initPoint + instance_id] / 3000.0 - 2.0, 1.0f);
+                                    _CamPos.z - particleBuffer[instance_id] / 1500.0 + 2.0, 1.0f);
                 // instance_id = instance_id / 2;
                 o.instance = int(instance_id);
                 
-                if (segmentBuffer[initPoint + instance_id] != 1)
+                if (segmentBuffer[instance_id] != 1)
                 {
                     o.keep = float2(-1, 0);
                 }
@@ -521,25 +516,29 @@ Shader "Particle"
                     (_WidthTex * _HeightTex) && ((int)instance_id - _WidthTex * _Offset) >= 0)
                 {
                     o.keep = float2(-1, 0);
-                    if (segmentBuffer[(initPoint + instance_id - _Offset)] == 0 && segmentBuffer[(initPoint + instance_id + _Offset)] > 0)
+                    if (segmentBuffer[(instance_id - _Offset)] == 0 && segmentBuffer[(instance_id + _Offset)] > 0)
                     {
                         o.keep.y = (float)(instance_id + _WidthTex * _Offset);
-                        o.keep.x = initPoint;
+                        // o.keep.x = initPoint;
+                        o.keep.x = 0;
                     }
-                    else if (segmentBuffer[(initPoint + instance_id + _Offset)] == 0 && segmentBuffer[(initPoint + instance_id - _Offset)] > 0)
+                    else if (segmentBuffer[(instance_id + _Offset)] == 0 && segmentBuffer[(instance_id - _Offset)] > 0)
                     {
                         o.keep.y = (float)(instance_id - _WidthTex * _Offset);
-                        o.keep.x = initPoint;
+                        // o.keep.x = initPoint;
+                        o.keep.x = 0;
                     }
-                    else if (segmentBuffer[(initPoint + instance_id - _WidthTex * _Offset)] == 0 && segmentBuffer[(initPoint + instance_id + _WidthTex * _Offset)] > 0)
+                    else if (segmentBuffer[(instance_id - _WidthTex * _Offset)] == 0 && segmentBuffer[(instance_id + _WidthTex * _Offset)] > 0)
                     {
                          o.keep.y = (float)(instance_id + _Offset);
-                         o.keep.x = initPoint;
+                         // o.keep.x = initPoint;
+                        o.keep.x = 0;
                     }
-                    else if (segmentBuffer[(initPoint + instance_id + _WidthTex * _Offset)] == 0 && segmentBuffer[(initPoint + instance_id - _WidthTex * _Offset)] > 0)
+                    else if (segmentBuffer[(instance_id + _WidthTex * _Offset)] == 0 && segmentBuffer[(instance_id - _WidthTex * _Offset)] > 0)
                     {
                          o.keep.y = (float)(instance_id - _Offset);
-                         o.keep.x = initPoint;
+                         // o.keep.x = initPoint;
+                        o.keep.x = 0;
                     }
                 }
                 else
@@ -580,7 +579,7 @@ Shader "Particle"
                 o.instance = p[0].instance;
                 float4 pos2 = float4((_CamPos.x + _Width / 2.0) / 200.0 - o.keep.y % _Width / 200.0,
                                     (_CamPos.y + _Height / 2.0) / 200.0 - o.keep.y / _Width / 200.0,
-                                    _CamPos.z - particleBuffer[(int)o.keep.x + o.keep.y] / 3000.0 - 2.0, 1.0f);
+                                    _CamPos.z - particleBuffer[(int)o.keep.x + o.keep.y] / 1500.0 + 2.0, 1.0f);
                 const int nbVertex = clamp(_SkeletonSize, 0, 10);
                 float4 pos1 = UnityObjectToClipPos(p[0].position);
                 float4 pos2Clip = UnityObjectToClipPos(pos2);

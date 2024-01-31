@@ -27,7 +27,7 @@ public class SendSkeletonToShader : MonoBehaviour
     private Skeleton _skeleton;
     private BoundingBox _boxUser;
     private ComputeBuffer _buffer;
-    private ComputeBuffer _bufferMove;
+    // private ComputeBuffer _bufferMove;
     private ReceiveLabelsValue _data;
     private List<Vector4> listZero = new List<Vector4>();
     [SerializeField] private Material matClear;
@@ -134,7 +134,7 @@ public class SendSkeletonToShader : MonoBehaviour
     Queue<Joints> jointsList = new Queue<Joints>();
     private int _id = -1;
     private Camera cam;
-    [SerializeField] private int maxMove = 15;
+    // [SerializeField] private int maxMove = 15;
     [SerializeField] private float sizeSkeleton = 0.25f;
     [SerializeField] private float maxSkeleton = 15;
     private RenderTexture tmpTex = null;
@@ -169,15 +169,16 @@ public class SendSkeletonToShader : MonoBehaviour
         cam = Camera.main;
         NuitrackManager.onUserTrackerUpdate += UserTrackerOnOnUpdateEvent;
         NuitrackManager.SkeletonTracker.OnSkeletonUpdateEvent += SkeletonTrackerOnOnSkeletonUpdateEvent;
-        for (int i = 0; i < maxMove; i++)
-        {
-            listZero.Add(Vector4.zero);
-        }
+        // for (int i = 0; i < maxMove; i++)
+        // {
+        //     listZero.Add(Vector4.zero);
+        // }
 
-        audioSourceFirst.volume = 1f;
+        audioSourceFirst.volume = 0.5f;
         audioSourceSecond.volume = 0f;
         audioSourceFirst.Play();
         audioSourceSecond.Play();
+        PointCloud.Instance.contours.SetVector("_CamPos", cam.transform.position);
     }
 
     private void UserTrackerOnOnUpdateEvent(UserFrame frame)
@@ -217,12 +218,15 @@ public class SendSkeletonToShader : MonoBehaviour
 
     private void Update()
     {
+        PointCloud.Instance.contours.SetInt("_Offset", Mathf.Clamp((int) (maxSkeleton
+            - sizeSkeleton) * 2, 2, (int) maxSkeleton * 2));
+        Shader.SetGlobalFloat("_SkeletonSize", sizeSkeleton);
         if (_id == -1 && !debug)
         {
-            if (_bufferMove != null)
-            {
-                _bufferMove.SetData(listZero, 0, 0, maxMove);
-            }
+            // if (_bufferMove != null)
+            // {
+            //     _bufferMove.SetData(listZero, 0, 0, maxMove);
+            // }
             sizeSkeleton = 0;
             audioSourceFirst.volume = 0.5f;
             audioSourceSecond.volume = 0f;
@@ -321,25 +325,24 @@ public class SendSkeletonToShader : MonoBehaviour
         audioSourceFirst.volume = Mathf.Clamp(0.5f - Mathf.Pow(sizeSkeleton + 1, 1.2f) / maxSkeleton, 0, 0.5f);
         audioSourceSecond.volume = Mathf.Clamp(Mathf.Pow(sizeSkeleton + 1, 1.25f) / maxSkeleton, 0, 1f);
 
-        if (_data.MoveDone)
-        {
-            if (_bufferMove == null)
-            {
-                _bufferMove = new ComputeBuffer(maxMove, sizeof(float) * 4);
-                matClear.SetBuffer("_UVs", _bufferMove);
-            }
+        // if (_data.MoveDone)
+        // {
+        //     if (_bufferMove == null)
+        //     {
+        //         _bufferMove = new ComputeBuffer(maxMove, sizeof(float) * 4);
+        //         matClear.SetBuffer("_UVs", _bufferMove);
+        //     }
+        //
+        //     int nb = Mathf.Min(_data.PointMove.Count, maxMove);
+        //     _bufferMove.SetData(_data.PointMove, 0, 0, nb);
+        //     if (nb < maxMove)
+        //     {
+        //         _bufferMove.SetData(listZero, 0, nb, maxMove - nb);
+        //     }
+        //
+        //     _data.MoveDone = false;
+        // }
 
-            int nb = Mathf.Min(_data.PointMove.Count, maxMove);
-            _bufferMove.SetData(_data.PointMove, 0, 0, nb);
-            if (nb < maxMove)
-            {
-                _bufferMove.SetData(listZero, 0, nb, maxMove - nb);
-            }
-
-            _data.MoveDone = false;
-        }
-
-        Shader.SetGlobalFloat("_SkeletonSize", sizeSkeleton);
     }
 
     // private void OnAudioFilterRead(float[] data, int channels)
@@ -360,23 +363,23 @@ public class SendSkeletonToShader : MonoBehaviour
     //     }
     // }
 
-    private void OnPreRender()
-    {
-        matClear.SetFloat("_RandValue", 1.1f - sizeSkeleton / maxSkeleton);
-        col.a = Mathf.Clamp(1 - sizeSkeleton / maxSkeleton, 0.02f, 1f);
-        matClear.color = col;
-        Graphics.Blit(tmpTex, matClear, 1);
-    }
-
-    void OnRenderImage(RenderTexture src, RenderTexture dest)
-    {
-        Graphics.Blit(src, tmpTex);
-    }
+    // private void OnPreRender()
+    // {
+    //     matClear.SetFloat("_RandValue", 1.1f - sizeSkeleton / maxSkeleton);
+    //     col.a = Mathf.Clamp(1 - sizeSkeleton / maxSkeleton, 0.02f, 1f);
+    //     matClear.color = col;
+    //     Graphics.Blit(tmpTex, matClear, 1);
+    // }
+    //
+    // void OnRenderImage(RenderTexture src, RenderTexture dest)
+    // {
+    //     Graphics.Blit(src, tmpTex);
+    // }
 
     private void OnDestroy()
     {
         _buffer?.Release();
-        _bufferMove?.Release();
+        // _bufferMove?.Release();
         // NuitrackManager.SkeletonTracker.OnSkeletonUpdateEvent -= SkeletonTrackerOnOnSkeletonUpdateEvent;
         NuitrackManager.onUserTrackerUpdate -= UserTrackerOnOnUpdateEvent;
     }
@@ -419,7 +422,7 @@ public class SendSkeletonToShader : MonoBehaviour
             {
                 jointsList.Dequeue();
             }
-
+            
             _buffer.SetData(jointsList.ToArray()); //, 0, jointsList.Length * _currentFrame, jointsList.Length);
             // _currentFrame = (_currentFrame + 1) % PointCloudGPU.maxFrameDepth;
         }

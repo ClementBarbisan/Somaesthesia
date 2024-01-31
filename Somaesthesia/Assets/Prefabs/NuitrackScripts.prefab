@@ -10,8 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 449316}
   - component: {fileID: 11436578}
-  - component: {fileID: 348830707}
-  - component: {fileID: 1720015687}
   m_Layer: 0
   m_Name: NuitrackScripts
   m_TagString: Untagged
@@ -56,8 +54,6 @@ MonoBehaviour:
   colorModuleOn: 1
   userTrackerModuleOn: 1
   skeletonTrackerModuleOn: 1
-  gesturesRecognizerModuleOn: 0
-  handsTrackerModuleOn: 0
   runInBackground: 0
   dontDestroyOnLoad: 0
   wifiConnect: 0
@@ -72,7 +68,7 @@ MonoBehaviour:
   initEvent:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 348830707}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: UnityEngine.Behaviour, UnityEngine
         m_MethodName: set_enabled
         m_Mode: 6
@@ -84,7 +80,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
-      - m_Target: {fileID: 1720015687}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: UnityEngine.Behaviour, UnityEngine
         m_MethodName: set_enabled
         m_Mode: 6
@@ -109,29 +105,3 @@ MonoBehaviour:
           m_BoolArgument: 1
         m_CallState: 2
   multisensorType: 0
---- !u!114 &348830707
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 101342}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c723502634e24a44baacfbe0a7e284d6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  matPointCloud: {fileID: 2100000, guid: b25c5885fb1136640b15c8e56082697f, type: 2}
-  matMesh: {fileID: 2100000, guid: 011627f9b0d4e2047a129e87af97cb92, type: 2}
---- !u!114 &1720015687
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 101342}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 57d907774621725489798ae3309972cd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
