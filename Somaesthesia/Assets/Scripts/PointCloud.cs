@@ -17,8 +17,7 @@ public class PointCloud : MonoBehaviour
     public static PointCloud Instance;
     private GraphicsBuffer _depthBuffer;
     private Texture2D _color;
-    [SerializeField]
-    private VisualEffect _vfx;
+    [FormerlySerializedAs("_vfx")] public VisualEffect vfx;
 
     private float[] _particles;
     private uint _width;
@@ -46,7 +45,7 @@ public class PointCloud : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        _vfx = GetComponent<VisualEffect>();
+        vfx = GetComponent<VisualEffect>();
         NuitrackManager.DepthSensor.OnUpdateEvent += HandleOnDepthSensorUpdateEvent;
         NuitrackManager.ColorSensor.OnUpdateEvent += HandleOnColorSensorUpdateEvent;    
         NuitrackManager.onUserTrackerUpdate += ColorizeUser;
@@ -61,7 +60,7 @@ public class PointCloud : MonoBehaviour
             contours.SetBuffer("segmentBuffer", _segment);
             contours.SetInt("_WidthTex", frame.Cols);
             contours.SetInt("_HeightTex", frame.Rows);
-            _vfx.SetGraphicsBuffer(Shader.PropertyToID("Segment"), _segmentBuffer);
+            vfx.SetGraphicsBuffer(Shader.PropertyToID("Segment"), _segmentBuffer);
             _outSegment = new int[frame.Cols * frame.Rows];
         }
 
@@ -84,12 +83,12 @@ public class PointCloud : MonoBehaviour
             contours.SetBuffer("particleBuffer", _depth);
             contours.SetInt("_Width", frame.Cols);
             contours.SetInt("_Height", frame.Rows);
-            _vfx.SetGraphicsBuffer(Shader.PropertyToID("Depth"), _depthBuffer);
+            vfx.SetGraphicsBuffer(Shader.PropertyToID("Depth"), _depthBuffer);
             _particles = new float[frame.Cols * frame.Rows];
             _width = (uint) frame.Cols;
             _height = (uint) frame.Rows;
-            _vfx.SetUInt(Shader.PropertyToID("Width"), _width);
-            _vfx.SetUInt(Shader.PropertyToID("Height"), _height);
+            vfx.SetUInt(Shader.PropertyToID("Width"), _width);
+            vfx.SetUInt(Shader.PropertyToID("Height"), _height);
         }
         // Marshal.Copy(frame.Data, _particles, 0, (int)(_width * _height));
         for (int i = 0; i < frame.Cols * frame.Rows; i++)
@@ -105,7 +104,7 @@ public class PointCloud : MonoBehaviour
         if (_color == null)
         {
             _color = new Texture2D(frame.Cols, frame.Rows, TextureFormat.RGB24, false);
-            _vfx.SetTexture(Shader.PropertyToID("TexColor"), _color);
+            vfx.SetTexture(Shader.PropertyToID("TexColor"), _color);
         }
         _color.LoadRawTextureData(frame.Data, frame.DataSize);
         _color.Apply();
@@ -113,8 +112,7 @@ public class PointCloud : MonoBehaviour
 
     private void OnRenderObject()
     {
-        contours.SetPass(1);
-        Graphics.DrawProceduralNow(MeshTopology.Points, 1, 18);
+       
         contours.SetPass(2);
         Graphics.DrawProceduralNow(MeshTopology.Points, 1, (int)(_width * _height));
     }

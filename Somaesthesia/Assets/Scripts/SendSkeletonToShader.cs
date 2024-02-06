@@ -29,9 +29,9 @@ public class SendSkeletonToShader : MonoBehaviour
     private ComputeBuffer _buffer;
     // private ComputeBuffer _bufferMove;
     private ReceiveLabelsValue _data;
-    private List<Vector4> listZero = new List<Vector4>();
-    [SerializeField] private Material matClear;
-    [SerializeField] private Color col;
+    // private List<Vector4> listZero = new List<Vector4>();
+    // [SerializeField] private Material matClear;
+    // [SerializeField] private Color col;
 
     [Serializable]
     struct Labels
@@ -66,11 +66,17 @@ public class SendSkeletonToShader : MonoBehaviour
 
         public string this[int index]
         {
-            get => labels[index].value;
+            get
+            {
+                if (labels[index].values.Count > 0)
+                    return (labels[index].values[Random.Range(0, labels[index].values.Count)]);
+                return (labels[index].label);
+            }
+
             set
             {
                 Label label = labels[index];
-                label.value = (string) value;
+                label.values.Add(value);
             }
         }
 
@@ -80,11 +86,11 @@ public class SendSkeletonToShader : MonoBehaviour
             {
                 foreach (Label lab in labels)
                 {
-                    if (lab.label == (string) key)
-                        return (lab.value);
+                    if (lab.label == (string) key && lab.values.Count > 0)
+                        return (lab.values[Random.Range(0, lab.values.Count)]);
                 }
 
-                return (null);
+                return (key);
             }
 
             set
@@ -93,19 +99,17 @@ public class SendSkeletonToShader : MonoBehaviour
                 {
                     Label label = lab;
                     if (label.label == (string) key)
-                        label.value = (string) value;
+                        label.values.Add(value);
                 }
-
-                ;
             }
         }
     }
 
     [Serializable]
-    struct Label
+    class Label
     {
         public string label;
-        public string value;
+        public List<string> values = new List<string>();
 
     }
 
@@ -131,13 +135,13 @@ public class SendSkeletonToShader : MonoBehaviour
         nuitrack.JointType.RightFoot,
     };
 
-    Queue<Joints> jointsList = new Queue<Joints>();
+    Joints[] jointsList;
     private int _id = -1;
-    private Camera cam;
+    private Camera _cam;
     // [SerializeField] private int maxMove = 15;
     [SerializeField] private float sizeSkeleton = 0.25f;
     [SerializeField] private float maxSkeleton = 15;
-    private RenderTexture tmpTex = null;
+    // private RenderTexture tmpTex = null;
 
     [SerializeField] private float _speed = 5f;
     [SerializeField] private TextMeshProUGUI _prefabText;
@@ -147,26 +151,32 @@ public class SendSkeletonToShader : MonoBehaviour
 
     private List<TextMeshProUGUI> _listTexts = new List<TextMeshProUGUI>();
 
-    private int _currentFrame = 0;
-
-    [SerializeField] private bool debug;
-    [SerializeField] private Labels _labelsPos;
-    [SerializeField] private Labels _labelsNeg;
-    [SerializeField] private List<string> _positiveLabels;
-
-    [SerializeField] private List<string> _negativeLabels;
+    // private int _currentFrame = 0;
     [FormerlySerializedAs("audioSource")] [SerializeField]
     private AudioSource audioSourceFirst;
 
     [SerializeField] private AudioSource audioSourceSecond;
+    [SerializeField] private float _maxIntensity = 10;
+    [SerializeField] private float _maxAmplitude = 10;
+    [SerializeField] private float _maxRand = 2.5f;
+    [SerializeField] private float _speedAlpha = 3;
+    [SerializeField] private bool debug;
+    [SerializeField] private Labels _labelsPos;
+    [SerializeField] private Labels _labelsNeg;
+
+    // [SerializeField] private List<string> _positiveLabels;
+    //
+    // [SerializeField] private List<string> _negativeLabels;
+   
 
     // Start is called before the first frame update
     void Start()
     {
+        jointsList = new Joints[_jointsInfo.Length];
         _data = GetComponent<ReceiveLabelsValue>();
         _rectTr = _parentCanvas.GetComponent<RectTransform>();
         // jointsList = new Joints[_jointsInfo.Length];
-        cam = Camera.main;
+        _cam = Camera.main;
         NuitrackManager.onUserTrackerUpdate += UserTrackerOnOnUpdateEvent;
         NuitrackManager.SkeletonTracker.OnSkeletonUpdateEvent += SkeletonTrackerOnOnSkeletonUpdateEvent;
         // for (int i = 0; i < maxMove; i++)
@@ -178,7 +188,7 @@ public class SendSkeletonToShader : MonoBehaviour
         audioSourceSecond.volume = 0f;
         audioSourceFirst.Play();
         audioSourceSecond.Play();
-        PointCloud.Instance.contours.SetVector("_CamPos", cam.transform.position);
+        PointCloud.Instance.contours.SetVector("_CamPos", _cam.transform.position);
     }
 
     private void UserTrackerOnOnUpdateEvent(UserFrame frame)
@@ -220,6 +230,10 @@ public class SendSkeletonToShader : MonoBehaviour
     {
         PointCloud.Instance.contours.SetInt("_Offset", Mathf.Clamp((int) (maxSkeleton
             - sizeSkeleton) * 2, 2, (int) maxSkeleton * 2));
+        PointCloud.Instance.vfx.SetFloat(Shader.PropertyToID("FieldIntensity"), sizeSkeleton / maxSkeleton * _maxIntensity);
+        PointCloud.Instance.vfx.SetFloat(Shader.PropertyToID("Amplitude"), sizeSkeleton / maxSkeleton * _maxAmplitude);
+        PointCloud.Instance.vfx.SetFloat(Shader.PropertyToID("RandLive"),0.5f + sizeSkeleton / maxSkeleton * _maxRand);
+        PointCloud.Instance.vfx.SetFloat(Shader.PropertyToID("Alpha"),sizeSkeleton / maxSkeleton * _speedAlpha);
         Shader.SetGlobalFloat("_SkeletonSize", sizeSkeleton);
         if (_id == -1 && !debug)
         {
@@ -272,7 +286,7 @@ public class SendSkeletonToShader : MonoBehaviour
             // sizeSkeleton = Mathf.Lerp(sizeSkeleton, val / maxSkeleton, 0.05f * (1 / _speed));
             // }
 
-            if (sizeSkeleton / maxSkeleton <= 1f && _prefabText != null)
+            if (_prefabText != null)
             {
                 if (_listTexts == null)
                 {
@@ -327,19 +341,6 @@ public class SendSkeletonToShader : MonoBehaviour
 
         // if (_data.MoveDone)
         // {
-        //     if (_bufferMove == null)
-        //     {
-        //         _bufferMove = new ComputeBuffer(maxMove, sizeof(float) * 4);
-        //         matClear.SetBuffer("_UVs", _bufferMove);
-        //     }
-        //
-        //     int nb = Mathf.Min(_data.PointMove.Count, maxMove);
-        //     _bufferMove.SetData(_data.PointMove, 0, 0, nb);
-        //     if (nb < maxMove)
-        //     {
-        //         _bufferMove.SetData(listZero, 0, nb, maxMove - nb);
-        //     }
-        //
         //     _data.MoveDone = false;
         // }
 
@@ -376,6 +377,15 @@ public class SendSkeletonToShader : MonoBehaviour
     //     Graphics.Blit(src, tmpTex);
     // }
 
+    private void OnRenderObject()
+    {
+        if (_id != -1)
+        {
+            PointCloud.Instance.contours.SetPass(1);
+            Graphics.DrawProceduralNow(MeshTopology.Points, 1, 18);
+        }
+    }
+
     private void OnDestroy()
     {
         _buffer?.Release();
@@ -401,7 +411,7 @@ public class SendSkeletonToShader : MonoBehaviour
 
         if (_skeleton != null)
         {
-            Vector3 posCam = cam.transform.position;
+            Vector3 posCam = _cam.transform.position;
             for (int i = 0; i < _jointsInfo.Length; i++)
             {
                 Joints newJoint = new Joints();
@@ -415,15 +425,10 @@ public class SendSkeletonToShader : MonoBehaviour
                 newJoint.Pos = new Vector3(posCam.x - newJoint.Pos.x / 450f, posCam.y + newJoint.Pos.y / 450f,
                     posCam.z - newJoint.Pos.z / 650f);
                 newJoint.Size = sizeSkeleton;
-                jointsList.Enqueue(newJoint);
+                jointsList[i] = newJoint;
             }
 
-            while (jointsList.Count > _jointsInfo.Length)
-            {
-                jointsList.Dequeue();
-            }
-            
-            _buffer.SetData(jointsList.ToArray()); //, 0, jointsList.Length * _currentFrame, jointsList.Length);
+            _buffer.SetData(jointsList); //, 0, jointsList.Length * _currentFrame, jointsList.Length);
             // _currentFrame = (_currentFrame + 1) % PointCloudGPU.maxFrameDepth;
         }
     }
