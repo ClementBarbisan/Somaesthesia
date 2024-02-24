@@ -2,127 +2,41 @@ Shader "Custom/ClearColor"
 {
     Properties
     {
-        _MainTex ("Texture", 2D) = "white" {}
         _Color ("Color", Color) = (1,1,1,1)
-        _RandValue("Dont update color value", Range(0, 1.1)) = 0.5
     }
     SubShader
     {
-        Tags
-        {
-            "Queue"="Transparent" "RenderType"="Transparent"
-        }
-        Blend SrcAlpha OneMinusSrcAlpha
-        Cull Off
-        ZTest Always
-    	ZWrite Off
-        
-         Pass
-        {
-            CGPROGRAM
-            #pragma vertex vert
-            #pragma fragment frag
-            #pragma target 4.6
-            #include "UnityCG.cginc"
-
-            struct appdata
-            {
-                float4 vertex : POSITION;
-                float2 uv : TEXCOORD0;
-            };
-
-            struct v2f
-            {
-                float2 uv : TEXCOORD0;
-                float4 vertex : SV_POSITION;
-            };
-
-            v2f vert (appdata v)
-            {
-                v2f o;
-                o.vertex = UnityObjectToClipPos(v.vertex);
-                o.uv = v.uv;
-                return o;
-            }
-
-            sampler2D _MainTex;
-            StructuredBuffer<float4> _UVs;
-            
-            float SkeletonSize;
-
-           
-            
-            fixed4 frag (v2f i) : SV_Target
-            {
-                fixed4 col = tex2D(_MainTex, i.uv);
-                uint nb = 0;
-                uint stride = 0;
-                _UVs.GetDimensions(nb, stride);
-                float val = 1;
-                for (int j = 0; j < nb; j++)
-                {
-                    
-                    float2 xy = float2(_UVs[j].x / _ScreenParams.x, _UVs[j].y / _ScreenParams.y);
-                    float zwLength = length(_UVs[j]) / length(_ScreenParams.xy) / 2;
-                    // if (xy.x > 0 && xy.y > 0 && distance(xy, i.uv) <= zwLength * 2)
-                    {
-                        val -= 1 / distance(xy * 0.5 + float2(0.5, 0.5), i.uv) * zwLength;// / (zwLength * 2);
-                    }
-                }
-                val = saturate(val);
-                float3 colGray = (col.r * 0.299 + col.g * 0.587 + col.b * 0.114) * val;
-                return float4(col.rgb * (1 - val) + colGray.rgb, 1);
-            }
-            ENDCG
-        }
+        Tags { "RenderType"="Opaque" "RenderPipeline" = "UniversalPipeline"}
+        LOD 100
+        ZWrite Off Cull Off
         Pass
         {
-            CGPROGRAM
-            #pragma vertex vert
+            Name "ColorBlitPass"
+
+            HLSLPROGRAM
+            #pragma vertex Vert
             #pragma fragment frag
-            #include "UnityCG.cginc"
-            #include "Packages/jp.keijiro.noiseshader/Shader/SimplexNoise3D.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl"
+            
 
-            struct appdata
-            {
-                float4 vertex : POSITION;
-                float2 uv : TEXCOORD0;
-            };
-
-            struct v2f
-            {
-                float2 uv : TEXCOORD0;
-                float4 vertex : SV_POSITION;
-            };
-
-            float SkeletonSize;
-            float _RandValue;
-
-            float rand(in float2 uv)
-            {
-                float2 noise = (frac(sin(dot(uv, float2(12.9898, 78.233) * 2.0)) * 43758.5453));
-                return abs(noise.x + noise.y) * 0.5;
-            }
-
-            v2f vert (appdata v)
-            {
-                v2f o;
-                o.vertex = UnityObjectToClipPos(v.vertex);
-                o.uv = v.uv;
-                return o;
-            }
-
-            sampler2D _MainTex;
+            float _Value;
+            
             float4 _Color;
 
-            fixed4 frag (v2f i) : SV_Target
+            TEXTURE2D_X(_CameraOpaqueTexture);
+            SAMPLER(sampler_CameraOpaqueTexture);
+
+            half4 frag (Varyings input) : SV_Target
             {
-                fixed4 col = tex2D(_MainTex, i.uv) * _Color;
-                if (rand(i.uv) >= _RandValue)
-                    return (float4(0,0,0,0));
-                return col;
+                UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+                float4 color = SAMPLE_TEXTURE2D_X(_CameraOpaqueTexture, sampler_CameraOpaqueTexture, input.texcoord);
+                color.r = saturate(color.r * _Value + _Color.r * (1.0 - _Value));
+                color.g = saturate(color.g * _Value + _Color.g * (1.0 - _Value));
+                color.b = saturate(color.b * _Value + _Color.b * (1.0 - _Value));
+                return color;
             }
-            ENDCG
+            ENDHLSL
         }
     }
 }

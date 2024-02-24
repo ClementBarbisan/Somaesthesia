@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using nuitrack;
 using Unity.Collections;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.Serialization;
 using UnityEngine.VFX;
 
@@ -29,7 +30,7 @@ public class PointCloud : MonoBehaviour
     
     private int[] _outSegment;
     [FormerlySerializedAs("_contours")] [SerializeField] public Material contours;
-
+    private Camera _mainCamera;
     private void Awake()
     {
         if (Instance)
@@ -44,7 +45,9 @@ public class PointCloud : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        _mainCamera = Camera.main;
         vfx = GetComponent<VisualEffect>();
+        RenderPipelineManager.endCameraRendering += OnRenderCamera;
         NuitrackManager.DepthSensor.OnUpdateEvent += HandleOnDepthSensorUpdateEvent;
         NuitrackManager.ColorSensor.OnUpdateEvent += HandleOnColorSensorUpdateEvent;    
         NuitrackManager.onUserTrackerUpdate += ColorizeUser;
@@ -109,9 +112,12 @@ public class PointCloud : MonoBehaviour
         _color.Apply();
     }
 
-    private void OnRenderObject()
+    private void OnRenderCamera(ScriptableRenderContext scriptableRenderContext, Camera camera1)
     {
-       
+        if (camera1 != _mainCamera)
+        {
+            return;
+        }
         contours.SetPass(2);
         Graphics.DrawProceduralNow(MeshTopology.Points, 1, (int)(_width * _height));
     }

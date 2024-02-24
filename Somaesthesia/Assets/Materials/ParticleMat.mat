@@ -41,7 +41,7 @@ Material:
     - _Con: 8
     - _HighSpeedValue: 12
     - _Hue: 0
-    - _Offset: 20
+    - _Offset: 2
     - _Radius: 10
     - _RadiusParticles: 0.2
     - _Rotation: 10

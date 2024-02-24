@@ -139,8 +139,8 @@ public class SendSkeletonToShader : MonoBehaviour
     private int _id = -1;
     private Camera _cam;
     // [SerializeField] private int maxMove = 15;
-    [SerializeField] private float sizeSkeleton = 0.25f;
-    [SerializeField] private float maxSkeleton = 15;
+    [SerializeField] public float sizeSkeleton = 0.25f;
+    [SerializeField] public float maxSkeleton = 15;
     // private RenderTexture tmpTex = null;
 
     [SerializeField] private float _speed = 5f;
@@ -157,21 +157,35 @@ public class SendSkeletonToShader : MonoBehaviour
 
     [SerializeField] private AudioSource audioSourceSecond;
     [SerializeField] private float _maxIntensity = 10;
-    [SerializeField] private float _maxAmplitude = 10;
     [SerializeField] private float _maxRand = 2.5f;
     [SerializeField] private float _speedAlpha = 3;
     [SerializeField] private bool debug;
     [SerializeField] private Labels _labelsPos;
     [SerializeField] private Labels _labelsNeg;
+    // private Texture2D _texClear;
 
+    // [SerializeField] private Material _matClear;
+
+    private Camera _mainCamera;
     // [SerializeField] private List<string> _positiveLabels;
     //
     // [SerializeField] private List<string> _negativeLabels;
-   
 
     // Start is called before the first frame update
     void Start()
     {
+        _mainCamera = Camera.main;
+        // _texClear = new Texture2D(Screen.width, Screen.height);
+        // for (int i = 0; i < _texClear.width; i++)
+        // {
+        //     for (int j = 0; j < _texClear.height; j++)
+        //     {
+        //         _texClear.SetPixel(i, j, Color.black);
+        //     }
+        // }
+
+        // RenderPipelineManager.beginCameraRendering += OnPreRenderCamera;
+        RenderPipelineManager.endCameraRendering += OnRenderCamera;
         jointsList = new Joints[_jointsInfo.Length];
         _data = GetComponent<ReceiveLabelsValue>();
         _rectTr = _parentCanvas.GetComponent<RectTransform>();
@@ -189,6 +203,12 @@ public class SendSkeletonToShader : MonoBehaviour
         audioSourceFirst.Play();
         audioSourceSecond.Play();
         PointCloud.Instance.contours.SetVector("_CamPos", _cam.transform.position);
+    }
+
+    private void OnDisable()
+    {
+        // RenderPipelineManager.beginCameraRendering -= OnPreRenderCamera;
+        RenderPipelineManager.endCameraRendering -= OnRenderCamera;
     }
 
     private void UserTrackerOnOnUpdateEvent(UserFrame frame)
@@ -231,7 +251,6 @@ public class SendSkeletonToShader : MonoBehaviour
         PointCloud.Instance.contours.SetInt("_Offset", Mathf.Clamp((int) (maxSkeleton
             - sizeSkeleton) * 2, 2, (int) maxSkeleton * 2));
         PointCloud.Instance.vfx.SetFloat(Shader.PropertyToID("FieldIntensity"), sizeSkeleton / maxSkeleton * _maxIntensity);
-        PointCloud.Instance.vfx.SetFloat(Shader.PropertyToID("Amplitude"), sizeSkeleton / maxSkeleton * _maxAmplitude);
         PointCloud.Instance.vfx.SetFloat(Shader.PropertyToID("RandLive"),0.5f + sizeSkeleton / maxSkeleton * _maxRand);
         PointCloud.Instance.vfx.SetFloat(Shader.PropertyToID("Alpha"),sizeSkeleton / maxSkeleton * _speedAlpha);
         Shader.SetGlobalFloat("_SkeletonSize", sizeSkeleton);
@@ -364,22 +383,27 @@ public class SendSkeletonToShader : MonoBehaviour
     //     }
     // }
 
-    // private void OnPreRender()
+    // private void OnPreRenderCamera(ScriptableRenderContext scriptableRenderContext, Camera camera1)
     // {
-    //     matClear.SetFloat("_RandValue", 1.1f - sizeSkeleton / maxSkeleton);
-    //     col.a = Mathf.Clamp(1 - sizeSkeleton / maxSkeleton, 0.02f, 1f);
-    //     matClear.color = col;
-    //     Graphics.Blit(tmpTex, matClear, 1);
-    // }
-    //
-    // void OnRenderImage(RenderTexture src, RenderTexture dest)
-    // {
-    //     Graphics.Blit(src, tmpTex);
+        // if (camera1 != _mainCamera)
+        // {
+            // return;
+        // }
+        // Color alpha = _matClear.color;
+        // alpha.a = 1f;//1f - sizeSkeleton / maxSkeleton;
+        // _matClear.color = alpha;
+        // Graphics.Blit(_texClear, RenderTexture.active, _matClear);
+        // CommandBuffer cmd = CommandBufferPool.Get();
+        // cmd.Blit(_texClear,  BuiltinRenderTextureType.CameraTarget, _matClear);
+        // scriptableRenderContext.ExecuteCommandBuffer(cmd);
+        // cmd.Clear();
+        
+        // CommandBufferPool.Release(cmd);
     // }
 
-    private void OnRenderObject()
+    private void OnRenderCamera(ScriptableRenderContext scriptableRenderContext, Camera camera1)
     {
-        if (_id != -1)
+        if (_id != -1 && camera1 == _mainCamera)
         {
             PointCloud.Instance.contours.SetPass(1);
             Graphics.DrawProceduralNow(MeshTopology.Points, 1, 18);
