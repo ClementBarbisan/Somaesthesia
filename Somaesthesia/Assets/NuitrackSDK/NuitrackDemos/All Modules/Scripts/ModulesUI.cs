@@ -65,7 +65,10 @@ namespace NuitrackSDK.NuitrackDemos
 
         void Update()
         {
-            if (!firstUserDetection && NuitrackManager.Users.Count > 0)
+            if (!NuitrackManager.Instance.NuitrackInitialized)
+                return;
+
+            if (!firstUserDetection && NuitrackManager.sensorsData[0].Users.Count > 0)
             {
                 firstUserDetection = true;
                 userInFrameInfo.SetActive(false);

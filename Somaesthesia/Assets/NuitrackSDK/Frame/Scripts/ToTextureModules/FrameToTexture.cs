@@ -79,9 +79,6 @@ namespace NuitrackSDK.Frame
 
         protected RenderTexture InitRenderTexture(int width, int height)
         {
-            if (width == 0 || height == 0)
-                return null;
-
             RenderTexture renderTexture = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32);
             renderTexture.enableRandomWrite = true;
             renderTexture.Create();

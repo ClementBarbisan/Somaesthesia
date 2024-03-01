@@ -11,9 +11,7 @@ namespace NuitrackSDK.NuitrackDemos
 
         void Update()
         {
-            Users users = NuitrackManager.Users;
-
-            users = NuitrackManager.UsersList[sensorId];
+            Users users = NuitrackManager.sensorsData[sensorId].Users;
 
             foreach (UserData user in users)
             {

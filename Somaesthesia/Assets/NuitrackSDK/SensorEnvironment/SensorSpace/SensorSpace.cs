@@ -49,10 +49,10 @@ namespace NuitrackSDK.SensorEnvironment
         {
             get
             {
-                if (NuitrackManager.Floor == null)
+                if (NuitrackManager.sensorsData[0].Floor == null)
                     return 0;
 
-                Plane floorPlane = (Plane)NuitrackManager.Floor;
+                Plane floorPlane = (Plane)NuitrackManager.sensorsData[0].Floor;
 
                 return floorPlane.GetDistanceToPoint(Vector3.zero);
             }
@@ -71,12 +71,15 @@ namespace NuitrackSDK.SensorEnvironment
 
         void Update()
         {
+            if (!NuitrackManager.Instance.NuitrackInitialized)
+                return;
+
             if (cameraFovAlign)
             {
-                if (NuitrackManager.DepthFrame == null || NuitrackManager.DepthFrame.Timestamp == lastTimeStamp)
+                if (NuitrackManager.sensorsData[0].DepthFrame == null || NuitrackManager.sensorsData[0].DepthFrame.Timestamp == lastTimeStamp)
                     return;
 
-                lastTimeStamp = NuitrackManager.DepthFrame.Timestamp;
+                lastTimeStamp = NuitrackManager.sensorsData[0].DepthFrame.Timestamp;
 
                 NuitrackManager_onColorUpdate();
             }
@@ -113,7 +116,7 @@ namespace NuitrackSDK.SensorEnvironment
                 Camera.fieldOfView = FrameUtils.DepthToTexture.VFOV;
             else
             {
-                nuitrack.OutputMode mode = NuitrackManager.DepthSensor.GetOutputMode();
+                nuitrack.OutputMode mode = NuitrackManager.sensorsData[0].DepthSensor.GetOutputMode();
 
                 float targetAspectRatio = ViewHeight / ViewWidth;
                 float vFOV = 2 * Mathf.Atan(Mathf.Tan(mode.HFOV * 0.5f) * targetAspectRatio) * Mathf.Rad2Deg;
@@ -124,10 +127,10 @@ namespace NuitrackSDK.SensorEnvironment
 
         void UpdateFloor()
         {
-            if (NuitrackManager.Floor == null)
+            if (NuitrackManager.sensorsData[0].Floor == null)
                 return;
 
-            Plane newFloor = (Plane)NuitrackManager.Floor;
+            Plane newFloor = (Plane)NuitrackManager.sensorsData[0].Floor;
 
             if (Mathf.Approximately(newFloor.normal.sqrMagnitude, 0))
                 return;

@@ -11,6 +11,12 @@ namespace NuitrackSDK.Avatar
     [AddComponentMenu("NuitrackSDK/Avatar/3D/Nuitrack Avatar")]
     public class NuitrackAvatar : BaseAvatar
     {
+        public enum BoneLengthType
+        {
+            Realtime,
+            AfterCalibration,
+        }
+
         [Header("Body")]
         [SerializeField, NuitrackSDKInspector] Transform waist;
         [SerializeField, NuitrackSDKInspector] Transform torso;
@@ -44,6 +50,23 @@ namespace NuitrackSDK.Avatar
         [Tooltip("Aligns the size of the model's bones with the size of the bones of the user's skeleton, " +
            "ensuring that the model's size best matches the user's size.")]
         [SerializeField] bool alignmentBoneLength = false;
+        [SerializeField] BoneLengthType boneLengthType;
+        bool calibrationSuccess = false;
+        [SerializeField, Range(0, 1)] float smoothMove = 0.5f;
+        float minSmoothMove = 0.3f;
+        float smoothModifier = 20;
+
+        public float SmoothMove
+        {
+            get
+            {
+                return Mathf.Clamp(smoothModifier - smoothMove * smoothModifier, minSmoothMove, smoothModifier);
+            }
+            set
+            {
+                smoothMove = value;
+            }
+        }
 
         [SerializeField] JointType rootJoint = JointType.Waist;
 
@@ -210,7 +233,7 @@ namespace NuitrackSDK.Avatar
         /// </summary>
         void Process(UserData user)
         {
-            if (!alignmentBoneLength)
+            if (!alignmentBoneLength || boneLengthType == BoneLengthType.AfterCalibration)
             {
                 jointsRigged[rootJoint].bone.position = GetJointLocalPos(GetJoint(rootJoint).Position);
             }
@@ -229,13 +252,19 @@ namespace NuitrackSDK.Avatar
                     //Bone rotation
                     Quaternion jointRotation = IsTransformSpace ? jointTransform.RotationMirrored : jointTransform.Rotation;
 
-                    modelJoint.bone.rotation = SpaceTransform.rotation * (jointRotation * modelJoint.baseRotOffset);
+                    if (smoothMove == 0)
+                        modelJoint.bone.rotation = SpaceTransform.rotation * (jointRotation * modelJoint.baseRotOffset);
+                    else
+                        modelJoint.bone.rotation = Quaternion.Slerp(modelJoint.bone.rotation, SpaceTransform.rotation * (jointRotation * modelJoint.baseRotOffset), Time.deltaTime * SmoothMove);
 
-                    if (alignmentBoneLength)
+                    if (alignmentBoneLength &&
+                            (boneLengthType == BoneLengthType.Realtime || (boneLengthType == BoneLengthType.AfterCalibration && calibrationSuccess)))
                     {
                         Vector3 newPos = GetJointLocalPos(jointTransform.Position);
-
-                        modelJoint.bone.position = newPos;
+                        if (smoothMove == 0)
+                            modelJoint.bone.position = newPos;
+                        else
+                            modelJoint.bone.position = Vector3.Lerp(modelJoint.bone.position, newPos, Time.deltaTime * SmoothMove);
 
                         //Bone scale
                         if (modelJoint.parentBone != null && modelJoint.jointType.GetParent() != rootJoint)
@@ -252,10 +281,13 @@ namespace NuitrackSDK.Avatar
                     }
                 }
             }
+            calibrationSuccess = false;
         }
 
         void OnSuccessCalib(Quaternion rotation)
         {
+            calibrationSuccess = true;
+
             if (!recenterOnSuccess || !IsTransformSpace)
                 return;
 

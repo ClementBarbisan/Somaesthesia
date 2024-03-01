@@ -28,13 +28,13 @@ namespace NuitrackSDK.Avatar
                 avatars.Add(skeleton);
             }
 
-            NuitrackManager.SkeletonTrackers[sensorId].SetNumActiveUsers(skeletonCount);
+            NuitrackManager.sensorsData[sensorId].SkeletonTracker.SetNumActiveUsers(skeletonCount);
         }
 
         void Update()
         {
             for (int i = 0; i < avatars.Count; i++)
-                avatars[i].gameObject.SetActive(NuitrackManager.SkeletonTrackers[sensorId].GetSkeletonData().Skeletons.Length > i);
+                avatars[i].gameObject.SetActive(NuitrackManager.sensorsData[sensorId].SkeletonTracker.GetSkeletonData().Skeletons.Length > i);
         }
     }
 }

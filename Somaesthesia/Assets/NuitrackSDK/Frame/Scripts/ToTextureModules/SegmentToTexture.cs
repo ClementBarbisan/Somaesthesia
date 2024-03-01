@@ -101,7 +101,7 @@ namespace NuitrackSDK.Frame
                 }
 
                 if (destTexture == null)
-                    destTexture = new Texture2D(frame.Cols, frame.Rows, TextureFormat.ARGB32, false);
+                    destTexture = new Texture2D(frame.Cols, frame.Rows, TextureFormat.ARGB32, false, true);
 
                 destTexture.LoadRawTextureData(mirrorArray);
                 destTexture.Apply();

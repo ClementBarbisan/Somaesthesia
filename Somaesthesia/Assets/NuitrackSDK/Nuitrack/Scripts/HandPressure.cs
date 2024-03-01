@@ -25,7 +25,7 @@ namespace NuitrackSDK
         {
             if (Application.platform != RuntimePlatform.WindowsEditor)
             {
-                UserData user = NuitrackManager.Users.Current;
+                UserData user = NuitrackManager.sensorsData[0].Users.Current;
 
                 if (user != null)
                 {

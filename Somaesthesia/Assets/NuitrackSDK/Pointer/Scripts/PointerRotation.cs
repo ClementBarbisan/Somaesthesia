@@ -12,12 +12,12 @@ namespace NuitrackSDK.Pointer
         // Update is called once per frame
         void LateUpdate()
         {
-            if (NuitrackManager.Users.Current == null && NuitrackManager.Users.Current.Skeleton == null)
+            if (NuitrackManager.sensorsData[0].Users.Current == null && NuitrackManager.sensorsData[0].Users.Current.Skeleton == null)
                 return;
 
             hand = PointerPassing.hand;
 
-            UserData.SkeletonData skeleton = NuitrackManager.Users.Current.Skeleton;
+            UserData.SkeletonData skeleton = NuitrackManager.sensorsData[0].Users.Current.Skeleton;
 
             if (hand % 2 == 0)
             {

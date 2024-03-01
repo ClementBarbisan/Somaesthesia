@@ -64,7 +64,7 @@ namespace NuitrackSDK.Frame
                 }
   
                 if(destTexture == null)
-                    destTexture = new Texture2D(frame.Cols, frame.Rows, TextureFormat.ARGB32, false);
+                    destTexture = new Texture2D(frame.Cols, frame.Rows, TextureFormat.ARGB32, false, true);
 
                 destTexture.LoadRawTextureData(mirrorArray);
                 destTexture.Apply();
@@ -90,7 +90,7 @@ namespace NuitrackSDK.Frame
 
                 if (dstRgbTexture2D == null)
                 {
-                    dstRgbTexture2D = new Texture2D(frame.Cols, frame.Rows, TextureFormat.RGB24, false);
+                    dstRgbTexture2D = new Texture2D(frame.Cols, frame.Rows, TextureFormat.RGB24, false, true);
                     instanceShader.SetTexture(kernelIndex, "Texture", dstRgbTexture2D);
                 }
 

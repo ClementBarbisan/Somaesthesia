@@ -27,6 +27,7 @@ namespace NuitrackSDK.Tutorials.AnimatedEmoji
         [SerializeField] int mouthRight = 11;
         [SerializeField] int browUpLeft = 17;
         [SerializeField] int browUpRight = 18;
+        [SerializeField] int mouthShrugUpper = 15;
 
         RenderTexture renderTexture;
 
@@ -66,6 +67,9 @@ namespace NuitrackSDK.Tutorials.AnimatedEmoji
             //Smile
             faceMeshRenderer.SetBlendShapeWeight(mouthLeft, blendshapeWeights.GetSmile(face));
             faceMeshRenderer.SetBlendShapeWeight(mouthRight, blendshapeWeights.GetSmile(face));
+
+            //Angry
+            faceMeshRenderer.SetBlendShapeWeight(mouthShrugUpper, blendshapeWeights.GetAngry(face));
 
             //Brows
             faceMeshRenderer.SetBlendShapeWeight(browUpLeft, blendshapeWeights.GetBrowUpLeft(face));

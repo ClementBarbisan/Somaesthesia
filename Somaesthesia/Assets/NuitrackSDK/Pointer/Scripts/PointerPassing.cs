@@ -41,9 +41,9 @@ namespace NuitrackSDK.Pointer
 
         void Update()
         {
-            if (attachToSkelJoint && NuitrackManager.Users.Current != null && NuitrackManager.Users.Current.Skeleton != null)
+            if (attachToSkelJoint && NuitrackManager.sensorsData[0].Users.Current != null && NuitrackManager.sensorsData[0].Users.Current.Skeleton != null)
             {
-                UserData.SkeletonData skeleton = NuitrackManager.Users.Current.Skeleton;
+                UserData.SkeletonData skeleton = NuitrackManager.sensorsData[0].Users.Current.Skeleton;
 
                 if (hand % 2 == 0)
                 {

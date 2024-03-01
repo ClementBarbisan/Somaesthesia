@@ -503,7 +503,7 @@ Shader "Particle"
                 // const uint initPoint = _Width * _Height * _CurrentFrame;
                 o.position = float4((_CamPos.x + _Width / 2.0) / 200.0 - instance_id % _Width / 200.0,
                                     (_CamPos.y + _Height / 2.0) / 200.0 - instance_id / _Width / 200.0,
-                                    _CamPos.z - particleBuffer[instance_id] / 2000.0, 1.0f);
+                                    _CamPos.z - particleBuffer[instance_id] / 1500.0, 1.0f);
                 // instance_id = instance_id / 2;
                 o.instance = int(instance_id);
                 
@@ -579,7 +579,7 @@ Shader "Particle"
                 o.instance = p[0].instance;
                 float4 pos2 = float4((_CamPos.x + _Width / 2.0) / 200.0 - o.keep.y % _Width / 200.0,
                                     (_CamPos.y + _Height / 2.0) / 200.0 - o.keep.y / _Width / 200.0,
-                                    _CamPos.z - particleBuffer[(int)o.keep.y] / 2000.0, 1.0f);
+                                    _CamPos.z - particleBuffer[(int)o.keep.y] / 1500.0, 1.0f);
                 const int nbVertex = clamp(_SkeletonSize, 0, 10);
                 float4 pos1 = UnityObjectToClipPos(p[0].position);
                 float4 pos2Clip = UnityObjectToClipPos(pos2);
@@ -698,7 +698,7 @@ Shader "Particle"
                 o.instance = int(instance_id);
                 o.position = float4((_CamPos.x + _Width / 2.0) / 200.0 - instance_id % _Width / 200.0,
                                     (_CamPos.y + _Height / 2.0) / 200.0 - instance_id / _Width / 200.0,
-                                    _CamPos.z - particleBuffer[_Width * _Height * o.keep.y + instance_id] / 3000.0 - 2.0, 1.0f);
+                                    _CamPos.z - particleBuffer[_Width * _Height * o.keep.y + instance_id] / 1500.0, 1.0f);
                 float3 pos = UnityObjectToClipPos(o.position);
 
                 for (uint i = 0; i < 18; i++)

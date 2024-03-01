@@ -33,7 +33,8 @@ namespace NuitrackSDK.NuitrackDemos
 
         void Start()
         {
-            pivotRenderer.enabled = false;
+            if(pivotRenderer)
+                pivotRenderer.enabled = false;
             cameraDistance = targetCamera.localPosition.z;
 
             pivotStartPos = transform.position;
@@ -106,6 +107,8 @@ namespace NuitrackSDK.NuitrackDemos
 
             if (Input.GetKeyDown(KeyCode.Mouse1))
             {
+                xAngle = 0;
+                yAngle = 0;
                 transform.rotation = Quaternion.identity;
                 targetCamera.localPosition = new Vector3(0, 0, cameraStartDistance);
             }

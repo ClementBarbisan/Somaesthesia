@@ -114,44 +114,7 @@ namespace NuitrackSDK
 
             return users[id];
         }
-        internal void UpdateData(SkeletonData skeletonData)
-        {
-            foreach (UserData user in this)
-                user.Reset();
 
-            List<int> oldUsersIDs = new List<int>(users.Keys);
-            List<int> newUsersIDs = new List<int>();
-
-            if (skeletonData != null)
-                foreach (Skeleton skeleton in skeletonData.Skeletons)
-                    TryGetUser(skeleton.ID, ref newUsersIDs).AddData(skeleton);
-            
-            foreach (int userID in newUsersIDs)
-                if (!oldUsersIDs.Contains(userID))
-                    OnUserEnter?.Invoke(users[userID]);
-
-            foreach (int userID in oldUsersIDs)
-            {
-                if (!newUsersIDs.Contains(userID))
-                {
-                    OnUserExit?.Invoke(users[userID]);
-
-                    users[userID].Dispose();
-                    users.Remove(userID);
-                }
-            }
-
-            if (users.Count == 0)
-                CurrentUserID = 0;
-            else
-            {
-                if (CurrentUserID != 0 && !users.ContainsKey(CurrentUserID))
-                    CurrentUserID = 0;
-
-                if (CurrentUserID == 0)
-                    CurrentUserID = users.Keys.First();
-            }
-        }
         internal void UpdateData(SkeletonData skeletonData, HandTrackerData handTrackerData, GestureData gestureData, JsonInfo jsonInfo)
         {
             foreach (UserData user in this)
@@ -167,11 +130,11 @@ namespace NuitrackSDK
             if (handTrackerData != null)
                 foreach (UserHands hands in handTrackerData.UsersHands)
                     TryGetUser(hands.UserId, ref newUsersIDs).AddData(hands);
-            
+
             if (gestureData != null)
                 foreach (Gesture gesture in gestureData.Gestures)
                     TryGetUser(gesture.UserID, ref newUsersIDs).AddData(gesture);
-            
+
             if (jsonInfo != null && jsonInfo.Instances != null)
                 foreach (Instances instances in jsonInfo.Instances)
                     if (!instances.face.IsEmpty)
@@ -182,7 +145,6 @@ namespace NuitrackSDK
                     OnUserEnter?.Invoke(users[userID]);
 
             foreach (int userID in oldUsersIDs)
-            {
                 if (!newUsersIDs.Contains(userID))
                 {
                     OnUserExit?.Invoke(users[userID]);
@@ -190,7 +152,6 @@ namespace NuitrackSDK
                     users[userID].Dispose();
                     users.Remove(userID);
                 }
-            }
 
             if (users.Count == 0)
                 CurrentUserID = 0;

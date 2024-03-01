@@ -40,7 +40,7 @@ namespace NuitrackSDKEditor.Wizards
             }
             catch (Exception)
             {
-                if(EditorUtility.DisplayDialog("Fail", "It was not possible to automatically collect the editor's logs. Do it manually and send it to support", "Where are the logs?", "Œ "))
+                if(EditorUtility.DisplayDialog("Fail", "It was not possible to automatically collect the editor's logs. Do it manually and send it to support", "Where are the logs?", "OK"))
                 {
                     Application.OpenURL("https://docs.unity3d.com/Manual/LogFiles.html");
                 }

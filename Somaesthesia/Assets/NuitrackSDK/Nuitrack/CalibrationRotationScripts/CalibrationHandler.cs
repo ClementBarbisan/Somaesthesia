@@ -72,15 +72,18 @@ namespace NuitrackSDK.Calibration
 
         void Update()
         {
+            if (!NuitrackManager.Instance.NuitrackInitialized)
+                return;
+
             if (cooldown > 0f)
             {
                 cooldown -= Time.unscaledDeltaTime;
             }
             else
             {
-                if (NuitrackManager.Users.Current != null && NuitrackManager.Users.Current.Skeleton != null)
+                if (NuitrackManager.sensorsData[0].Users.Current != null && NuitrackManager.sensorsData[0].Users.Current.Skeleton != null)
                 {
-                    UserData.SkeletonData skeleton = NuitrackManager.Users.Current.Skeleton;
+                    UserData.SkeletonData skeleton = NuitrackManager.sensorsData[0].Users.Current.Skeleton;
                     
                     if (!calibrationStarted)
                         StartCalibration(skeleton);
@@ -147,8 +150,8 @@ namespace NuitrackSDK.Calibration
             float angleY = -Mathf.Rad2Deg * Mathf.Atan2(deltaWrist.z, deltaWrist.x);
             float angleX = -Mathf.Rad2Deg * Mathf.Atan2(Input.gyro.gravity.z, -Input.gyro.gravity.y);
 
-            Vector3 torso = NuitrackManager.Users.Current.Skeleton.GetJoint(nuitrack.JointType.Torso).Position;
-            Vector3 neck = NuitrackManager.Users.Current.Skeleton.GetJoint(nuitrack.JointType.Neck).Position;
+            Vector3 torso = NuitrackManager.sensorsData[0].Users.Current.Skeleton.GetJoint(nuitrack.JointType.Torso).Position;
+            Vector3 neck = NuitrackManager.sensorsData[0].Users.Current.Skeleton.GetJoint(nuitrack.JointType.Neck).Position;
             Vector3 diff = neck - torso;
 
             sensorOrientation = Quaternion.Euler(Mathf.Atan2(diff.z, diff.y) * Mathf.Rad2Deg, 0f, 0f);

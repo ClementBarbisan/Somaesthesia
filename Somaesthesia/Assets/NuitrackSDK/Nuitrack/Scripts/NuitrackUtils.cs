@@ -159,7 +159,7 @@ namespace NuitrackSDK
         public static JointType TryGetMirrored(this JointType joint)
         {
             JointType mirroredJoint = joint;
-            if (NuitrackManager.DepthSensor.IsMirror() && mirroredJoints.ContainsKey(joint))
+            if (NuitrackManager.sensorsData[0].DepthSensor.IsMirror() && mirroredJoints.ContainsKey(joint))
             {
                 mirroredJoints.TryGetValue(joint, out mirroredJoint);
             }

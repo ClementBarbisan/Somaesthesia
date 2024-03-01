@@ -17,16 +17,19 @@ namespace NuitrackSDK.NuitrackDemos
 
         void Update()
         {
+            if (!NuitrackManager.Instance.NuitrackInitialized)
+                return;
+
             foreach (KeyValuePair<int, List<Image>> kvp in hands)
             {
-                if (NuitrackManager.UsersList[sensorId].GetUser(kvp.Key) == null)
+                if (NuitrackManager.sensorsData[sensorId].Users.GetUser(kvp.Key) == null)
                 {
                     foreach (Image img in hands[kvp.Key])
                         img.enabled = false;
                 }
             }
 
-            foreach (UserData userData in NuitrackManager.UsersList[sensorId])
+            foreach (UserData userData in NuitrackManager.sensorsData[sensorId].Users)
             {
                 if (!hands.ContainsKey(userData.ID))
                     CreateHands(userData.ID);

@@ -35,7 +35,7 @@ namespace NuitrackSDK.Calibration
             SensorDisconnectChecker.SensorConnectionTimeOut += ShowConnectionProblem;
             SensorDisconnectChecker.SensorReconnected += HideConnectionProblem;
 
-            StartCoroutine(FIrstStart());
+            StartCoroutine(FirstStart());
         }
 
         public void OnSegmentsUpdate(Texture texture)
@@ -78,7 +78,7 @@ namespace NuitrackSDK.Calibration
             }
         }
 
-        IEnumerator FIrstStart()
+        IEnumerator FirstStart()
         {
             yield return new WaitForSeconds(0.1f);
             ShowCalibrationScreen();

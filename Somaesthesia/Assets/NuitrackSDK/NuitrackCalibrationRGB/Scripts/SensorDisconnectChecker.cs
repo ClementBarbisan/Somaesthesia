@@ -14,13 +14,16 @@ namespace NuitrackSDK.Calibration
 
         void OnEnable()
         {
-            NuitrackManager.onDepthUpdate += SensorUpdate;
-            Nuitrack.onIssueUpdateEvent += NoConnectionIssue;
+            if (NuitrackManager.Instance.NuitrackInitialized)
+                Nuitrack.onIssueUpdateEvent += NoConnectionIssue;
         }
 
-        void SensorUpdate(DepthFrame frame)
+        void Update()
         {
-            if (frame != null)
+            if (!NuitrackManager.Instance.NuitrackInitialized)
+                return;
+
+            if (NuitrackManager.sensorsData[0].DepthFrame != null)
             {
                 if (connectionProblem && SensorReconnected != null)
                     SensorReconnected();
@@ -46,13 +49,8 @@ namespace NuitrackSDK.Calibration
 
         void OnDisable()
         {
-            NuitrackManager.onDepthUpdate -= SensorUpdate;
-            Nuitrack.onIssueUpdateEvent -= NoConnectionIssue;
-        }
-
-        void OnDestroy()
-        {
-            NuitrackManager.onDepthUpdate -= SensorUpdate;
+            if (NuitrackManager.Instance.NuitrackInitialized)
+                Nuitrack.onIssueUpdateEvent -= NoConnectionIssue;
         }
     }
 }

@@ -317,8 +317,8 @@ namespace NuitrackSDK.ErrorSolver
 
             if (!FileCompare(Path.Combine(cudaCudnnPath, fileName), Path.Combine(editorCudnnPath, fileName)))
             {
-                string message = "1. Close the Unity editor" +
-                                "2. Copy the " + fileName + " library from " + cudaCudnnPath + " to your Unity editor folder " + editorCudnnPath +
+                string message = "1. Close the Unity editor" + "\n" +
+                                "2. Copy the " + fileName + " library from " + cudaCudnnPath + " to your Unity editor folder " + editorCudnnPath + "\n" +
                                 "3. Run the Unity editor again";
                 EditorUtility.DisplayDialog(fileName, message, "OK");
                 return false;

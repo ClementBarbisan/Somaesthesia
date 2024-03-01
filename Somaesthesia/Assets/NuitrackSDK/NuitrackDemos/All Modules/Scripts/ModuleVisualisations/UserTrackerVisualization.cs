@@ -47,7 +47,7 @@ namespace NuitrackSDK.NuitrackDemos
         GameObject[] visualizationParts;
         Mesh[] visualizationMeshes;
 
-        RenderTexture depthTexture, rgbTexture, segmentationTexture;
+        Texture2D depthTexture, rgbTexture, segmentationTexture;
 
         ExceptionsLogger exceptionsLogger;
 
@@ -109,7 +109,7 @@ namespace NuitrackSDK.NuitrackDemos
                 occludedUserCols[i].a = userCols[i].a;
             }
 
-            nuitrack.OutputMode mode = NuitrackManager.DepthSensor.GetOutputMode();
+            nuitrack.OutputMode mode = NuitrackManager.sensorsData[0].DepthSensor.GetOutputMode();
             frameStep = mode.XRes / hRes;
             if (frameStep <= 0) frameStep = 1; // frameStep should be greater then 0
             hRes = mode.XRes / frameStep;
@@ -248,11 +248,11 @@ namespace NuitrackSDK.NuitrackDemos
 
         void Update()
         {
-            if (NuitrackManager.DepthFrame != null && active)
+            if (NuitrackManager.sensorsData[0].DepthFrame != null && active)
             {
-                nuitrack.DepthFrame depthFrame = NuitrackManager.DepthFrame;
-                nuitrack.ColorFrame colorFrame = NuitrackManager.ColorFrame;
-                nuitrack.UserFrame userFrame = NuitrackManager.UserFrame;
+                nuitrack.DepthFrame depthFrame = NuitrackManager.sensorsData[0].DepthFrame;
+                nuitrack.ColorFrame colorFrame = NuitrackManager.sensorsData[0].ColorFrame;
+                nuitrack.UserFrame userFrame = NuitrackManager.sensorsData[0].UserFrame;
 
                 if (lastFrameTimestamp != depthFrame.Timestamp)
                 {
@@ -296,12 +296,12 @@ namespace NuitrackSDK.NuitrackDemos
                     visualizationParts[i].SetActive(true);
 
             if (colorFrame == null)
-                rgbTexture = depthFrame.ToRenderTexture();
+                rgbTexture = depthFrame.ToTexture2D();
             else
-                rgbTexture = colorFrame.ToRenderTexture();
+                rgbTexture = colorFrame.ToTexture2D();
 
-            depthTexture = depthFrame.ToRenderTexture(depthGradient, depthCache);
-            segmentationTexture = userFrame?.ToRenderTexture(userCurrentCols, textureCache);
+            depthTexture = depthFrame.ToTexture2D(depthGradient, depthCache);
+            segmentationTexture = userFrame?.ToTexture2D(userCurrentCols, textureCache);
 
             if (!showBackground && segmentationTexture != null)
             {

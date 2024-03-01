@@ -58,7 +58,7 @@ namespace NuitrackSDK.Poses
 
             public JointReference(UserData.SkeletonData.Joint joint, float tolerance = 0.9f)
             {
-                Quaternion rotation = NuitrackManager.DepthSensor.IsMirror() ? MirrorSensorPlane(joint.Rotation) : joint.RotationMirrored;
+                Quaternion rotation = NuitrackManager.sensorsData[0].DepthSensor.IsMirror() ? MirrorSensorPlane(joint.Rotation) : joint.RotationMirrored;
 
                 orientation = rotation;
                 this.tolerance = tolerance;
@@ -82,9 +82,9 @@ namespace NuitrackSDK.Poses
             /// </returns>
             public float Match(UserData.SkeletonData.Joint joint)
             {
-                if (isActive && NuitrackManager.DepthSensor != null)
+                if (isActive && NuitrackManager.sensorsData[0].DepthSensor != null)
                 {
-                    Quaternion rotation = NuitrackManager.DepthSensor.IsMirror() ? MirrorSensorPlane(joint.Rotation) : joint.RotationMirrored;
+                    Quaternion rotation = NuitrackManager.sensorsData[0].DepthSensor.IsMirror() ? MirrorSensorPlane(joint.Rotation) : joint.RotationMirrored;
 
                     float dot = Vector3.Dot(orientation * joint.NuitrackType.GetNormalDirection(), rotation * joint.NuitrackType.GetNormalDirection());
                     return Mathf.Clamp01(dot / tolerance);
@@ -107,7 +107,7 @@ namespace NuitrackSDK.Poses
             {
                 if (isActive)
                 {
-                    Quaternion rotation = NuitrackManager.DepthSensor.IsMirror() ? MirrorSensorPlane(joint.Rotation) : joint.RotationMirrored;
+                    Quaternion rotation = NuitrackManager.sensorsData[0].DepthSensor.IsMirror() ? MirrorSensorPlane(joint.Rotation) : joint.RotationMirrored;
 
                     Quaternion relativeSkeletonJointRotation = poseInverseRotation * orientation;
                     Quaternion relativeReferenceJointRotation = skeletonInverseRotation * rotation;
@@ -232,7 +232,7 @@ namespace NuitrackSDK.Poses
         /// </returns>
         public float RelativeMatch(UserData.SkeletonData skeleton)
         {
-            if (NuitrackManager.DepthSensor == null)
+            if (NuitrackManager.sensorsData[0].DepthSensor == null)
                 return 0;
 
             float totalWeight = 0;
@@ -240,7 +240,7 @@ namespace NuitrackSDK.Poses
 
             UserData.SkeletonData.Joint waistJoint = skeleton.GetJoint(nuitrack.JointType.Waist);
             
-            Quaternion waistRotation = NuitrackManager.DepthSensor.IsMirror() ? MirrorSensorPlane(waistJoint.Rotation) : waistJoint.RotationMirrored;
+            Quaternion waistRotation = NuitrackManager.sensorsData[0].DepthSensor.IsMirror() ? MirrorSensorPlane(waistJoint.Rotation) : waistJoint.RotationMirrored;
 
             Quaternion skeletonInverseRotation = Quaternion.Inverse(waistRotation);
             Quaternion poseInverseRotation = Quaternion.Inverse(waist.Orientation);

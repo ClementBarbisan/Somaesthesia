@@ -238,7 +238,7 @@ namespace NuitrackSDK.Frame
                 textureFormat = TextureFormat.ARGB32;
 
             if (dest == null || dest.width != source.width || dest.height != source.height || dest.format != textureFormat)
-                dest = new Texture2D(source.width, source.height, textureFormat, false);
+                dest = new Texture2D(source.width, source.height, textureFormat, false, true);
 
             Rect rect = new Rect(0, 0, source.width, source.height);
 

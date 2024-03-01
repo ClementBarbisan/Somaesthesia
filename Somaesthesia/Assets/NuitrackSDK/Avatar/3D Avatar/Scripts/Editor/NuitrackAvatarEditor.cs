@@ -29,7 +29,7 @@ namespace NuitrackSDKEditor.Avatar
             { JointType.Torso, "torso" },
             { JointType.LeftCollar, "collar" },
             { JointType.RightCollar, "collar" },
-            {  JointType.Neck, "neck" },
+            { JointType.Neck, "neck" },
             { JointType.Head , "head" },
 
             { JointType.LeftShoulder, "leftShoulder" },

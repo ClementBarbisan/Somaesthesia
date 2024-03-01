@@ -59,13 +59,66 @@ public class NuitrackManager : MonoBehaviour
     Thread _thread;
 
     public NuitrackInitState InitState { get { return NuitrackLoader.initState; } }
+    [SerializeField, NuitrackSDKInspector]
+    bool
+    depthModuleOn = true,
+    colorModuleOn = true,
+    userTrackerModuleOn = true,
+    skeletonTrackerModuleOn = true,
+    gesturesRecognizerModuleOn = true,
+    handsTrackerModuleOn = true;
 
-    [SerializeField, NuitrackSDKInspector] private bool
-        depthModuleOn = true,
-        colorModuleOn = true,
-        userTrackerModuleOn = true,
-        skeletonTrackerModuleOn = true;
-   
+    public static List<SensorData> sensorsData = new List<SensorData>();
+
+    //properties for backward compatibility
+    [Obsolete("sensorsData[id].DepthSensor")]
+    public static DepthSensor DepthSensor { get { return sensorsData[0].DepthSensor; } }
+    [Obsolete("sensorsData[id].ColorSensor")]
+    public static ColorSensor ColorSensor { get { return sensorsData[0].ColorSensor; } }
+    [Obsolete("sensorsData[id].UserTracker")]
+    public static UserTracker UserTracker { get { return sensorsData[0].UserTracker; } }
+    [Obsolete("sensorsData[id].SkeletonTracker")]
+    public static SkeletonTracker SkeletonTracker { get { return sensorsData[0].SkeletonTracker; } }
+    [Obsolete("sensorsData[id].GestureRecognizer")]
+    public static GestureRecognizer GestureRecognizer { get { return sensorsData[0].GestureRecognizer; } }
+    [Obsolete("sensorsData[id].HandTracker")]
+    public static HandTracker HandTracker { get { return sensorsData[0].HandTracker; } }
+    [Obsolete("sensorsData[id].DepthFrame")]
+    public static DepthFrame DepthFrame { get { return sensorsData[0].DepthFrame; } }
+    [Obsolete("sensorsData[id].ColorFrame")]
+    public static ColorFrame ColorFrame { get { return sensorsData[0].ColorFrame; } }
+    [Obsolete("sensorsData[id].UserFrame")]
+    public static UserFrame UserFrame { get { return sensorsData[0].UserFrame; } }
+
+    [Obsolete("sensorsData[id].onDepthUpdate")]
+    public static event DepthSensor.OnUpdate onDepthUpdate;
+    [Obsolete("sensorsData[id].onColorUpdate")]
+    public static event ColorSensor.OnUpdate onColorUpdate;
+    [Obsolete("sensorsData[id].onUserTrackerUpdate")]
+    public static event UserTracker.OnUpdate onUserTrackerUpdate;
+
+    [Obsolete("sensorsData[id].Users")]
+    public static Users Users { get { return sensorsData[0].Users; } }
+    [Obsolete("sensorsData[id].Floor")]
+    public static Plane? Floor { get { return sensorsData[0].Floor; } }
+
+    public static JsonInfo NuitrackJson
+    {
+        get
+        {
+            try
+            {
+                string json = Nuitrack.GetInstancesJson();
+                return NuitrackUtils.FromJson<JsonInfo>(json);
+            }
+            catch (System.Exception ex)
+            {
+                NuitrackErrorSolver.CheckError(ex);
+            }
+
+            return null;
+        }
+    }
 
     bool nuitrackError = false;
     public LicenseInfo LicenseInfo
@@ -73,6 +126,8 @@ public class NuitrackManager : MonoBehaviour
         get;
         private set;
     } = new LicenseInfo();
+
+    [SerializeField, Range(1, 6), NuitrackSDKInspector] int maxActiveUsers = 2;
 
     [Space]
 
@@ -110,35 +165,6 @@ public class NuitrackManager : MonoBehaviour
 
     [SerializeField, NuitrackSDKInspector] InitEvent initEvent;
 
-    public static List<DepthSensor> DepthSensors { get; private set; } = new List<DepthSensor>();
-    public static DepthSensor DepthSensor { get { return DepthSensors[0]; } }
-    public static List<ColorSensor> ColorSensors { get; private set; } = new List<ColorSensor>();
-    public static ColorSensor ColorSensor { get { return ColorSensors[0]; } }
-    public static List<UserTracker> UserTrackers { get; private set; } = new List<UserTracker>();
-    public static UserTracker UserTracker { get { return UserTrackers[0]; } }
-    public static List<SkeletonTracker> SkeletonTrackers { get; private set; } = new List<SkeletonTracker>();
-    public static SkeletonTracker SkeletonTracker { get { return SkeletonTrackers[0]; } }
-    public static List<DepthFrame> DepthFrames { get; private set; } = new List<DepthFrame>();
-    public static DepthFrame DepthFrame { get { return DepthFrames[0]; }}
-    public static List<ColorFrame> ColorFrames { get; private set; } = new List<ColorFrame>();
-    public static ColorFrame ColorFrame { get { return ColorFrames[0]; } }
-    public static List<UserFrame> UserFrames { get; private set; } = new List<UserFrame>();
-    public static UserFrame UserFrame { get { return UserFrames[0]; } }
-
-    List<SkeletonData> skeletonData = new List<SkeletonData>();
-   
-
-    public static event DepthSensor.OnUpdate onDepthUpdate;
-    public static event ColorSensor.OnUpdate onColorUpdate;
-    public static event UserTracker.OnUpdate onUserTrackerUpdate;
-
-    List<ColorSensor.OnUpdate> onColorUpdates = new List<ColorSensor.OnUpdate>();
-    List<DepthSensor.OnUpdate> onDepthUpdates = new List<DepthSensor.OnUpdate>();
-    List<SkeletonTracker.OnSkeletonUpdate> onSkeletonUpdates = new List<SkeletonTracker.OnSkeletonUpdate>();
-    List<UserTracker.OnUpdate> onUserTrackerUpdates = new List<UserTracker.OnUpdate>();
-    List<HandTracker.OnUpdate> onHandsUpdates = new List<HandTracker.OnUpdate>();
-    List<GestureRecognizer.OnNewGestures> onNewGesturesUpdates = new List<GestureRecognizer.OnNewGestures>();
-
     static NuitrackManager instance;
     NuitrackInitState initState = NuitrackInitState.INIT_NUITRACK_MANAGER_NOT_INSTALLED;
     Dictionary<string, int> serialNumbers = new Dictionary<string, int>();
@@ -164,50 +190,13 @@ public class NuitrackManager : MonoBehaviour
     public bool UseDepthModule { get => depthModuleOn; }
     public bool UseUserTrackerModule { get => userTrackerModuleOn; }
     public bool UseSkeletonTracking { get => skeletonTrackerModuleOn; }
+    public bool UseHandsTracking { get => handsTrackerModuleOn; }
+    public bool UserGestureTracking { get => gesturesRecognizerModuleOn; }
     public bool UseFaceTracking { get => useFaceTracking; }
     public bool UseNuitrackAi { get => useNuitrackAi; set { useNuitrackAi = value; } }
     //public bool UseObjectDetection { get => useObjectDetection; }
 
     #endregion
-
-    public static List<Plane?> Floors
-    {
-        get;
-        private set;
-    } = new List<Plane?>();
-
-    public static Plane? Floor
-    {
-        get { return Floors[0]; }
-    }
-
-    public static List<Users> UsersList
-    {
-        get;
-    } = new List<Users>();
-
-    public static Users Users
-    {
-        get { return UsersList[0]; }
-    }
-
-    public static JsonInfo NuitrackJson
-    {
-        get
-        {
-            try
-            {
-                string json = Nuitrack.GetInstancesJson();
-                return NuitrackUtils.FromJson<JsonInfo>(json);
-            }
-            catch (System.Exception ex)
-            {
-                NuitrackErrorSolver.CheckError(ex);
-            }
-
-            return null;
-        }
-    }
 
     bool IsNuitrackLibrariesInitialized()
     {
@@ -321,68 +310,6 @@ public class NuitrackManager : MonoBehaviour
         yield return null;
     }
 
-    public void ChangeModulesState(bool skeleton, bool depth, bool color, bool user)
-    {
-        if (skeletonTrackerModuleOn != skeleton || !NuitrackInitialized)
-        {           
-            skeletonTrackerModuleOn = skeleton;
-
-            for (int i = 0; i < devices.Count; i++)
-            {
-                skeletonData[i] = null;
-
-                if (skeleton)
-                    SkeletonTrackers[i].OnSkeletonUpdateEvent += onSkeletonUpdates[i];
-                else
-                    SkeletonTrackers[i].OnSkeletonUpdateEvent -= onSkeletonUpdates[i];
-            }
-        }
-        if (depthModuleOn != depth || !NuitrackInitialized)
-        {
-            depthModuleOn = depth;
-
-            for (int i = 0; i < devices.Count; i++)
-            {
-                DepthFrames[i] = null;
-
-                if (depth)
-                    DepthSensors[i].OnUpdateEvent += onDepthUpdates[i];
-                else
-                    DepthSensors[i].OnUpdateEvent -= onDepthUpdates[i];
-            }
-        }
-
-        if (colorModuleOn != color || !NuitrackInitialized)
-        {
-            colorModuleOn = color;
-
-            for (int i = 0; i < devices.Count; i++)
-            {
-                ColorFrames[i] = null;
-
-                if (color)
-                    ColorSensors[i].OnUpdateEvent += onColorUpdates[i];
-                else
-                    ColorSensors[i].OnUpdateEvent -= onColorUpdates[i];
-            }
-        }
-
-        if (userTrackerModuleOn != user || !NuitrackInitialized)
-        {
-            userTrackerModuleOn = user;
-
-            for (int i = 0; i < devices.Count; i++)
-            {
-                UserFrames[i] = null;
-
-                if (user)
-                    UserTrackers[i].OnUpdateEvent += onUserTrackerUpdates[i];
-                else
-                    UserTrackers[i].OnUpdateEvent -= onUserTrackerUpdates[i];
-            }
-        }
-    }
-
     void NuitrackInit()
     {
         if (!asyncInit && Application.isEditor)
@@ -397,7 +324,7 @@ public class NuitrackManager : MonoBehaviour
         {
             RunningTime = 0;
 #if UNITY_EDITOR_WIN
-            if (NuitrackConfigHandler.GetValue("CnnDetectionModule.ToUse") == "true" /*|| useObjectDetection*/)
+            if (NuitrackConfigHandler.ObjectDetection /*|| useObjectDetection*/)
             {
                 if (!NuitrackErrorSolver.CheckCudnn())
                 {
@@ -406,11 +333,18 @@ public class NuitrackManager : MonoBehaviour
                 }
             }
 #endif
+
+            devices.Clear();
+            sensorsData.Clear();
+
             if (wifiConnect != WifiConnect.none)
             {
                 Debug.Log("If something doesn't work, then read this (Wireless case section): github.com/3DiVi/nuitrack-sdk/blob/master/doc/TVico_User_Guide.md#wireless-case");
                 Nuitrack.Init("", Nuitrack.NuitrackMode.DEBUG);
                 NuitrackConfigHandler.WifiConnect = wifiConnect;
+                devices.Add(null);
+                sensorsData.Add(new SensorData());
+                sensorsData[0].CreateModules();
             }
             else
             {
@@ -418,6 +352,8 @@ public class NuitrackManager : MonoBehaviour
 
                 if (useFileRecord)
                     NuitrackConfigHandler.FileRecord = pathToFileRecord;
+
+                NuitrackConfigHandler.ActiveUsers = maxActiveUsers;
 
                 NuitrackConfigHandler.Depth2ColorRegistration = depth2ColorRegistration;
                 //NuitrackConfigHandler.ObjectDetection = useObjectDetection;
@@ -429,30 +365,43 @@ public class NuitrackManager : MonoBehaviour
 
                 string devicesInfo = "";
 
-                devices.Clear();
+                List<nuitrack.device.NuitrackDevice> currentDevices = Nuitrack.GetDeviceList();
+
                 if (multisensorType == MultisensorType.Singlesensor)
-                    devices.Add(Nuitrack.GetDeviceList()[0]);
+                {
+                    if (currentDevices.Count > 0)
+                    {
+                        devices.Add(currentDevices[0]);
+
+                        string deviceName = devices[0].GetInfo(nuitrack.device.DeviceInfoType.DEVICE_NAME);
+
+                        if (customColorResolution)
+                        {
+                            availableColorResolutions = devices[0].GetAvailableVideoModes(nuitrack.device.StreamType.COLOR);
+                            ChangeResolution(colorWidth, colorHeight, deviceName, "RGB");
+                        }
+
+                        if (customDepthResolution)
+                        {
+                            availableDepthResolutions = devices[0].GetAvailableVideoModes(nuitrack.device.StreamType.DEPTH);
+                            ChangeResolution(depthWidth, depthHeight, deviceName, "Depth");
+                        }
+                    }
+                }
                 else
-                    devices = Nuitrack.GetDeviceList();
+                {
+                    devices = currentDevices;
+                }
+
+                if (devices.Count == 0)
+                {
+                    NuitrackErrorSolver.CheckError("Can't create DepthSensor");
+                    nuitrackError = true;
+                    PlayerPrefs.SetInt("failStart", 0);
+                    return;
+                }
 
                 serialNumbers.Clear();
-
-                DepthFrames.Clear();
-                ColorFrames.Clear();
-                UserFrames.Clear();
-                skeletonData.Clear();
-                DepthSensors.Clear();
-                ColorSensors.Clear();
-                SkeletonTrackers.Clear();
-                UserTrackers.Clear();
-                UsersList.Clear();
-
-                onColorUpdates.Clear();
-                onDepthUpdates.Clear();
-                onSkeletonUpdates.Clear();
-                onUserTrackerUpdates.Clear();
-                onHandsUpdates.Clear();
-                onNewGesturesUpdates.Clear();
 
                 for (int i = 0; i < devices.Count; i++)
                 {
@@ -467,38 +416,8 @@ public class NuitrackManager : MonoBehaviour
                     devicesInfo += "\nDevice " + i + " [Sensor Name: " + sensorName + ", License: " + devices[i].GetActivationStatus() + "] ";
 
                     serialNumbers.Add(devices[i].GetInfo(nuitrack.device.DeviceInfoType.SERIAL_NUMBER), i);
-                    ColorSensors.Add(ColorSensor.Create());
-                    ColorFrames.Add(null);
-                    DepthSensors.Add(DepthSensor.Create());
-                    DepthFrames.Add(null);
-                    UsersList.Add(new Users());
-                    SkeletonTrackers.Add(SkeletonTracker.Create());
-                    skeletonData.Add(null);
-                    UserTrackers.Add(UserTracker.Create());
-                    UserFrames.Add(new UserFrame());
-                    Floors.Add(null);
-                    int sensorId = i;
-                    onDepthUpdates.Add((frame) => HandleOnDepthSensorUpdateEvent(frame, sensorId));
-                    onColorUpdates.Add((frame) => HandleOnColorSensorUpdateEvent(frame, sensorId));
-                    onSkeletonUpdates.Add((skeleton) => HandleOnSkeletonUpdateEvent(skeleton, sensorId));
-                    onUserTrackerUpdates.Add((user) => HandleOnUserTrackerUpdateEvent(user, sensorId));
-                }
-
-                if (multisensorType == MultisensorType.Singlesensor)
-                {
-                    string deviceName = devices[0].GetInfo(nuitrack.device.DeviceInfoType.DEVICE_NAME);
-
-                    if (customColorResolution)
-                    {
-                        availableColorResolutions = devices[0].GetAvailableVideoModes(nuitrack.device.StreamType.COLOR);
-                        ChangeResolution(colorWidth, colorHeight, deviceName, "RGB");
-                    }
-
-                    if (customDepthResolution)
-                    {
-                        availableDepthResolutions = devices[0].GetAvailableVideoModes(nuitrack.device.StreamType.DEPTH);
-                        ChangeResolution(depthWidth, depthHeight, deviceName, "Depth");
-                    }
+                    sensorsData.Add(new SensorData());
+                    sensorsData[i].CreateModules();
                 }
 
                 //licenseInfo = JsonUtility.FromJson<LicenseInfo>(nuitrack.Nuitrack.GetDeviceList());
@@ -516,9 +435,13 @@ public class NuitrackManager : MonoBehaviour
             Nuitrack.Run();
             Debug.Log("Nuitrack Run OK");
 
-            ChangeModulesState(skeletonTrackerModuleOn, depthModuleOn, colorModuleOn, userTrackerModuleOn);
+            ChangeModulesState(skeletonTrackerModuleOn, handsTrackerModuleOn, depthModuleOn, colorModuleOn, gesturesRecognizerModuleOn, userTrackerModuleOn);
 
             NuitrackInitialized = true;
+#if UNITY_EDITOR
+            if(!asyncInit && UnityEditor.PlayerSettings.colorSpace != ColorSpace.Gamma)
+                Debug.LogWarning($"The color space parameter is set as {UnityEditor.PlayerSettings.colorSpace}, because of this, images may look darker than necessary");
+#endif
         }
         catch (System.Exception ex)
         {
@@ -530,12 +453,79 @@ public class NuitrackManager : MonoBehaviour
             PlayerPrefs.SetInt("failStart", 0);
     }
 
+    public void ChangeModulesState(bool skeleton, bool hand, bool depth, bool color, bool gestures, bool user)
+    {
+        if (sensorsData.Count == 0)
+            return;
+
+        for (int i = 0; i < sensorsData.Count; i++)
+            sensorsData[i].ChangeModulesState(skeleton, hand, depth, color, gestures, user);
+
+        if (color)
+            sensorsData[0].onColorUpdate += HandleOnColorSensorUpdateEvent;
+        else
+            sensorsData[0].onColorUpdate -= HandleOnColorSensorUpdateEvent;
+
+        if (depth)
+            sensorsData[0].onDepthUpdate += HandleOnDepthSensorUpdateEvent;
+        else
+            sensorsData[0].onDepthUpdate -= HandleOnDepthSensorUpdateEvent;
+
+        if (user)
+            sensorsData[0].onUserTrackerUpdate += HandleUserTrackerUpdateEvent;
+        else
+            sensorsData[0].onUserTrackerUpdate -= HandleUserTrackerUpdateEvent;
+    }
+
+    void HandleOnDepthSensorUpdateEvent(DepthFrame frame)
+    {
+        if (multisensorType == MultisensorType.Singlesensor)
+        {
+            if (customDepthResolution && (frame.Cols != depthWidth || frame.Rows != depthHeight))
+            {
+                if (availableDepthResolutions.Count != 0)
+                    ShowResFailMessage("DEPTH", availableDepthResolutions);
+                else
+                    ResolutionFailMessage = "No available DEPTH resolutions for this sensor";
+            }
+
+            depthWidth = frame.Cols;
+            depthHeight = frame.Rows;
+        }
+
+        if (onDepthUpdate != null)
+            onDepthUpdate.Invoke(frame);
+    }
+
+    void HandleOnColorSensorUpdateEvent(ColorFrame frame)
+    {
+        if (multisensorType == MultisensorType.Singlesensor)
+        {
+            if (ResolutionFailMessage == string.Empty && customColorResolution && (frame.Cols != colorWidth || frame.Rows != colorHeight))
+            {
+                if (availableColorResolutions.Count != 0)
+                    ShowResFailMessage("COLOR", availableColorResolutions);
+                else
+                    ResolutionFailMessage = "No available COLOR resolutions for this sensor";
+            }
+
+            colorWidth = frame.Cols;
+            colorHeight = frame.Rows;
+        }
+
+        if (onColorUpdate != null)
+            onColorUpdate.Invoke(frame);
+    }
+
+    void HandleUserTrackerUpdateEvent(UserFrame frame)
+    {
+        if (onUserTrackerUpdate != null)
+            onUserTrackerUpdate.Invoke(frame);
+    }
+
     string GetDevicesInfo()
     {
         string devicesInfo = "";
-
-        if (Nuitrack.GetVersion() > 3512)
-            return devicesInfo;
 
         List<nuitrack.device.NuitrackDevice> devices = Nuitrack.GetDeviceList();
 
@@ -572,95 +562,6 @@ public class NuitrackManager : MonoBehaviour
 
         Debug.LogError(message);
     }
-
-    void HandleOnDepthSensorUpdateEvent(DepthFrame frame, int sensorId)
-    {
-        if (DepthFrames[sensorId] != null)
-            DepthFrames[sensorId].Dispose();
-
-        DepthFrames[sensorId] = (DepthFrame)frame.Clone();
-
-        if (multisensorType == MultisensorType.Singlesensor)
-        {
-            if (customDepthResolution && (DepthFrame.Cols != depthWidth || DepthFrame.Rows != depthHeight))
-            {
-                if (availableDepthResolutions.Count != 0)
-                    ShowResFailMessage("DEPTH", availableDepthResolutions);
-                else
-                    ResolutionFailMessage = "No available DEPTH resolutions for this sensor";
-            }
-
-            depthWidth = DepthFrame.Cols;
-            depthHeight = DepthFrame.Rows;
-
-            try
-            {
-                onDepthUpdate?.Invoke(DepthFrame);
-            }
-            catch (System.Exception ex)
-            {
-                Debug.LogException(ex);
-            }
-        }
-    }
-
-    void HandleOnColorSensorUpdateEvent(ColorFrame frame, int sensorId)
-    {
-        if (ColorFrames[sensorId] != null)
-            ColorFrames[sensorId].Dispose();
-
-        ColorFrames[sensorId] = (ColorFrame)frame.Clone();
-
-        if (multisensorType == MultisensorType.Singlesensor)
-        {
-            if (ResolutionFailMessage == string.Empty && customColorResolution && (ColorFrame.Cols != colorWidth || ColorFrame.Rows != colorHeight))
-            {
-                if (availableColorResolutions.Count != 0)
-                    ShowResFailMessage("COLOR", availableColorResolutions);
-                else
-                    ResolutionFailMessage = "No available COLOR resolutions for this sensor";
-            }
-
-            colorWidth = ColorFrame.Cols;
-            colorHeight = ColorFrame.Rows;
-
-            try
-            {
-                onColorUpdate?.Invoke(ColorFrame);
-            }
-            catch (System.Exception ex)
-            {
-                Debug.LogException(ex);
-            }
-        }
-    }
-
-    void HandleOnUserTrackerUpdateEvent(UserFrame frame, int sensorId)
-    {
-        if (UserFrames[sensorId] != null)
-            UserFrames[sensorId].Dispose();
-        UserFrames[sensorId] = (UserFrame)frame.Clone();
-
-        try
-        {
-            onUserTrackerUpdate?.Invoke(UserFrame);
-        }
-        catch (System.Exception ex)
-        {
-            Debug.LogException(ex);
-        }
-
-        Floors[sensorId] = new Plane(frame.FloorNormal.ToVector3().normalized, frame.Floor.ToVector3() * 0.001f);
-    }
-
-    void HandleOnSkeletonUpdateEvent(SkeletonData _skeletonData, int sensorId)
-    {
-        if (skeletonData[sensorId] != null)
-            skeletonData[sensorId].Dispose();
-
-        skeletonData[sensorId] = (SkeletonData)_skeletonData.Clone();
-    }
-
 
     bool canBePaused;
     void OnApplicationPause(bool pauseStatus)
@@ -700,34 +601,22 @@ public class NuitrackManager : MonoBehaviour
 
     public void StopNuitrack()
     {
-        if (!IsNuitrackLibrariesInitialized())
+        if (!IsNuitrackLibrariesInitialized() || !NuitrackInitialized)
             return;
 
         try
         {
             for (int i = 0; i < devices.Count; i++)
-            {
-                if (ColorSensors[i] != null)
-                    ColorSensors[i].OnUpdateEvent -= onColorUpdates[i];
-                if (DepthSensors[i] != null)
-                    DepthSensors[i].OnUpdateEvent -= onDepthUpdates[i];
-                if (SkeletonTrackers[i] != null)
-                    SkeletonTrackers[i].OnSkeletonUpdateEvent -= onSkeletonUpdates[i];
-                if (UserTrackers[i] != null)
-                    UserTrackers[i].OnUpdateEvent -= onUserTrackerUpdates[i];
+                sensorsData[i].StopProcessing();
 
-                DepthFrames[i] = null;
-                ColorFrames[i] = null;
-                UserFrames[i] = null;
-                skeletonData[i] = null;
-              
+            if (colorModuleOn)
+                sensorsData[0].onColorUpdate -= HandleOnColorSensorUpdateEvent;
 
-                DepthSensors[i] = null;
-                ColorSensors[i] = null;
-                UserTrackers[i] = null;
-                SkeletonTrackers[i] = null;
-               
-            }
+            if (depthModuleOn)
+                sensorsData[0].onDepthUpdate -= HandleOnDepthSensorUpdateEvent;
+
+            if (userTrackerModuleOn)
+                sensorsData[0].onUserTrackerUpdate -= HandleUserTrackerUpdateEvent;
 
             Nuitrack.Release();
             Debug.Log("Nuitrack Stop OK");
@@ -757,27 +646,18 @@ public class NuitrackManager : MonoBehaviour
 
         try
         {
-            for (int i = 0; i < UsersList.Count; i++)
-                UsersList[i].UpdateData(skeletonData[i]);
-
-            // for (int i = 0; i < gestureData.Count; i++)
-            // {
-            //     if (gestureData[i] != null)
-            //     {
-            //         gestureData[i].Dispose();
-            //         gestureData[i] = null;
-            //     }
-            // }
-
             if (multisensorType == MultisensorType.Singlesensor)
             {
                 Nuitrack.Update();
             }
             else
             {
-                for (int i = 0; i < SkeletonTrackers.Count; i++)
-                    Nuitrack.WaitUpdate(SkeletonTrackers[i]);
+                for (int i = 0; i < devices.Count; i++)
+                    Nuitrack.WaitUpdate(sensorsData[i].SkeletonTracker);
             }
+
+            for (int i = 0; i < devices.Count; i++)
+                sensorsData[i].Update();
         }
         catch (System.Exception ex)
         {

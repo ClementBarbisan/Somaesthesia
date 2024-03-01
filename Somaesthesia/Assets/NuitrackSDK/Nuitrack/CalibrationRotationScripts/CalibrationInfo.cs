@@ -36,7 +36,7 @@ namespace NuitrackSDK.Calibration
         void Calibration_onSuccess(Quaternion rotation)
         {
             //sensor orientation:
-            UserData.SkeletonData skeleton = NuitrackManager.Users.Current.Skeleton;
+            UserData.SkeletonData skeleton = NuitrackManager.sensorsData[0].Users.Current.Skeleton;
 
             Vector3 torso = skeleton.GetJoint(nuitrack.JointType.Torso).Position;
             Vector3 neck = skeleton.GetJoint(nuitrack.JointType.Neck).Position;
@@ -44,9 +44,9 @@ namespace NuitrackSDK.Calibration
             sensorOrientation = Quaternion.Euler(-Mathf.Atan2(diff.z, diff.y) * Mathf.Rad2Deg, 0f, 0f);
 
             //floor height:
-            if (trackFloorHeight && NuitrackManager.Floor != null)
+            if (trackFloorHeight && NuitrackManager.sensorsData[0].Floor != null)
             {
-                Plane floorPlane = (Plane)NuitrackManager.Floor;
+                Plane floorPlane = (Plane)NuitrackManager.sensorsData[0].Floor;
 
                 if (floorPlane.normal.sqrMagnitude > 0.01f) //
                     FloorHeight = floorPlane.GetDistanceToPoint(Vector3.zero);

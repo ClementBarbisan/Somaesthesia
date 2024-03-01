@@ -76,7 +76,7 @@ namespace NuitrackSDK.Tutorials.ZombieVR
 
                 GetComponent<Collider>().enabled = !ragdoll; // Switch the base collider
 
-                animator.enabled = !ragdoll; // Switch the animator. When Ragdoll is turned on, еру animator is switched off.
+                animator.enabled = !ragdoll; // Switch the animator. When Ragdoll is turned on, animator is switched off.
             }
 
             isRagdoll = ragdoll;

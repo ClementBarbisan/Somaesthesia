@@ -72,7 +72,7 @@ namespace NuitrackSDK.Poses
 
         void Awake()
         {
-            NuitrackManager.Users.OnUserExit += Users_OnUserExit;
+            NuitrackManager.sensorsData[0].Users.OnUserExit += Users_OnUserExit;
 
             poseEvents = new Dictionary<NuitrackPose, PoseProcessEvent>();
             Matches = new Dictionary<NuitrackPose, Dictionary<int, float>>();
@@ -86,7 +86,7 @@ namespace NuitrackSDK.Poses
 
         void OnDestroy()
         {
-            NuitrackManager.Users.OnUserExit -= Users_OnUserExit;
+            NuitrackManager.sensorsData[0].Users.OnUserExit -= Users_OnUserExit;
         }
 
         void Users_OnUserExit(UserData user)
@@ -180,7 +180,7 @@ namespace NuitrackSDK.Poses
             {
                 Matches[pose].Clear();
 
-                foreach (UserData user in NuitrackManager.Users)
+                foreach (UserData user in NuitrackManager.sensorsData[0].Users)
                 {
                     float match = 0;
 

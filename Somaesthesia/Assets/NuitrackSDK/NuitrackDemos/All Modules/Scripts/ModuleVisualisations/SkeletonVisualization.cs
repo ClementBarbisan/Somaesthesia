@@ -59,7 +59,8 @@ namespace NuitrackSDK.NuitrackDemos
 
         void Update()
         {
-            ProcessSkeletons();
+            if (NuitrackManager.Instance.NuitrackInitialized)
+                ProcessSkeletons();
         }
 
         void HideAllSkeletons()
@@ -76,7 +77,7 @@ namespace NuitrackSDK.NuitrackDemos
 
         void ProcessSkeletons()
         {
-            if (NuitrackManager.Users.Count == 0)
+            if (NuitrackManager.sensorsData[0].Users.Count == 0)
             {
                 HideAllSkeletons();
                 return;
@@ -88,14 +89,14 @@ namespace NuitrackSDK.NuitrackDemos
 
             for (int i = 0; i < skelIds.Length; i++)
             {
-                UserData user = NuitrackManager.Users.GetUser(skelIds[i]);
+                UserData user = NuitrackManager.sensorsData[0].Users.GetUser(skelIds[i]);
                 if (user == null || user.Skeleton == null)
                 {
                     skeletonsRoots[skelIds[i]].SetActive(false);
                 }
             }
 
-            foreach (UserData user in NuitrackManager.Users)
+            foreach (UserData user in NuitrackManager.sensorsData[0].Users)
             {
                 if (user.Skeleton == null)
                     continue;
@@ -103,6 +104,7 @@ namespace NuitrackSDK.NuitrackDemos
                 if (!skeletonsRoots.ContainsKey(user.ID)) // if don't have gameObjects for skeleton ID, create skeleton gameobjects (root, joints and connections)
                 {
                     GameObject skelRoot = new GameObject();
+                    skelRoot.transform.parent = transform;
                     skelRoot.name = "Root_" + user.ID.ToString();
 
                     skeletonsRoots.Add(user.ID, skelRoot);

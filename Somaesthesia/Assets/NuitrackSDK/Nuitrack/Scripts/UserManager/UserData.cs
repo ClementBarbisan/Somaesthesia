@@ -338,7 +338,7 @@ namespace NuitrackSDK
         /// <returns>BoundBox Rect</returns>
         public Rect BoundingBox(float width, float height)
         {
-            nuitrack.User user = NuitrackManager.UserFrame.GetUserByID(ID);
+            nuitrack.User user = NuitrackManager.sensorsData[0].UserFrame.GetUserByID(ID);
 
             if (user.ID == 0)
                 return default;
@@ -363,7 +363,7 @@ namespace NuitrackSDK
         /// <returns>Rect of the user relative to the parent Rect (anchoredPosition)</returns>
         public Rect AnchoredRect(Rect parentRect, RectTransform rectTransform)
         {
-            nuitrack.User user = NuitrackManager.UserFrame.GetUserByID(ID);
+            nuitrack.User user = NuitrackManager.sensorsData[0].UserFrame.GetUserByID(ID);
 
             if (user.ID == 0)
                 return default;
@@ -411,7 +411,7 @@ namespace NuitrackSDK
             if (textureCache == null)
                 textureCache = new TextureCache();
 
-            return NuitrackManager.UserFrame.ToTexture2D(GetUserColors(userColor), textureCache);
+            return NuitrackManager.sensorsData[0].UserFrame.ToTexture2D(GetUserColors(userColor), textureCache);
         }
 
         /// <summary>
@@ -424,7 +424,7 @@ namespace NuitrackSDK
             if (textureCache == null)
                 textureCache = new TextureCache();
 
-            return NuitrackManager.UserFrame.ToRenderTexture(GetUserColors(userColor), textureCache);
+            return NuitrackManager.sensorsData[0].UserFrame.ToRenderTexture(GetUserColors(userColor), textureCache);
         }
 
         /// <summary>
@@ -437,7 +437,7 @@ namespace NuitrackSDK
             if (textureCache == null)
                 textureCache = new TextureCache();
 
-            return NuitrackManager.UserFrame.ToTexture(GetUserColors(userColor), textureCache);
+            return NuitrackManager.sensorsData[0].UserFrame.ToTexture(GetUserColors(userColor), textureCache);
         }
 
         internal void AddData(nuitrack.Skeleton skeleton)

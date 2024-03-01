@@ -62,7 +62,7 @@ namespace NuitrackSDKEditor
 
             DrawInitEvent();
 
-            // DrawFramePreview();
+            DrawFramePreview();
         }
 
         void DrawModules()
@@ -77,6 +77,8 @@ namespace NuitrackSDKEditor
                     serializedObject.DrawPropertyField("colorModuleOn");
                     serializedObject.DrawPropertyField("userTrackerModuleOn");
                     serializedObject.DrawPropertyField("skeletonTrackerModuleOn");
+                    serializedObject.DrawPropertyField("gesturesRecognizerModuleOn");
+                    serializedObject.DrawPropertyField("handsTrackerModuleOn");
 
                     NuitrackSDKGUI.PropertyWithHelpButton(
                         serializedObject,
@@ -87,6 +89,8 @@ namespace NuitrackSDKEditor
             }
 
             EditorGUILayout.EndFoldoutHeaderGroup();
+
+            serializedObject.DrawPropertyField("maxActiveUsers");
         }
 
         void DrawSensorOptions()
@@ -97,17 +101,8 @@ namespace NuitrackSDKEditor
 
             serializedObject.DrawPropertyField("depth2ColorRegistration");
 
-            SerializedProperty mirrorProp = serializedObject.DrawPropertyField("mirror");
-            SerializedProperty sensorRotation = serializedObject.FindProperty("sensorRotation");
-
-            if (mirrorProp.boolValue)
-            {
-                sensorRotation.enumValueIndex = 0;
-                serializedObject.ApplyModifiedProperties();
-            }
-
-            using (new EditorGUI.DisabledGroupScope(mirrorProp.boolValue))
-                serializedObject.DrawPropertyField("sensorRotation");
+            serializedObject.DrawPropertyField("mirror");
+            serializedObject.DrawPropertyField("sensorRotation");
         }
 
         void DrawAdvanced()
@@ -116,18 +111,28 @@ namespace NuitrackSDKEditor
 
             EditorGUILayout.LabelField("Advanced", EditorStyles.boldLabel);
 
+            if (PlayerSettings.colorSpace != ColorSpace.Gamma)
+            {
+                UnityEngine.Events.UnityAction fixAction = delegate { PlayerSettings.colorSpace = ColorSpace.Gamma; };
+                NuitrackSDKGUI.DrawMessage($"The color space parameter is set as {PlayerSettings.colorSpace}, because of this, images may look darker than necessary", LogType.Warning, fixAction, "Change to Gamma");
+            }
+
             NuitrackSDKGUI.PropertyWithHelpButton(
                 serializedObject,
                 "wifiConnect",
                 "https://github.com/3DiVi/nuitrack-sdk/blob/master/doc/TVico_User_Guide.md#wireless-case",
                 "Only skeleton. PC, Unity Editor, MacOS and IOS");
 
-
-            NuitrackSDKGUI.PropertyWithHelpButton(
+            SerializedProperty useNuitrackAIProp = NuitrackSDKGUI.PropertyWithHelpButton(
                 serializedObject,
                 "useNuitrackAi",
                 "https://github.com/3DiVi/nuitrack-sdk/blob/master/doc/Nuitrack_AI.md",
                 "ONLY PC! Nuitrack AI is the new version of Nuitrack skeleton tracking middleware");
+
+            if (useNuitrackAIProp.boolValue)
+            {
+                NuitrackSDKGUI.DrawMessage($"Nuitrack AI Skeleton Tracking has high CPU requirements", LogType.Warning);
+            }
 
             SerializedProperty useFileRecordProp = serializedObject.DrawPropertyField("useFileRecord", "Use record file");
 
@@ -167,7 +172,7 @@ namespace NuitrackSDKEditor
 
                 bool objDetectionActive = false;
                 if (nuitrackHome != null)
-                    objDetectionActive = nuitrack.Nuitrack.GetConfigValue("CnnDetectionModule.ToUse") == "true";
+                    objDetectionActive = NuitrackConfigHandler.ObjectDetection;
 
                 EditorGUI.Toggle(propertyRect, objDetectionGUIContent, objDetectionActive);
             }
@@ -179,9 +184,7 @@ namespace NuitrackSDKEditor
                 GUIContent objDetectionGUIContent = new GUIContent("Use Object Detection",
                     "Track and get information about objects with Nuitrack (set in nuitrack.config and restart scene)");
 
-                bool objDetectionActive = nuitrack.Nuitrack.GetConfigValue("CnnDetectionModule.ToUse") == "true";
-
-                EditorGUI.Toggle(propertyRect, objDetectionGUIContent, objDetectionActive);
+                EditorGUI.Toggle(propertyRect, objDetectionGUIContent, NuitrackConfigHandler.ObjectDetection);
             }
 
             openSensorResolution = EditorGUILayout.BeginFoldoutHeaderGroup(openSensorResolution, "Sensor resolution");
@@ -261,8 +264,8 @@ namespace NuitrackSDKEditor
 
                     List<Vector2> pointCoord = new List<Vector2>();
 
-                    rgbTexture = NuitrackManager.ColorFrame.ToRenderTexture(rgbCache);
-                    depthTexture = NuitrackManager.DepthFrame.ToRenderTexture(textureCache: depthCache);
+                    rgbTexture = NuitrackManager.sensorsData[0].ColorFrame.ToRenderTexture(rgbCache);
+                    depthTexture = NuitrackManager.sensorsData[0].DepthFrame.ToRenderTexture(textureCache: depthCache);
 
                     Rect rgbRect = NuitrackSDKGUI.DrawFrame(rgbTexture, "RGB frame");
 
@@ -270,7 +273,7 @@ namespace NuitrackSDKEditor
 
                     float lineSize = rgbRect.size.magnitude * lineScale;
 
-                    foreach (UserData user in NuitrackManager.Users)
+                    foreach (UserData user in NuitrackManager.sensorsData[0].Users)
                         if (user.Skeleton != null)
                         {
                             Color userColor = FrameUtils.SegmentToTexture.GetColorByID(user.ID);

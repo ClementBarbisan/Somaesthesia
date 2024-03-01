@@ -9,6 +9,7 @@ namespace NuitrackSDK.Frame
     public class FrameProvider : MonoBehaviour
     {
         public int sensorId;
+        [SerializeField, NuitrackSDKInspector] bool syncColorWithSkeleton;
 
         public enum FrameType
         {
@@ -75,6 +76,8 @@ namespace NuitrackSDK.Frame
 
         TextureCache textureCache;
 
+        ulong lastSkelTimestamp;
+
         Gradient DepthGradient
         {
             get
@@ -104,6 +107,9 @@ namespace NuitrackSDK.Frame
 
         void Update()
         {
+            if (!NuitrackManager.Instance.NuitrackInitialized)
+                return;
+
             Texture texture = GetTexture();
             if (texture != null)
                 onFrameUpdate.Invoke(texture);
@@ -125,10 +131,19 @@ namespace NuitrackSDK.Frame
             if (!NuitrackManager.Instance.UseColorModule)
                 return null;
 
-            nuitrack.ColorFrame frame = NuitrackManager.ColorFrames[sensorId];
+            SensorData sensorData = NuitrackManager.sensorsData[sensorId];
+            nuitrack.ColorFrame frame = sensorData.ColorFrame;
 
             if (frame == null || frame.Cols == 0 || frame.Rows == 0)
                 return null;
+
+            if (syncColorWithSkeleton && sensorData.SkeletonTracker.GetSkeletonData().Skeletons.Length > 0)
+            {
+                if (lastSkelTimestamp != sensorData.SkeletonTracker.GetSkeletonData().Timestamp)
+                    lastSkelTimestamp = sensorData.SkeletonTracker.GetSkeletonData().Timestamp;
+                else
+                    return null;
+            }
 
             return textureMode switch
             {
@@ -144,7 +159,7 @@ namespace NuitrackSDK.Frame
             if (!NuitrackManager.Instance.UseDepthModule)
                 return null;
 
-            nuitrack.DepthFrame frame = NuitrackManager.DepthSensors[sensorId].GetDepthFrame();
+            nuitrack.DepthFrame frame = NuitrackManager.sensorsData[sensorId].DepthFrame;
             
             if (frame == null || frame.Cols == 0 || frame.Rows == 0)
                 return null;
@@ -165,7 +180,7 @@ namespace NuitrackSDK.Frame
 
             if (segmentMode == SegmentMode.Single)
             {
-                UserData userData = useCurrentUserTracker ? NuitrackManager.Users.Current : NuitrackManager.Users.GetUser(userID);
+                UserData userData = useCurrentUserTracker ? NuitrackManager.sensorsData[0].Users.Current : NuitrackManager.sensorsData[0].Users.GetUser(userID);
 
                 if (userData == null)
                     return null;
@@ -180,7 +195,7 @@ namespace NuitrackSDK.Frame
             }
             else
             {
-                nuitrack.UserFrame frame = NuitrackManager.UserFrames[sensorId];
+                nuitrack.UserFrame frame = NuitrackManager.sensorsData[sensorId].UserFrame;
                 
                 if (frame == null || frame.Cols == 0 || frame.Rows == 0)
                     return null;

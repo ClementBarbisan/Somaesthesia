@@ -25,11 +25,6 @@ namespace NuitrackSDK.Tutorials.AvatarAnimation
             //then the model bones and their jointType are added to the jointsRigged dictionary
             for (int i = 0; i < modelJoints.Length; i++)
             {
-                if (modelJoints[i].bone == null)
-                {
-                    continue;
-                }
-
                 modelJoints[i].baseRotOffset = modelJoints[i].bone.rotation;
                 jointsRigged.Add(modelJoints[i].jointType.TryGetMirrored(), modelJoints[i]);
 
@@ -89,10 +84,10 @@ namespace NuitrackSDK.Tutorials.AvatarAnimation
                         //Take the Transform of a parent bone
                         Transform parentBone = modelJoint.parentBone;
                         //calculate how many times the distance between the child bone and its parent bone has changed compared to the base distance (which was recorded at the start)
-                        // float scaleDif = modelJoint.baseDistanceToParent / Vector3.Distance(newPos, parentBone.position);
-                        // change the size of the bone to the resulting value (On default bone size (1,1,1))
-                        // parentBone.localScale = Vector3.one / scaleDif;
-                        // parentBone.localScale *= parentBone.localScale.x / parentBone.lossyScale.x;
+                        float scaleDif = modelJoint.baseDistanceToParent / Vector3.Distance(newPos, parentBone.position);
+                        //change the size of the bone to the resulting value (On default bone size (1,1,1))
+                        parentBone.localScale = Vector3.one / scaleDif;
+                        parentBone.localScale *= parentBone.localScale.x / parentBone.lossyScale.x;
                     }
                 }
             }

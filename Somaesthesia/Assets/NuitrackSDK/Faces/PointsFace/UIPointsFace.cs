@@ -41,11 +41,11 @@ namespace NuitrackSDK.Face
         {
             foreach (KeyValuePair<int, List<RectTransform>> pointData in facePoints)
             {
-                if (NuitrackManager.Users.GetUser(pointData.Key) == null)
+                if (NuitrackManager.sensorsData[0].Users.GetUser(pointData.Key) == null)
                     DisplayPoints(pointData.Value, false);
             }
 
-            foreach (UserData user in NuitrackManager.Users)
+            foreach (UserData user in NuitrackManager.sensorsData[0].Users)
             {
                 if (user.Face != null)
                 {

@@ -217,7 +217,7 @@ namespace NuitrackSDKEditor
         /// <param name="propertyName">Name of object property</param>
         /// <param name="url">Click-through link</param>
         /// <param name="toolTip">(optional) ToolTip displayed when hovering over the button</param>
-        public static void PropertyWithHelpButton(SerializedObject serializedObject, string propertyName, string url, string toolTip = "")
+        public static SerializedProperty PropertyWithHelpButton(SerializedObject serializedObject, string propertyName, string url, string toolTip = "")
         {
             SerializedProperty property = serializedObject.FindProperty(propertyName);
 
@@ -227,6 +227,8 @@ namespace NuitrackSDKEditor
 
             EditorGUI.PropertyField(propertyRect, property);
             serializedObject.ApplyModifiedProperties();
+
+            return property;
         }
 
         #region Open file & folder fields

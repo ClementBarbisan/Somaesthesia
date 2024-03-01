@@ -133,7 +133,7 @@ namespace NuitrackSDK.Frame
         {
             get
             {
-                OutputMode mode = NuitrackManager.DepthSensor.GetOutputMode();
+                OutputMode mode = NuitrackManager.sensorsData[0].DepthSensor.GetOutputMode();
                 return mode.HFOV * Mathf.Rad2Deg;
             }
         }
@@ -145,7 +145,7 @@ namespace NuitrackSDK.Frame
         {
             get
             {
-                OutputMode mode = NuitrackManager.DepthSensor.GetOutputMode();
+                OutputMode mode = NuitrackManager.sensorsData[0].DepthSensor.GetOutputMode();
 
                 float aspectRatio = (float)mode.YRes / mode.XRes;
                 float vFOV = 2 * Mathf.Atan(Mathf.Tan(mode.HFOV * 0.5f) * aspectRatio);
@@ -159,7 +159,7 @@ namespace NuitrackSDK.Frame
         {
             get
             {
-                return NuitrackManager.DepthSensor.GetOutputMode().XRes;
+                return NuitrackManager.sensorsData[0].DepthSensor.GetOutputMode().XRes;
             }
         }
 
@@ -167,7 +167,7 @@ namespace NuitrackSDK.Frame
         {
             get
             {
-                return NuitrackManager.DepthSensor.GetOutputMode().YRes;
+                return NuitrackManager.sensorsData[0].DepthSensor.GetOutputMode().YRes;
             }
         }
 
@@ -175,7 +175,7 @@ namespace NuitrackSDK.Frame
         {
             get
             {
-                OutputMode mode = NuitrackManager.DepthSensor.GetOutputMode();
+                OutputMode mode = NuitrackManager.sensorsData[0].DepthSensor.GetOutputMode();
 
                 return (float)mode.XRes / mode.YRes;
             }
@@ -247,7 +247,7 @@ namespace NuitrackSDK.Frame
                 }
 
                 if (destTexture == null)
-                    destTexture = new Texture2D(frame.Cols, frame.Rows, TextureFormat.ARGB32, false);
+                    destTexture = new Texture2D(frame.Cols, frame.Rows, TextureFormat.ARGB32, false, true);
 
                 destTexture.LoadRawTextureData(mirrorArray);
                 destTexture.Apply();

@@ -8,7 +8,7 @@ namespace NuitrackSDK.Frame
     {
         protected override bool IsUserLost(UserData userData)
         {
-            return userData == null || NuitrackManager.DepthFrame == null;
+            return userData == null || NuitrackManager.sensorsData[0].DepthFrame == null;
         }
 
         protected override Rect GetFrameRect(UserData userData, float width, float height)

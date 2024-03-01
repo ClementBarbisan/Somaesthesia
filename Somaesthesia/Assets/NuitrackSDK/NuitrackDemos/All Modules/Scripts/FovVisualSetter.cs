@@ -11,7 +11,7 @@ namespace NuitrackSDK.NuitrackDemos
 
         void Start()
         {
-            nuitrack.OutputMode mode = NuitrackManager.DepthSensor.GetOutputMode();
+            nuitrack.OutputMode mode = NuitrackManager.sensorsData[0].DepthSensor.GetOutputMode();
             if (needVFov)
             {
                 float fov = 2 * Mathf.Atan(Mathf.Tan(mode.HFOV / 2) * (float)mode.YRes / (float)mode.XRes);

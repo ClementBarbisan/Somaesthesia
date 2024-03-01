@@ -18,6 +18,13 @@ namespace NuitrackSDKEditor.Frame
 
             switch (frameTypeProp.enumValueIndex)
             {
+                case 0:
+
+                    EditorGUILayout.Space();
+                    DrawColorOptions();
+                    EditorGUILayout.Space();
+                    break;
+
                 case 1:
 
                     EditorGUILayout.Space();
@@ -103,6 +110,19 @@ namespace NuitrackSDKEditor.Frame
 
                 if (useCustomDepthGradientProp.boolValue)
                     serializedObject.DrawPropertyField("customDepthGradient", "Custom depth gradient");
+            }
+        }
+
+        void DrawColorOptions()
+        {
+            using (new VerticalGroup(EditorStyles.helpBox))
+            {
+                EditorGUILayout.LabelField("Color options", EditorStyles.boldLabel);
+
+                SerializedProperty syncSkelProp = serializedObject.DrawPropertyField(
+                    "syncColorWithSkeleton",
+                    "Sync Color With Skeleton",
+                    "Delays the RGB update until new skeleton data is available");
             }
         }
     }

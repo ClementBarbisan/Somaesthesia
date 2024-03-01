@@ -2,11 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using NuitrackSDK.Frame;
 
 public class FramesController : MonoBehaviour
 {
     [SerializeField] GridLayoutGroup parentPanel;
-    [SerializeField] NuitrackSDK.Frame.DrawSensorFrame sensorFrame;
+    [SerializeField] DrawSensorFrame sensorFrame;
 
     void Start()
     {
@@ -18,9 +19,9 @@ public class FramesController : MonoBehaviour
 
         for (int i = 0; i < NuitrackManager.Instance.devices.Count; i++)
         {
-            sensorFrame.sensorId = i;
-            sensorFrame.transform.localScale = Vector3.one;
-            Instantiate(sensorFrame.gameObject, parentPanel.transform);
+            DrawSensorFrame sensorFrameInst = Instantiate(sensorFrame.gameObject, parentPanel.transform).GetComponent<DrawSensorFrame>();
+            sensorFrameInst.sensorId = i;
+            sensorFrameInst.transform.localScale = Vector3.one;
         }
     }
 }

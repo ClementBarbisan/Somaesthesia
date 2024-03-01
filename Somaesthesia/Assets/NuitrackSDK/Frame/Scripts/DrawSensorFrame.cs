@@ -99,6 +99,11 @@ namespace NuitrackSDK.Frame
             foreach (FrameProvider frameProvider in frameProviders)
                 frameProvider.sensorId = sensorId;
 
+            NuitrackAspectRatioFitter[] aspectRatioFitter = GetComponentsInChildren<NuitrackAspectRatioFitter>();
+
+            foreach (var item in aspectRatioFitter)
+                item.sensorId = sensorId;
+
             skeletonsOverlay.sensorId = sensorId;
             handsTrackerOverlay.sensorId = sensorId;
             gestureVisualizationOverlay.sensorId = sensorId;

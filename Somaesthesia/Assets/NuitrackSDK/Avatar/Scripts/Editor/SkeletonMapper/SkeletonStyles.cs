@@ -56,7 +56,7 @@ namespace NuitrackSDKEditor.Avatar
             /// <param name="filled">If filled in, a placeholder will be added inside the point</param>
             /// <param name="selected">If selected, a contour will be added around the dot</param>
             /// <returns>Rectangle describing a dot</returns>
-            public static Rect DrawСentered(Vector2 position, bool optional, bool filled = false, bool selected = false)
+            public static Rect DrawCentered(Vector2 position, bool optional, bool filled = false, bool selected = false)
             {
                 Texture dotTexture = (optional ? frameDotted : frame).image;
                 Vector2 newPosition = new Vector2(position.x - dotTexture.width * 0.5f, position.y - dotTexture.height * 0.5f);

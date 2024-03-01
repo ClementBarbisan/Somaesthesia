@@ -38,7 +38,7 @@ namespace NuitrackSDK
             get
             {
                 if (UseCurrentUserTracker)
-                    return NuitrackManager.Users.Current != null ? NuitrackManager.Users.Current.ID : 0;
+                    return NuitrackManager.sensorsData[0].Users.Current != null ? NuitrackManager.sensorsData[0].Users.Current.ID : 0;
                 else
                     return userID;
             }
@@ -77,9 +77,9 @@ namespace NuitrackSDK
             get
             {
                 if (useCurrentUserTracker)
-                    return NuitrackManager.UsersList[sensorId].Current;
+                    return NuitrackManager.sensorsData[sensorId].Users.Current;
                 else
-                    return NuitrackManager.UsersList[sensorId].GetUser(userID);
+                    return NuitrackManager.sensorsData[sensorId].Users.GetUser(userID);
             }
         }
     }

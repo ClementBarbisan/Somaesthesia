@@ -23,6 +23,9 @@ namespace NuitrackSDK.Tutorials.ARNuitrack
 
         void Update()
         {
+            if (!NuitrackManager.Instance.NuitrackInitialized)
+                return;
+
             nuitrack.ColorFrame colorFrame = NuitrackManager.ColorFrame;
             nuitrack.DepthFrame depthFrame = NuitrackManager.DepthFrame;
 

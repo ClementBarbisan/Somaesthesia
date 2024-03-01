@@ -4,6 +4,26 @@ using System;
 
 public class NuitrackConfigHandler
 {
+    public static int ActiveUsers
+    {
+        get
+        {
+            try
+            {
+                return int.Parse(GetValue("Skeletonization.ActiveUsers"));
+            }
+            catch
+            {
+                Debug.LogError("Failed parse Skeletonization.ActiveUsers value");
+                return 1;
+            }
+        }
+        set
+        {
+            SetValue("Skeletonization.ActiveUsers", value.ToString());
+        }
+    }
+
     public static string FileRecord
     {
         get

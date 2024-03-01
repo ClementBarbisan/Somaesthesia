@@ -19,7 +19,7 @@ namespace NuitrackSDK.Tutorials.FaceTracker
 
         public float GetJawOpen(nuitrack.Face face)
         {
-            float jawOpen = getJawOpenYRatio(face.landmark);
+            float jawOpen = face.GetEmotionValue(nuitrack.Emotions.Type.surprise);
 
             if (jawOpen >= 0.51f)
             {
@@ -40,11 +40,11 @@ namespace NuitrackSDK.Tutorials.FaceTracker
 
         public float GetEyeBlinkLeft(nuitrack.Face face)
         {
-            float eyeOpen = getLeftEyeOpenRatio(face.landmark);
+            float eyeOpen = face.GetEmotionValue(nuitrack.Emotions.Type.angry);
 
-            if (eyeOpen < 0.05f && GetJawOpen(face) < 0.3f)
+            if (eyeOpen > 0.5f)
             {
-                leftEyeParam = Mathf.Lerp(leftEyeParam, 1, lerpSpeed * Time.deltaTime);
+                leftEyeParam = Mathf.Lerp(leftEyeParam, 0.7f, lerpSpeed * Time.deltaTime);
             }
             else
             {
@@ -56,11 +56,11 @@ namespace NuitrackSDK.Tutorials.FaceTracker
 
         public float GetEyeBlinkRight(nuitrack.Face face)
         {
-            float eyeOpen = getRightEyeOpenRatio(face.landmark);
+            float eyeOpen = face.GetEmotionValue(nuitrack.Emotions.Type.angry);
 
-            if (eyeOpen < 0.05f && GetJawOpen(face) < 0.3f)
+            if (eyeOpen > 0.5f)
             {
-                rightEyeParam = Mathf.Lerp(rightEyeParam, 1, lerpSpeed * Time.deltaTime);
+                rightEyeParam = Mathf.Lerp(rightEyeParam, 0.7f, lerpSpeed * Time.deltaTime);
             }
             else
             {
@@ -68,6 +68,11 @@ namespace NuitrackSDK.Tutorials.FaceTracker
             }
 
             return rightEyeParam * 100;
+        }
+
+        public float GetAngry(nuitrack.Face face)
+        {
+            return face.GetEmotionValue(nuitrack.Emotions.Type.angry) * 100;
         }
 
         public float GetSmile(nuitrack.Face face)
@@ -79,16 +84,12 @@ namespace NuitrackSDK.Tutorials.FaceTracker
 
         public float GetBrowUpLeft(nuitrack.Face face)
         {
-            float BrowLeftUp = getLeftBrowOpenRatio(face.landmark);
+            float BrowLeftUp = face.GetEmotionValue(nuitrack.Emotions.Type.surprise);
 
             if (BrowLeftUp >= 0.5f)
-            {
                 BrowLeftUp = 1.0f;
-            }
             else
-            {
                 BrowLeftUp = 0.0f;
-            }
 
             leftBrowUpParam = Mathf.Lerp(leftBrowUpParam, BrowLeftUp, lerpSpeed * Time.deltaTime);
 
@@ -97,53 +98,16 @@ namespace NuitrackSDK.Tutorials.FaceTracker
 
         public float GetBrowUpRight(nuitrack.Face face)
         {
-            float BrowRightUp = getRightBrowOpenRatio(face.landmark);
+            float BrowRightUp = face.GetEmotionValue(nuitrack.Emotions.Type.surprise);
 
             if (BrowRightUp >= 0.5f)
-            {
                 BrowRightUp = 1.0f;
-            }
             else
-            {
                 BrowRightUp = 0.0f;
-            }
 
             rightBrowUpParam = Mathf.Lerp(rightBrowUpParam, BrowRightUp, lerpSpeed * Time.deltaTime);
 
             return rightBrowUpParam * 100;
         }
-
-        float getJawOpenYRatio(Vector2[] points)
-        {
-            float size = Mathf.Abs(points[27].y - points[28].y) / Mathf.Abs(points[6].y - points[9].y);
-            return Mathf.InverseLerp(0.0f, 0.5f, size);
-        }
-
-        float getLeftBrowOpenRatio(Vector2[] points)
-        {
-            float size = Mathf.Abs(points[4].y - points[6].y) / Mathf.Abs(points[6].y - points[9].y);
-            return size;
-            //Mathf.InverseLerp(0.5f, 0.7f, size);
-        }
-
-        float getRightBrowOpenRatio(Vector2[] points)
-        {
-            float size = Mathf.Abs(points[1].y - points[6].y) / Mathf.Abs(points[6].y - points[9].y);
-            return size;
-            //Mathf.InverseLerp(0.5f, 0.7f, size);
-        }
-
-        float getLeftEyeOpenRatio(Vector2[] points)
-        {
-            float size = Mathf.Abs(points[19].y - points[21].y) / Mathf.Abs(points[5].y - points[9].y);
-            return Mathf.InverseLerp(0.1f, 0.16f, size);
-        }
-
-        float getRightEyeOpenRatio(Vector2[] points)
-        {
-            float size = Mathf.Abs(points[12].y - points[16].y) / Mathf.Abs(points[5].y - points[9].y);
-            return Mathf.InverseLerp(0.1f, 0.16f, size);
-        }
     }
-
 }

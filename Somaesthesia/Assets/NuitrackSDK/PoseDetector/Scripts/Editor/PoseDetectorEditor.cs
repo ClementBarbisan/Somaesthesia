@@ -232,7 +232,7 @@ namespace NuitrackSDKEditor.Poses
                     }
                     else
                     {
-                        UserData user = NuitrackManager.Users.Current;
+                        UserData user = NuitrackManager.sensorsData[0].Users.Current;
 
                         bool disable = user == null || user.Skeleton == null;
 
@@ -258,7 +258,7 @@ namespace NuitrackSDKEditor.Poses
                         if (rgbCache == null)
                             rgbCache = new TextureCache();
 
-                        rgbTexture = NuitrackManager.ColorFrame.ToRenderTexture(rgbCache);
+                        rgbTexture = NuitrackManager.sensorsData[0].ColorFrame.ToRenderTexture(rgbCache);
 
                         NuitrackSDKGUI.DrawFrame(rgbTexture, "RGB Preview");
                     }

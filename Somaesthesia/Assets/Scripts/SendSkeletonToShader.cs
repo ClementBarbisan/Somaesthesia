@@ -274,7 +274,7 @@ public class SendSkeletonToShader : MonoBehaviour
             for (int i = 0; i < _data.ValIA.Length; i++)
             {
                 if (_data.ValIA[i] > max && (_labelsPos.Contains(_data.TextIA[i]) && _data.ValIA[i] > 60f) || 
-                    (_labelsNeg.Contains(_data.TextIA[i]) && _data.ValIA[i] > 50f))
+                    (_labelsNeg.Contains(_data.TextIA[i]) && _data.ValIA[i] > 40f))
                 {
                     index = i;
                     max = _data.ValIA[i];

@@ -219,7 +219,7 @@ namespace NuitrackSDKEditor.Wizards
             DrawHeader("A difficult case");
             DrawMessage(
                 "1. Look <color=red>troubleshooting page</color>\n" +
-                "2. If nothing help, сontact support or ask for advice from the community\n" +
+                "2. If nothing help, contact support or ask for advice from the community\n" +
                 "Provide as much <color=red>information</color> as possible about your hardware and describe the problem in detail (if needed <color=red>attach editor or player log</color>).\n" +
                 "If this is your own project then do not forget to <color=red>attach it or a minimally reproducible example</color>" +
                 "(upload to a file sharing site with access by link)");

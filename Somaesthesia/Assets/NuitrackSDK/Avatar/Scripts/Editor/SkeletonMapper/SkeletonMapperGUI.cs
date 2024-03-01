@@ -62,7 +62,7 @@ namespace NuitrackSDKEditor.Avatar
             pos.Scale(new Vector2(mainRect.width * 0.5f, -mainRect.height * 0.5f));
             pos += mainRect.center;
 
-            Rect jointRect = SkeletonStyles.Dot.DrawСentered(pos, optionalJoints.Contains(guiJoint.JointType), filled, selected);
+            Rect jointRect = SkeletonStyles.Dot.DrawCentered(pos, optionalJoints.Contains(guiJoint.JointType), filled, selected);
             return jointRect;
         }
 

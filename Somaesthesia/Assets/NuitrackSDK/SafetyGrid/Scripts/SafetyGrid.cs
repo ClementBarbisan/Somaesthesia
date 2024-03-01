@@ -29,7 +29,7 @@ namespace NuitrackSDK.SafetyGrid
             float angle = fov / 2;
 
             if (autoAdjustingFOV)
-                angle = NuitrackManager.DepthSensor.GetOutputMode().HFOV * Mathf.Rad2Deg / 2;
+                angle = NuitrackManager.sensorsData[0].DepthSensor.GetOutputMode().HFOV * Mathf.Rad2Deg / 2;
 
             //Set front transforms
             frontGrid.transform.localPosition = new Vector3(frontGrid.transform.localPosition.x, frontGrid.transform.localPosition.y, warningDistance);
@@ -98,7 +98,7 @@ namespace NuitrackSDK.SafetyGrid
 
         private void Update()
         {
-            UserData userData = NuitrackManager.Users.Current;
+            UserData userData = NuitrackManager.sensorsData[0].Users.Current;
             if (userData != null && userData.Skeleton != null)
                 CheckSkeletonPositions(userData.Skeleton);
         }

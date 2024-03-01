@@ -31,7 +31,7 @@ Namespace: NuitrackSDKEditor.Avatar
 	and a lot of GUI components to facilitate development.
 
 
-Editor сlass structure
+Editor class structure
 
 	* NuitrackSDKEditor (abstract class)
 		Base type from which to inherit inspectors for NuitrackSDK (hides all attributes marked as NuitrackSDKInspector)

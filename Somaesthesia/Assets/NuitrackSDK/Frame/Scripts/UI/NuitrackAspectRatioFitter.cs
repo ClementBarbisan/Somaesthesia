@@ -7,6 +7,8 @@ namespace NuitrackSDK.Frame
     [AddComponentMenu("NuitrackSDK/Frame/UI/Nuitrack Aspect Ratio Fitter")]
     public class NuitrackAspectRatioFitter : AspectRatioFitter
     {
+        public int sensorId;
+
         public enum FrameMode
         {
             Color = 0,
@@ -28,45 +30,36 @@ namespace NuitrackSDK.Frame
             }
         }
 
-        protected override void OnEnable()
+        protected override void Update()
         {
-            base.OnEnable();
+            base.Update();
+
+            if (!NuitrackManager.Instance.NuitrackInitialized)
+                return;
 
             switch (frameMode)
             {
                 case FrameMode.Color:
-                    NuitrackManager.onColorUpdate += NuitrackManager_onFrameUpdate;
+                    NuitrackManager_onFrameUpdate(NuitrackManager.sensorsData[sensorId].ColorFrame);
                     break;
                 case FrameMode.Depth:
-                    NuitrackManager.onDepthUpdate += NuitrackManager_onFrameUpdate;
+                    NuitrackManager_onFrameUpdate(NuitrackManager.sensorsData[sensorId].DepthFrame);
                     break;
                 case FrameMode.Segment:
-                    NuitrackManager.onUserTrackerUpdate += NuitrackManager_onFrameUpdate;
-                    break;
-            }
-        }
-
-        protected override void OnDisable()
-        {
-            base.OnDisable();
-
-            switch (frameMode)
-            {
-                case FrameMode.Color:
-                    NuitrackManager.onColorUpdate -= NuitrackManager_onFrameUpdate;
-                    break;
-                case FrameMode.Depth:
-                    NuitrackManager.onDepthUpdate -= NuitrackManager_onFrameUpdate;
-                    break;
-                case FrameMode.Segment:
-                    NuitrackManager.onUserTrackerUpdate -= NuitrackManager_onFrameUpdate;
+                    NuitrackManager_onFrameUpdate(NuitrackManager.sensorsData[sensorId].UserFrame);
                     break;
             }
         }
 
         void NuitrackManager_onFrameUpdate<T>(nuitrack.Frame<T> frame) where T : struct
         {
-            float frameAspectRatio = (float)frame.Cols / frame.Rows;
+            if (frame != null)
+                SetAspectRatio(frame.Cols, frame.Rows);
+        }
+
+        public void SetAspectRatio(int width, int height)
+        {
+            float frameAspectRatio = (float)width / height;
             aspectRatio = frameAspectRatio;
         }
     }
