@@ -175,6 +175,7 @@ public class SendSkeletonToShader : MonoBehaviour
     void Start()
     {
         _mainCamera = Camera.main;
+        Cursor.visible = false;
         // _texClear = new Texture2D(Screen.width, Screen.height);
         // for (int i = 0; i < _texClear.width; i++)
         // {
