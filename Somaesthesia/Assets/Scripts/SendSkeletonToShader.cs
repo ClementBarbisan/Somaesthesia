@@ -156,6 +156,7 @@ public class SendSkeletonToShader : MonoBehaviour
     private AudioSource audioSourceFirst;
 
     [SerializeField] private AudioSource audioSourceSecond;
+    [SerializeField] private AudioSource audioSourceStandBy;
     [SerializeField] private float _maxIntensity = 10;
     [SerializeField] private float _maxRand = 2.5f;
     [SerializeField] private float _speedAlpha = 3;
@@ -198,11 +199,12 @@ public class SendSkeletonToShader : MonoBehaviour
         // {
         //     listZero.Add(Vector4.zero);
         // }
-
-        audioSourceFirst.volume = 0.5f;
+        audioSourceStandBy.volume = 1f;
+        audioSourceFirst.volume = 0f;
         audioSourceSecond.volume = 0f;
         audioSourceFirst.Play();
         audioSourceSecond.Play();
+        audioSourceStandBy.Play();
         PointCloud.Instance.contours.SetVector("_CamPos", _cam.transform.position);
     }
 
@@ -262,8 +264,9 @@ public class SendSkeletonToShader : MonoBehaviour
             //     _bufferMove.SetData(listZero, 0, 0, maxMove);
             // }
             sizeSkeleton = 0;
-            audioSourceFirst.volume = 0.5f;
+            audioSourceFirst.volume = 0f;
             audioSourceSecond.volume = 0f;
+            audioSourceStandBy.volume = 1f;
             // character.SetActive(false);
             return;
         }
@@ -358,6 +361,7 @@ public class SendSkeletonToShader : MonoBehaviour
         }
         audioSourceFirst.volume = Mathf.Clamp(0.5f - Mathf.Pow(sizeSkeleton + 1, 1.2f) / maxSkeleton, 0, 0.5f);
         audioSourceSecond.volume = Mathf.Clamp(Mathf.Pow(sizeSkeleton + 1, 1.25f) / maxSkeleton, 0, 1f);
+        audioSourceStandBy.volume = 0f;
 
         // if (_data.MoveDone)
         // {
