@@ -263,7 +263,7 @@ public class SendSkeletonToShader : MonoBehaviour
             // {
             //     _bufferMove.SetData(listZero, 0, 0, maxMove);
             // }
-            sizeSkeleton = 0;
+            sizeSkeleton -= Time.deltaTime * (1 / _speed) * maxSkeleton;
             audioSourceFirst.volume = 0f;
             audioSourceSecond.volume = 0f;
             audioSourceStandBy.volume = 1f;
@@ -277,7 +277,7 @@ public class SendSkeletonToShader : MonoBehaviour
             float max = 0;
             for (int i = 0; i < _data.ValIA.Length; i++)
             {
-                if (_data.ValIA[i] > max && (_labelsPos.Contains(_data.TextIA[i]) && _data.ValIA[i] > 50f) || 
+                if (_data.ValIA[i] > max && (_labelsPos.Contains(_data.TextIA[i]) && _data.ValIA[i] > 40f) || 
                     (_labelsNeg.Contains(_data.TextIA[i]) && _data.ValIA[i] > 35f))
                 {
                     index = i;

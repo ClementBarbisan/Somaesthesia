@@ -82,10 +82,10 @@ MonoBehaviour:
   categories: []
   uiBounds:
     serializedVersion: 2
-    x: -362
-    y: -343
-    width: 2256
-    height: 2873
+    x: -363
+    y: -342
+    width: 2257
+    height: 2875
 --- !u!114 &114350483966674976
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -10219,7 +10219,7 @@ MonoBehaviour:
       m_Type:
         m_SerializableType: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
           PublicKeyToken=b77a5c561934e089
-      m_SerializableObject: 1
+      m_SerializableObject: 1.25
     m_Space: 2147483647
   m_Property:
     name: right
