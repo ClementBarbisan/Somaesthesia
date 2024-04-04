@@ -52,11 +52,10 @@ public class ReceiveLabelsValue : MonoBehaviour
         client = listener.AcceptTcpClient();
 
         running = true;
-        while (running && client.Connected)
+        while (running && client.Connected && !quit)
         {
             SendAndReceiveData();
         }
-        listener.Stop();
     }
 
     void OnApplicationQuit()
