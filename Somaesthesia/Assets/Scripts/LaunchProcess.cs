@@ -17,7 +17,6 @@ public class LaunchProcess : MonoBehaviour
     [SerializeField] private string _nameProcess = "tanet_imagenet-pretrained-r50_8xb8-dense-1x1x8-100e_kinetics400-rgb";
     [SerializeField] private string _nameLabels = "label_map_k400";
     [SerializeField] private bool image;
-    [SerializeField] private ReceiveLabelsValue receiver;
     void OnEnable()
     {
         windowUnity = (IntPtr) GetActiveWindow();
@@ -45,7 +44,6 @@ public class LaunchProcess : MonoBehaviour
     private void Start()
     {
         SetForegroundWindow(windowUnity);
-        receiver.enabled = true;
     }
 
     // Update is called once per frame

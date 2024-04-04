@@ -32,6 +32,7 @@ public class ReceiveLabelsValue : MonoBehaviour
     public bool MoveDone = false;
     private int _textIndex = 0;
     private int _valIndex = 0;
+    [SerializeField]private LaunchProcess _clientTcp;
     private void Start()
     {
         for (int i = 0; i < Display.displays.Length; i++)
@@ -48,6 +49,7 @@ public class ReceiveLabelsValue : MonoBehaviour
         localAdd = IPAddress.Parse(connectionIP);
         listener = new TcpListener(localAdd, connectionPort);
         listener.Start();
+        _clientTcp.enabled = true;
         client = listener.AcceptTcpClient();
         while (!client.Connected)
         {
