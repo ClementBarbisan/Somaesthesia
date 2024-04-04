@@ -46,13 +46,12 @@ public class ReceiveLabelsValue : MonoBehaviour
     void GetInfo()
     {
         localAdd = IPAddress.Parse(connectionIP);
-        listener = new TcpListener(IPAddress.Any, connectionPort);
+        listener = new TcpListener(localAdd, connectionPort);
         listener.Start();
-
         client = listener.AcceptTcpClient();
-
+        
         running = true;
-        while (running && client.Connected && !quit)
+        while (running && client.Connected)
         {
             SendAndReceiveData();
         }
