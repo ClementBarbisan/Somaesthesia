@@ -266,7 +266,7 @@ public class SendSkeletonToShader : MonoBehaviour
             // {
             //     _bufferMove.SetData(listZero, 0, 0, maxMove);
             // }
-            sizeSkeleton -= Time.deltaTime * (1 / _speed) * maxSkeleton;
+            sizeSkeleton = Mathf.Clamp(sizeSkeleton - Time.deltaTime * (1 / _speed) * maxSkeleton, 0, maxSkeleton);
             _audioSourceFirst.volume = 0f;
             _audioSourceSecond.volume = 0f;
             _audioSourceStandBy.volume = 1f;
