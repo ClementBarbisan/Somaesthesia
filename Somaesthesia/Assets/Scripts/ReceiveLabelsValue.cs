@@ -49,7 +49,10 @@ public class ReceiveLabelsValue : MonoBehaviour
         listener = new TcpListener(localAdd, connectionPort);
         listener.Start();
         client = listener.AcceptTcpClient();
-        
+        while (!client.Connected)
+        {
+            
+        }
         running = true;
         while (running && client.Connected)
         {
