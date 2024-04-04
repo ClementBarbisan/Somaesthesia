@@ -42,6 +42,7 @@ public class ReceiveLabelsValue : MonoBehaviour
         ThreadStart ts = new ThreadStart(GetInfo);
         mThread = new Thread(ts);
         mThread.Start();
+        _clientTcp.enabled = true;
     }
 
     void GetInfo()
@@ -49,7 +50,6 @@ public class ReceiveLabelsValue : MonoBehaviour
         localAdd = IPAddress.Parse(connectionIP);
         listener = new TcpListener(localAdd, connectionPort);
         listener.Start();
-        _clientTcp.enabled = true;
         client = listener.AcceptTcpClient();
         while (!client.Connected)
         {
