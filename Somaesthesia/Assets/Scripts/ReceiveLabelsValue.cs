@@ -59,7 +59,7 @@ public class ReceiveLabelsValue : MonoBehaviour
         listener.Stop();
     }
 
-    void OnDestroy()
+    void OnApplicationQuit()
     {
         listener?.Stop();
         client?.Close();
@@ -141,7 +141,10 @@ public class ReceiveLabelsValue : MonoBehaviour
 
     private void Update()
     {
-
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            quit = true;
+        }
         if (quit)
         {
             Application.Quit();

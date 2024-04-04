@@ -11,6 +11,7 @@ using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Serialization;
+using UnityEngine.VFX;
 using Joint = nuitrack.Joint;
 using Random = UnityEngine.Random;
 using Vector3 = UnityEngine.Vector3;
@@ -139,8 +140,8 @@ public class SendSkeletonToShader : MonoBehaviour
     private int _id = -1;
     private Camera _cam;
     // [SerializeField] private int maxMove = 15;
-    [SerializeField] public float sizeSkeleton = 0.25f;
-    [SerializeField] public float maxSkeleton = 15;
+    public float sizeSkeleton = 0.25f;
+    public float maxSkeleton = 15;
     // private RenderTexture tmpTex = null;
 
     [SerializeField] private float _speed = 5f;
@@ -152,15 +153,15 @@ public class SendSkeletonToShader : MonoBehaviour
     private List<TextMeshProUGUI> _listTexts = new List<TextMeshProUGUI>();
 
     // private int _currentFrame = 0;
-    [FormerlySerializedAs("audioSource")] [SerializeField]
-    private AudioSource audioSourceFirst;
+    [FormerlySerializedAs("audioSourceFirst")] [FormerlySerializedAs("audioSource")] [SerializeField]
+    private AudioSource _audioSourceFirst;
 
-    [SerializeField] private AudioSource audioSourceSecond;
-    [SerializeField] private AudioSource audioSourceStandBy;
+    [FormerlySerializedAs("audioSourceSecond")] [SerializeField] private AudioSource _audioSourceSecond;
+    [FormerlySerializedAs("audioSourceStandBy")] [SerializeField] private AudioSource _audioSourceStandBy;
     [SerializeField] private float _maxIntensity = 10;
     [SerializeField] private float _maxRand = 2.5f;
     [SerializeField] private float _speedAlpha = 3;
-    [SerializeField] private bool debug;
+    [FormerlySerializedAs("debug")] [SerializeField] private bool _debug;
     [SerializeField] private Labels _labelsPos;
     [SerializeField] private Labels _labelsNeg;
     // private Texture2D _texClear;
@@ -168,6 +169,8 @@ public class SendSkeletonToShader : MonoBehaviour
     // [SerializeField] private Material _matClear;
 
     private Camera _mainCamera;
+
+    [SerializeField] private VisualEffect _cubes;
     // [SerializeField] private List<string> _positiveLabels;
     //
     // [SerializeField] private List<string> _negativeLabels;
@@ -199,12 +202,12 @@ public class SendSkeletonToShader : MonoBehaviour
         // {
         //     listZero.Add(Vector4.zero);
         // }
-        audioSourceStandBy.volume = 1f;
-        audioSourceFirst.volume = 0f;
-        audioSourceSecond.volume = 0f;
-        audioSourceFirst.Play();
-        audioSourceSecond.Play();
-        audioSourceStandBy.Play();
+        _audioSourceStandBy.volume = 1f;
+        _audioSourceFirst.volume = 0f;
+        _audioSourceSecond.volume = 0f;
+        _audioSourceFirst.Play();
+        _audioSourceSecond.Play();
+        _audioSourceStandBy.Play();
         PointCloud.Instance.contours.SetVector("_CamPos", _cam.transform.position);
     }
 
@@ -257,16 +260,17 @@ public class SendSkeletonToShader : MonoBehaviour
         PointCloud.Instance.vfx.SetFloat(Shader.PropertyToID("RandLive"),0.5f + sizeSkeleton / maxSkeleton * _maxRand);
         PointCloud.Instance.vfx.SetFloat(Shader.PropertyToID("Alpha"),sizeSkeleton / maxSkeleton * _speedAlpha);
         Shader.SetGlobalFloat("_SkeletonSize", sizeSkeleton);
-        if (_id == -1 && !debug)
+        if (_id == -1 && !_debug)
         {
             // if (_bufferMove != null)
             // {
             //     _bufferMove.SetData(listZero, 0, 0, maxMove);
             // }
             sizeSkeleton -= Time.deltaTime * (1 / _speed) * maxSkeleton;
-            audioSourceFirst.volume = 0f;
-            audioSourceSecond.volume = 0f;
-            audioSourceStandBy.volume = 1f;
+            _audioSourceFirst.volume = 0f;
+            _audioSourceSecond.volume = 0f;
+            _audioSourceStandBy.volume = 1f;
+            _cubes.enabled = false;
             // character.SetActive(false);
             return;
         }
@@ -359,9 +363,10 @@ public class SendSkeletonToShader : MonoBehaviour
 
             _data.ResultsDone = false;
         }
-        audioSourceFirst.volume = Mathf.Clamp(0.5f - Mathf.Pow(sizeSkeleton + 1, 1.2f) / maxSkeleton, 0, 0.5f);
-        audioSourceSecond.volume = Mathf.Clamp(Mathf.Pow(sizeSkeleton + 1, 1.25f) / maxSkeleton, 0, 1f);
-        audioSourceStandBy.volume = 0f;
+        _audioSourceFirst.volume = Mathf.Clamp(0.5f - Mathf.Pow(sizeSkeleton + 1, 1.2f) / maxSkeleton, 0, 0.5f);
+        _audioSourceSecond.volume = Mathf.Clamp(Mathf.Pow(sizeSkeleton + 1, 1.25f) / maxSkeleton, 0, 1f);
+        _audioSourceStandBy.volume = 0f;
+        _cubes.enabled = true;
 
         // if (_data.MoveDone)
         // {
@@ -370,23 +375,7 @@ public class SendSkeletonToShader : MonoBehaviour
 
     }
 
-    // private void OnAudioFilterRead(float[] data, int channels)
-    // {
-    //     System.Random rng = new System.Random();
-    //     int dataLen = data.Length / channels;
-    //     float average = data.Sum() / (dataLen / 5);
-    //     int n = 0;
-    //     while (n < dataLen)
-    //     {
-    //         int i = 0;
-    //         while (i < channels)
-    //         {
-    //             data[n * channels + i] = average * (1 - sizeSkeleton/maxSkeleton) + data[n * channels + i] * (sizeSkeleton / maxSkeleton);
-    //             i++;
-    //         }
-    //         n++;
-    //     }
-    // }
+   
 
     // private void OnPreRenderCamera(ScriptableRenderContext scriptableRenderContext, Camera camera1)
     // {
