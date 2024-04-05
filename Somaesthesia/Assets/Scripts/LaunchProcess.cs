@@ -38,16 +38,13 @@ public class LaunchProcess : MonoBehaviour
         ThreadStart ths = new ThreadStart(() => pr.Start());
         Thread th = new Thread(ths);
         th.Start();
-
+        StartCoroutine(ForegroundWindow());
     }
 
-    private void Start()
+    private IEnumerator ForegroundWindow()
     {
+        yield return new WaitForSeconds(2f);
         SetForegroundWindow(windowUnity);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-    }
 }
