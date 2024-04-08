@@ -180,6 +180,10 @@ public class SendSkeletonToShader : MonoBehaviour
     {
         _mainCamera = Camera.main;
         Cursor.visible = false;
+        for (int i = 0; i < Display.displays.Length; i++)
+        {
+            Display.displays[i].Activate();
+        }
         // _texClear = new Texture2D(Screen.width, Screen.height);
         // for (int i = 0; i < _texClear.width; i++)
         // {
@@ -273,6 +277,17 @@ public class SendSkeletonToShader : MonoBehaviour
             _cubes.enabled = false;
             // character.SetActive(false);
             return;
+        }
+        if (_debug)
+        {
+            if (Input.GetKeyDown(KeyCode.UpArrow))
+            {
+                sizeSkeleton = Mathf.Clamp(1.0f + sizeSkeleton, 0, maxSkeleton);
+            }
+            else if (Input.GetKeyDown(KeyCode.DownArrow))
+            {
+                sizeSkeleton = Mathf.Clamp(-1.0f + sizeSkeleton, 0, maxSkeleton);
+            }
         }
         // character.SetActive(true);
         if (_data.ResultsDone)

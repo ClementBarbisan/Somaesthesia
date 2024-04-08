@@ -35,10 +35,7 @@ public class ReceiveLabelsValue : MonoBehaviour
     [SerializeField]private LaunchProcess _clientTcp;
     private void Start()
     {
-        for (int i = 0; i < Display.displays.Length; i++)
-        {
-            Display.displays[i].Activate();
-        }
+       
         ThreadStart ts = new ThreadStart(GetInfo);
         mThread = new Thread(ts);
         mThread.Start();
