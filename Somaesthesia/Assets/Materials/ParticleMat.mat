@@ -43,7 +43,7 @@ Material:
     - _Hue: 0
     - _Offset: 20
     - _Radius: 10
-    - _RadiusParticles: 0.2
+    - _RadiusParticles: 0.05
     - _Rotation: 10
     - _Sat: 0.5
     - _Size: 0.25

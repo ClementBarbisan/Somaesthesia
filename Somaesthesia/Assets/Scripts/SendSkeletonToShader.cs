@@ -416,6 +416,8 @@ public class SendSkeletonToShader : MonoBehaviour
         {
             PointCloud.Instance.contours.SetPass(1);
             Graphics.DrawProceduralNow(MeshTopology.Points, 1, 18);
+            PointCloud.Instance.contours.SetPass(5);
+            Graphics.DrawProceduralNow(MeshTopology.Points, 1, 18);
         }
     }
 

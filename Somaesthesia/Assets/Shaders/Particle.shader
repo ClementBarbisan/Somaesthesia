@@ -958,6 +958,123 @@ Shader "Particle"
             }
             ENDCG
         }
+          Pass
+        {
+            Tags
+            {
+                "Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Transparent"
+            }
+            ZWrite Off
+            Blend SrcAlpha OneMinusSrcAlpha
+            Cull back
+            LOD 100
+            CGPROGRAM
+            #pragma target 4.6
+
+            #pragma vertex vert
+            #pragma geometry geom
+            #pragma fragment frag multi_compile_instancing
+            #include "Packages/jp.keijiro.noiseshader/Shader/Common.hlsl"
+            #include "Packages/jp.keijiro.noiseshader/Shader/ClassicNoise3D.hlsl"
+            #include "UnityCG.cginc"
+
+            // Pixel shader input
+           struct PS_INPUT
+            {
+                float4 position : SV_POSITION;
+                uint instance : SV_InstanceID;
+                float2 uv : TEXCOORD1;
+            };
+
+            // Particle's data, shared with the compute shader
+            Buffer<float> particleBuffer;
+            Buffer<int> segmentBuffer;
+            RWBuffer<float3> oldParticles;
+            #ifdef SHADER_API_D3D11
+            struct Joints
+            {
+                float3 Pos;
+                float3x3 Matrice;
+                float Size;
+            };
+
+            StructuredBuffer<Joints> _Skeleton;
+            #endif
+            float _SkeletonSize;
+
+            // Properties variables
+            uniform int _Width;
+            uniform int _Height;
+            uniform float3 _CamPos;
+            uniform float _Rotation;
+            float _Radius;
+            float _RadiusParticles;
+            uint _MaxFrame;
+            int _CurrentFrame;
+
+            float rand(in float2 uv)
+            {
+                float2 noise = (frac(sin(dot(uv, float2(12.9898, 78.233) * 2.0)) * 43758.5453));
+                return abs(noise.x + noise.y) * 0.5;
+            }
+
+             PS_INPUT vert(uint instance_id : SV_instanceID)
+            {
+                PS_INPUT o;
+                // Position
+                o.position = float4(_Skeleton[instance_id].Pos, 1.0);
+                o.instance = int(instance_id);
+                return o;
+            }
+            
+             [maxvertexcount(4)]
+            void geom(point PS_INPUT p[1], inout TriangleStream<PS_INPUT> triStream)
+            {
+                PS_INPUT o;
+                o.instance = p[0].instance;
+                float4 position = float4(p[0].position.x, p[0].position.y, p[0].position.z, p[0].position.w);
+                float size = _RadiusParticles;
+                float3 up = float3(0, 1, 0);
+                float3 look = _WorldSpaceCameraPos - p[0].position;
+                look.y = 0;
+                look = normalize(look);
+                float3 right = cross(up, look);
+                float halfS = 0.5f * size;
+                float4 v[4];
+                v[0] = float4(position + halfS * right - halfS * up, 1.0f);
+                v[1] = float4(position + halfS * right + halfS * up, 1.0f);
+                v[2] = float4(position - halfS * right - halfS * up, 1.0f);
+                v[3] = float4(position - halfS * right + halfS * up, 1.0f);
+
+                o.position = UnityObjectToClipPos(v[0]);
+                o.uv = float2(1.0f, 0.0f);
+                triStream.Append(o);
+
+                o.position = UnityObjectToClipPos(v[1]);
+                o.uv = float2(1.0f, 1.0f);
+                triStream.Append(o);
+
+                o.position = UnityObjectToClipPos(v[2]);
+                o.uv = float2(0.0f, 0.0f);
+                triStream.Append(o);
+
+                o.position = UnityObjectToClipPos(v[3]);
+                o.uv = float2(0.0f, 1.0f);
+                triStream.Append(o);
+            }
+            
+
+            float4 frag(PS_INPUT i) : COLOR
+            {
+                float w = 1.0 - _SkeletonSize / 3.5;
+                if (w < 0.01)
+                {
+                    discard;
+                }
+                return (float4(1.0, 1.0, 1.0, w));
+            }
+            ENDCG
+        }
     }
     Fallback Off
 }
