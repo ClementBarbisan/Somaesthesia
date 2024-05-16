@@ -278,6 +278,7 @@ MonoBehaviour:
     - label: EgyptStuff
       values:
       - En-visage
+      - Portrait
     - label: FootGap
       values:
       - A l'abri
