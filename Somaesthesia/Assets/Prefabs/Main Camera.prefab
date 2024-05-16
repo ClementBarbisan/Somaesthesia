@@ -227,7 +227,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1747908123025351741}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 32995140fc2c9ff4e8240900c737f0fb, type: 3}
   m_Name: 
@@ -239,6 +239,7 @@ MonoBehaviour:
   PointMove: []
   ResultsDone: 0
   MoveDone: 0
+  _clientTcp: {fileID: 0}
 --- !u!114 &8856458976692794028
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -269,33 +270,39 @@ MonoBehaviour:
     - label: GlitchMacarena
       values:
       - Sculptural
+      - Fleur de pierre
     - label: GlitchRobot
       values:
       - Disparition
+      - S'effacer
     - label: EgyptStuff
       values:
       - En-visage
     - label: FootGap
       values:
       - A l'abri
+      - Intime
     - label: GlitchFloorSemi
       values:
       - "R\xE9v\xE9rence"
+      - Pantin
     - label: GlitchInclination
       values:
       - Esquive
     - label: GlitchLimbo
       values:
       - Fleur de peau
+      - Effleurement
     - label: GlitchTwist
       values:
       - Grimace
     - label: RearCurve
       values:
       - A la renverse
+      - De profil
     - label: TopArmStraight
       values:
-      - Atteignable
+      - Rayonnement
     - label: Tortion
       values:
       - Tortueux
@@ -308,6 +315,7 @@ MonoBehaviour:
     - label: GlitchFloorMax
       values:
       - Extraction
+      - Atteignable
   _labelsNeg:
     labels:
     - label: ArmsUp
@@ -337,6 +345,7 @@ MonoBehaviour:
     - label: HandSide
       values:
       - "M\xE9ditation"
+  _cubes: {fileID: 0}
 --- !u!81 &1611345788520811802
 AudioListener:
   m_ObjectHideFlags: 0

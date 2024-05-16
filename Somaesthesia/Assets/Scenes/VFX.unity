@@ -1075,84 +1075,9 @@ PrefabInstance:
       objectReference: {fileID: 1027184229}
     - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
         type: 3}
-      propertyPath: _speed
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
       propertyPath: _parentCanvas
       value: 
       objectReference: {fileID: 1228864641}
-    - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: _labelsPos.labels.Array.data[1].values.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: _labelsPos.labels.Array.data[3].values.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: _labelsPos.labels.Array.data[4].values.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: _labelsPos.labels.Array.data[6].values.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: _labelsPos.labels.Array.data[8].values.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: _labelsPos.labels.Array.data[13].values.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: _labelsPos.labels.Array.data[1].values.Array.data[1]
-      value: S'effacer
-      objectReference: {fileID: 0}
-    - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: _labelsPos.labels.Array.data[3].values.Array.data[1]
-      value: Intime
-      objectReference: {fileID: 0}
-    - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: _labelsPos.labels.Array.data[4].values.Array.data[1]
-      value: Pantin
-      objectReference: {fileID: 0}
-    - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: _labelsPos.labels.Array.data[6].values.Array.data[1]
-      value: Effleurement
-      objectReference: {fileID: 0}
-    - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: _labelsPos.labels.Array.data[8].values.Array.data[1]
-      value: De profil
-      objectReference: {fileID: 0}
-    - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: _labelsPos.labels.Array.data[9].values.Array.data[0]
-      value: Rayonnement
-      objectReference: {fileID: 0}
-    - target: {fileID: 8856458976692794028, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: _labelsPos.labels.Array.data[13].values.Array.data[1]
-      value: Atteignable
-      objectReference: {fileID: 0}
-    - target: {fileID: 9097640466859224665, guid: 31cd8f133813f864a9ee86e9c019aa7e,
-        type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 9097640466859224665, guid: 31cd8f133813f864a9ee86e9c019aa7e,
         type: 3}
       propertyPath: _clientTcp
@@ -1269,7 +1194,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76ecc365765f39c41a2d47b82c37402e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _nameProcess: faille_04042023
+  _nameProcess: faille_bellegarde
   _nameLabels: label_faille
   image: 0
 --- !u!1 &2110555741
