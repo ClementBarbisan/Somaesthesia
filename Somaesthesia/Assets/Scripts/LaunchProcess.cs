@@ -24,11 +24,6 @@ public class LaunchProcess : MonoBehaviour
         XmlDocument doc = new XmlDocument();
         doc.Load(Application.streamingAssetsPath + "\\" + _nameFile);
         XmlNode node = doc.FirstChild;
-        if (node == null)
-        {
-            Debug.Log("node null");
-        }
-        Debug.Log(node.InnerXml);
         _nameProcess = node.SelectSingleNode("model").InnerText;
         _nameLabels = node.SelectSingleNode("labels").InnerText;
         windowUnity = (IntPtr) GetActiveWindow();
