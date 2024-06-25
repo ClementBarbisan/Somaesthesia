@@ -195,8 +195,6 @@ public class SendSkeletonToShader : MonoBehaviour
         //     }
         // }
 
-        // RenderPipelineManager.beginCameraRendering += OnPreRenderCamera;
-        RenderPipelineManager.endCameraRendering += OnRenderCamera;
         jointsList = new Joints[_jointsInfo.Length];
         _data = GetComponent<ReceiveLabelsValue>();
         _rectTr = _parentCanvas.GetComponent<RectTransform>();
@@ -216,12 +214,7 @@ public class SendSkeletonToShader : MonoBehaviour
         _audioSourceStandBy.Play();
         PointCloud.Instance.contours.SetVector("_CamPos", _cam.transform.position);
     }
-
-    private void OnDisable()
-    {
-        // RenderPipelineManager.beginCameraRendering -= OnPreRenderCamera;
-        RenderPipelineManager.endCameraRendering -= OnRenderCamera;
-    }
+    
 
     private void UserTrackerOnOnUpdateEvent(UserFrame frame)
     {
@@ -412,9 +405,10 @@ public class SendSkeletonToShader : MonoBehaviour
         // CommandBufferPool.Release(cmd);
     // }
 
-    private void OnRenderCamera(ScriptableRenderContext scriptableRenderContext, Camera camera1)
+
+    private void OnRenderObject()
     {
-        if (_id != -1 && SkeletonPresent && camera1 == _mainCamera)
+        if (_id != -1 && SkeletonPresent)
         {
             PointCloud.Instance.contours.SetPass(1);
             Graphics.DrawProceduralNow(MeshTopology.Points, 1, 18);
@@ -460,7 +454,7 @@ public class SendSkeletonToShader : MonoBehaviour
                 matrice.c2 = new float3(joint.Orient.Matrix[6], joint.Orient.Matrix[7], joint.Orient.Matrix[8]);
                 newJoint.Matrice = math.inverse(matrice);
                 newJoint.Pos = joint.Real.ToVector3();
-                if (newJoint.Pos == Vector3.zero)
+                if (Vector3.Distance(newJoint.Pos, Vector3.zero) < Single.Epsilon)
                 {
                     nbZero++;
                 }

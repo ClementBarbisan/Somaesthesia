@@ -47,7 +47,6 @@ public class PointCloud : MonoBehaviour
     {
         _mainCamera = Camera.main;
         vfx = GetComponent<VisualEffect>();
-        RenderPipelineManager.endCameraRendering += OnRenderCamera;
         NuitrackManager.DepthSensor.OnUpdateEvent += HandleOnDepthSensorUpdateEvent;
         NuitrackManager.ColorSensor.OnUpdateEvent += HandleOnColorSensorUpdateEvent;    
         NuitrackManager.onUserTrackerUpdate += ColorizeUser;
@@ -112,9 +111,9 @@ public class PointCloud : MonoBehaviour
         _color.Apply();
     }
 
-    private void OnRenderCamera(ScriptableRenderContext scriptableRenderContext, Camera camera1)
+    private void OnRenderObject()
     {
-        if (camera1 != _mainCamera || !SendSkeletonToShader.SkeletonPresent)
+        if (!SendSkeletonToShader.SkeletonPresent)
         {
             return;
         }
