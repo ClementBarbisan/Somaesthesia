@@ -463,10 +463,14 @@ public class SendSkeletonToShader : MonoBehaviour
                 if (newJoint.Pos == Vector3.zero)
                 {
                     nbZero++;
+                    newJoint.Size = 0;
+                }
+                else
+                {
+                    newJoint.Size = sizeSkeleton;
                 }
                 newJoint.Pos = new Vector3(posCam.x - newJoint.Pos.x / 450f, posCam.y + newJoint.Pos.y / 450f,
                     posCam.z - newJoint.Pos.z / 650f);
-                newJoint.Size = sizeSkeleton;
                 jointsList[i] = newJoint;
             }
 
@@ -483,6 +487,14 @@ public class SendSkeletonToShader : MonoBehaviour
         }
         else
         {
+            for (int i = 0; i < _jointsInfo.Length; i++)
+            {
+                Joints newJoint = new Joints();
+                newJoint.Pos = Vector3.zero;
+                newJoint.Size = 0;
+                jointsList[i] = newJoint;
+            }
+            _buffer.SetData(jointsList);
             _skeletonPresent = false;
         }
     }
