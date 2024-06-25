@@ -144,7 +144,7 @@ public class SendSkeletonToShader : MonoBehaviour
     public float maxSkeleton = 15;
     // private RenderTexture tmpTex = null;
 
-    [SerializeField] private float _speed = 5f;
+    [FormerlySerializedAs("_speed")] [SerializeField] private float _time = 5f;
     [SerializeField] private TextMeshProUGUI _prefabText;
     [SerializeField] private Canvas _parentCanvas;
 
@@ -301,11 +301,11 @@ public class SendSkeletonToShader : MonoBehaviour
 
             if (index != -1 && _labelsPos.Contains(_data.TextIA[index]))
             {
-                sizeSkeleton += Time.deltaTime * (1 / _speed) * maxSkeleton * Mathf.Clamp01(_data.ValIA[index] / 100);
+                sizeSkeleton += Time.deltaTime * (1 / _time) * maxSkeleton * Mathf.Clamp01(_data.ValIA[index] / 100);
             }
             else if (index != -1 && _labelsNeg.Contains(_data.TextIA[index]))
             {
-                sizeSkeleton -= Time.deltaTime * (1 / _speed) * maxSkeleton * 2 * Mathf.Clamp01(_data.ValIA[index] / 100);
+                sizeSkeleton -= Time.deltaTime * (1 / _time) * maxSkeleton * 2 * Mathf.Clamp01(_data.ValIA[index] / 100);
             }
             sizeSkeleton = Mathf.Clamp(sizeSkeleton, 0, maxSkeleton);
             // float val = Mathf.Clamp(90 - (_data.ValIA.Max() - _data.ValIA.Min()), 0, 90);
