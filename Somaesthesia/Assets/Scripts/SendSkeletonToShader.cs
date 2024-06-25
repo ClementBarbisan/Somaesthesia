@@ -171,6 +171,8 @@ public class SendSkeletonToShader : MonoBehaviour
     private Camera _mainCamera;
 
     [SerializeField] private VisualEffect _cubes;
+
+    private bool _skeletonPresent;
     // [SerializeField] private List<string> _positiveLabels;
     //
     // [SerializeField] private List<string> _negativeLabels;
@@ -264,7 +266,7 @@ public class SendSkeletonToShader : MonoBehaviour
         PointCloud.Instance.vfx.SetFloat(Shader.PropertyToID("RandLive"),0.5f + sizeSkeleton / maxSkeleton * _maxRand);
         PointCloud.Instance.vfx.SetFloat(Shader.PropertyToID("Alpha"),sizeSkeleton / maxSkeleton * _speedAlpha);
         Shader.SetGlobalFloat("_SkeletonSize", sizeSkeleton);
-        if (_id == -1 && !_debug)
+        if ((_id == -1 || !_skeletonPresent) && !_debug)
         {
             // if (_bufferMove != null)
             // {
@@ -447,6 +449,7 @@ public class SendSkeletonToShader : MonoBehaviour
         if (_skeleton != null)
         {
             Vector3 posCam = _cam.transform.position;
+            int nbZero = 0;
             for (int i = 0; i < _jointsInfo.Length; i++)
             {
                 Joints newJoint = new Joints();
@@ -457,14 +460,30 @@ public class SendSkeletonToShader : MonoBehaviour
                 matrice.c2 = new float3(joint.Orient.Matrix[6], joint.Orient.Matrix[7], joint.Orient.Matrix[8]);
                 newJoint.Matrice = math.inverse(matrice);
                 newJoint.Pos = joint.Real.ToVector3();
+                if (newJoint.Pos == Vector3.zero)
+                {
+                    nbZero++;
+                }
                 newJoint.Pos = new Vector3(posCam.x - newJoint.Pos.x / 450f, posCam.y + newJoint.Pos.y / 450f,
                     posCam.z - newJoint.Pos.z / 650f);
                 newJoint.Size = sizeSkeleton;
                 jointsList[i] = newJoint;
             }
 
+            if (nbZero == _jointsInfo.Length)
+            {
+                _skeletonPresent = false;
+            }
+            else
+            {
+                _skeletonPresent = true;
+            }
             _buffer.SetData(jointsList); //, 0, jointsList.Length * _currentFrame, jointsList.Length);
             // _currentFrame = (_currentFrame + 1) % PointCloudGPU.maxFrameDepth;
+        }
+        else
+        {
+            _skeletonPresent = false;
         }
     }
 }
