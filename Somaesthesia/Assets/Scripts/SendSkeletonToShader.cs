@@ -406,7 +406,7 @@ public class SendSkeletonToShader : MonoBehaviour
     // }
 
 
-    private void OnRenderObject()
+    private void OnPostRender()
     {
         if (_id != -1 && SkeletonPresent)
         {

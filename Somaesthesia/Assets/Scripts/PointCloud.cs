@@ -111,7 +111,7 @@ public class PointCloud : MonoBehaviour
         _color.Apply();
     }
 
-    private void OnRenderObject()
+    private void OnPostRender()
     {
         if (!SendSkeletonToShader.SkeletonPresent)
         {
