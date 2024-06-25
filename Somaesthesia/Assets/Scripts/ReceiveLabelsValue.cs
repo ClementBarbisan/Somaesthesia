@@ -74,11 +74,11 @@ public class ReceiveLabelsValue : MonoBehaviour
                 _results = false;
                 ResultsDone = true;
             }
-            // else
-            // {
-            //     _move = false;
-            //     MoveDone = true;
-            // }
+            else
+            {
+                _move = false;
+                MoveDone = true;
+            }
         }
         if (_results)
         {
@@ -101,23 +101,23 @@ public class ReceiveLabelsValue : MonoBehaviour
                 _textIndex++;
             }
         }
-        // if (_move)
-        // {
-        //     string[] values = dataReceived.Split(",");
-        //     PointMove.Add(new Vector4(float.Parse(values[0]), float.Parse(values[1]),
-        //         float.Parse(values[2]),float.Parse(values[3])));
-        // }
+        if (_move)
+        {
+            string[] values = dataReceived.Split(",");
+            PointMove.Add(new Vector4(float.Parse(values[0]), float.Parse(values[1]),
+                float.Parse(values[2]),float.Parse(values[3])));
+        }
         if (dataReceived == "results" && ResultsDone == false)
         {
             ValIA = null;
             TextIA = null;
             _results = true;
         }
-        // if (dataReceived == "contours" && MoveDone == false)
-        // {
-        //     PointMove.Clear();
-        //     _move = true;
-        // }
+        if (dataReceived == "contours" && MoveDone == false)
+        {
+            PointMove.Clear();
+            _move = true;
+        }
     }
 
     void SendAndReceiveData()
