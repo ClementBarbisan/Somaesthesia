@@ -254,7 +254,7 @@ public class SendSkeletonToShader : MonoBehaviour
     private void Update()
     {
         PointCloud.Instance.contours.SetInt("_Offset", Mathf.Clamp((int) (maxSkeleton
-            - sizeSkeleton) * 2, 2, (int) maxSkeleton * 2));
+            - Mathf.CeilToInt(sizeSkeleton)) * 2, 2, (int) maxSkeleton * 2));
         PointCloud.Instance.vfx.SetFloat(Shader.PropertyToID("FieldIntensity"), sizeSkeleton / maxSkeleton * _maxIntensity);
         PointCloud.Instance.vfx.SetFloat(Shader.PropertyToID("RandLive"),0.5f + sizeSkeleton / maxSkeleton * _maxRand);
         PointCloud.Instance.vfx.SetFloat(Shader.PropertyToID("Alpha"),sizeSkeleton / maxSkeleton * _speedAlpha);
