@@ -114,7 +114,7 @@ public class PointCloud : MonoBehaviour
 
     private void OnRenderCamera(ScriptableRenderContext scriptableRenderContext, Camera camera1)
     {
-        if (camera1 != _mainCamera)
+        if (camera1 != _mainCamera || !SendSkeletonToShader.SkeletonPresent)
         {
             return;
         }

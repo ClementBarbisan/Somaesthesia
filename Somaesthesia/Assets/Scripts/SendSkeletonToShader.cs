@@ -172,7 +172,7 @@ public class SendSkeletonToShader : MonoBehaviour
 
     [SerializeField] private VisualEffect _cubes;
 
-    private bool _skeletonPresent;
+    public static bool SkeletonPresent;
     // [SerializeField] private List<string> _positiveLabels;
     //
     // [SerializeField] private List<string> _negativeLabels;
@@ -266,7 +266,7 @@ public class SendSkeletonToShader : MonoBehaviour
         PointCloud.Instance.vfx.SetFloat(Shader.PropertyToID("RandLive"),0.5f + sizeSkeleton / maxSkeleton * _maxRand);
         PointCloud.Instance.vfx.SetFloat(Shader.PropertyToID("Alpha"),sizeSkeleton / maxSkeleton * _speedAlpha);
         Shader.SetGlobalFloat("_SkeletonSize", sizeSkeleton);
-        if ((_id == -1 || !_skeletonPresent) && !_debug)
+        if ((_id == -1 || !SkeletonPresent) && !_debug)
         {
             // if (_bufferMove != null)
             // {
@@ -414,7 +414,7 @@ public class SendSkeletonToShader : MonoBehaviour
 
     private void OnRenderCamera(ScriptableRenderContext scriptableRenderContext, Camera camera1)
     {
-        if (_id != -1 && camera1 == _mainCamera)
+        if (_id != -1 && SkeletonPresent && camera1 == _mainCamera)
         {
             PointCloud.Instance.contours.SetPass(1);
             Graphics.DrawProceduralNow(MeshTopology.Points, 1, 18);
@@ -463,12 +463,8 @@ public class SendSkeletonToShader : MonoBehaviour
                 if (newJoint.Pos == Vector3.zero)
                 {
                     nbZero++;
-                    newJoint.Size = 0;
                 }
-                else
-                {
-                    newJoint.Size = sizeSkeleton;
-                }
+                newJoint.Size = sizeSkeleton;
                 newJoint.Pos = new Vector3(posCam.x - newJoint.Pos.x / 450f, posCam.y + newJoint.Pos.y / 450f,
                     posCam.z - newJoint.Pos.z / 650f);
                 jointsList[i] = newJoint;
@@ -476,26 +472,19 @@ public class SendSkeletonToShader : MonoBehaviour
 
             if (nbZero == _jointsInfo.Length)
             {
-                _skeletonPresent = false;
+                SkeletonPresent = false;
             }
             else
             {
-                _skeletonPresent = true;
+                SkeletonPresent = true;
+                _buffer.SetData(jointsList);
             }
-            _buffer.SetData(jointsList); //, 0, jointsList.Length * _currentFrame, jointsList.Length);
+             //, 0, jointsList.Length * _currentFrame, jointsList.Length);
             // _currentFrame = (_currentFrame + 1) % PointCloudGPU.maxFrameDepth;
         }
         else
         {
-            for (int i = 0; i < _jointsInfo.Length; i++)
-            {
-                Joints newJoint = new Joints();
-                newJoint.Pos = Vector3.zero;
-                newJoint.Size = 0;
-                jointsList[i] = newJoint;
-            }
-            _buffer.SetData(jointsList);
-            _skeletonPresent = false;
+            SkeletonPresent = false;
         }
     }
 }
