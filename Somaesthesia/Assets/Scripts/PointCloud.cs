@@ -27,7 +27,7 @@ public class PointCloud : MonoBehaviour
     private GraphicsBuffer _segmentBuffer;
     private ComputeBuffer _segment;
     private ComputeBuffer _depth;
-    
+    private bool vfxStop;
     private int[] _outSegment;
     [FormerlySerializedAs("_contours")] [SerializeField] public Material contours;
     private Camera _mainCamera;
@@ -52,8 +52,26 @@ public class PointCloud : MonoBehaviour
         NuitrackManager.onUserTrackerUpdate += ColorizeUser;
     }
 
+    private void Update()
+    {
+        if (SendSkeletonToShader.SkeletonPresent && vfxStop)
+        {
+            vfxStop = false;
+            vfx.Play();
+        }
+        else if (!SendSkeletonToShader.SkeletonPresent && !vfxStop)
+        {
+            vfxStop = true;
+            vfx.Stop();
+        }
+    }
+
     private void ColorizeUser(UserFrame frame)
     {
+        if (!SendSkeletonToShader.SkeletonPresent)
+        {
+            return;
+        }
         if (_segmentBuffer == null)
         {
             _segmentBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, frame.Cols * frame.Rows, sizeof(int));
@@ -77,6 +95,10 @@ public class PointCloud : MonoBehaviour
 
     private void HandleOnDepthSensorUpdateEvent(DepthFrame frame)
     {
+        if (!SendSkeletonToShader.SkeletonPresent)
+        {
+            return;
+        }
         if (_depthBuffer == null)
         {
             _depthBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, frame.Cols * frame.Rows, sizeof(float));
@@ -102,6 +124,10 @@ public class PointCloud : MonoBehaviour
 
     private void HandleOnColorSensorUpdateEvent(ColorFrame frame)
     {
+        if (!SendSkeletonToShader.SkeletonPresent)
+        {
+            return;
+        }
         if (_color == null)
         {
             _color = new Texture2D(frame.Cols, frame.Rows, TextureFormat.RGB24, false);
