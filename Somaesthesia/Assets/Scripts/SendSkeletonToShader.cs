@@ -225,6 +225,7 @@ public class SendSkeletonToShader : MonoBehaviour
         else
         {
             _id = -1;
+            SkeletonPresent = false;
         }
     }
 
