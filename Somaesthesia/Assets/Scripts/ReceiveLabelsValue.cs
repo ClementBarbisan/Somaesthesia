@@ -13,9 +13,9 @@ public class ReceiveLabelsValue : MonoBehaviour
     Thread mThread;
     public string connectionIP = "127.0.0.1";
     public int connectionPort = 25001;
-    IPAddress localAdd;
-    TcpListener listener;
-    TcpClient client;
+    IPEndPoint localAdd;
+    // TcpListener listener;
+    UdpClient client;
     bool running;
     private bool quit;
     [HideInInspector]
@@ -44,16 +44,10 @@ public class ReceiveLabelsValue : MonoBehaviour
 
     void GetInfo()
     {
-        localAdd = IPAddress.Parse(connectionIP);
-        listener = new TcpListener(localAdd, connectionPort);
-        listener.Start();
-        client = listener.AcceptTcpClient();
-        while (!client.Connected)
-        {
-            
-        }
+        localAdd = new IPEndPoint(IPAddress.Any, connectionPort);
+        client = new UdpClient(connectionPort);
         running = true;
-        while (running && client.Connected)
+        while (running)
         {
             SendAndReceiveData();
         }
@@ -61,7 +55,7 @@ public class ReceiveLabelsValue : MonoBehaviour
 
     void OnApplicationQuit()
     {
-        listener?.Stop();
+        // listener?.Stop();
         client?.Close();
     }
 
@@ -124,12 +118,11 @@ public class ReceiveLabelsValue : MonoBehaviour
     {
         try
         {
-            NetworkStream nwStream = client.GetStream();
-            byte[] buffer = new byte[client.ReceiveBufferSize];
+            byte[] buffer = client.Receive(ref localAdd);
             //---receiving Data from the Host----
-            int bytesRead = nwStream.Read(buffer, 0, client.ReceiveBufferSize); //Getting data in Bytes from Python
-            string dataReceived = Encoding.UTF8.GetString(buffer, 0, bytesRead); //Converting byte data to string
-            nwStream.Write(Encoding.ASCII.GetBytes("Received"));
+            string dataReceived = Encoding.UTF8.GetString(buffer);
+            byte[] msg = Encoding.ASCII.GetBytes("Received");//Converting byte data to string
+            client.Send(msg, msg.Length, localAdd);
             // Debug.Log(dataReceived);
             ComputeStrings(dataReceived);
         }
