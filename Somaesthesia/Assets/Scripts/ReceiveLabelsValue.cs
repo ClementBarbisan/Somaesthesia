@@ -128,7 +128,8 @@ public class ReceiveLabelsValue : MonoBehaviour
             byte[] buffer = new byte[client.ReceiveBufferSize];
             //---receiving Data from the Host----
             int bytesRead = nwStream.Read(buffer, 0, client.ReceiveBufferSize); //Getting data in Bytes from Python
-            string dataReceived = Encoding.UTF8.GetString(buffer, 0, bytesRead); //Converting byte data to string
+            string dataReceived = Encoding.UTF8.GetString(buffer, 0, bytesRead);//Converting byte data to string
+            nwStream.Flush();
             nwStream.Write(Encoding.ASCII.GetBytes("Received"));
             // Debug.Log(dataReceived);
             ComputeStrings(dataReceived);
