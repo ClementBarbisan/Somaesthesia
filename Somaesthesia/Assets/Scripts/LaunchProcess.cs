@@ -34,7 +34,7 @@ public class LaunchProcess : MonoBehaviour
         prs.Arguments =
             "C:\\" + _nameProcess + ".py" +
             " C:\\" + _nameProcess + ".pth" +
-            " C:\\" + _nameLabels + ".txt --device cuda:0";
+            " C:\\" + _nameLabels + ".txt --device cpu";
         if (image)
         {
             prs.Arguments += " --image True";
