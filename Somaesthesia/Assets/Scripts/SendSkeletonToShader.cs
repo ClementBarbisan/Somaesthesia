@@ -477,9 +477,5 @@ public class SendSkeletonToShader : MonoBehaviour
              //, 0, jointsList.Length * _currentFrame, jointsList.Length);
             // _currentFrame = (_currentFrame + 1) % PointCloudGPU.maxFrameDepth;
         }
-        else
-        {
-            SkeletonPresent = false;
-        }
     }
 }
