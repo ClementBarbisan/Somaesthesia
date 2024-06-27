@@ -46,6 +46,9 @@ namespace NuitrackSDK.Avatar
 
         List<ModelJoint> modelJoints = new List<ModelJoint>();
 
+        List<JointType> leftLegJointTypes = new List<JointType>() { JointType.LeftHip, JointType.LeftKnee, JointType.LeftAnkle };
+        List<JointType> rightLegJointTypes = new List<JointType>() { JointType.RightHip, JointType.RightKnee, JointType.RightAnkle };
+
         [Header ("Options")]
         [Tooltip("Aligns the size of the model's bones with the size of the bones of the user's skeleton, " +
            "ensuring that the model's size best matches the user's size.")]
@@ -55,6 +58,10 @@ namespace NuitrackSDK.Avatar
         [SerializeField, Range(0, 1)] float smoothMove = 0.5f;
         float minSmoothMove = 0.3f;
         float smoothModifier = 20;
+        [SerializeField] bool alignStraightLegs = true;
+        [SerializeField] float straightLegsThresold = 0.14f;
+        [SerializeField] float hideDistance = 1.5f;
+        [SerializeField] GameObject meshObject;
 
         public float SmoothMove
         {
@@ -92,6 +99,8 @@ namespace NuitrackSDK.Avatar
 
         /// <summary> Model bones </summary> Dictionary with joints
         Dictionary<JointType, ModelJoint> jointsRigged = new Dictionary<JointType, ModelJoint>();
+        Dictionary<JointType, Vector3> jointsDefaultPos = new Dictionary<JointType, Vector3>();
+        Dictionary<JointType, Quaternion> jointsDefaultRot = new Dictionary<JointType, Quaternion>();
 
         void OnEnable()
         {
@@ -165,6 +174,7 @@ namespace NuitrackSDK.Avatar
                 if (modelJoint.bone)
                 {
                     modelJoint.baseRotOffset = Quaternion.Inverse(SpaceTransform.rotation) * modelJoint.bone.rotation;
+                    jointsDefaultRot.Add(modelJoint.jointType, modelJoint.bone.rotation);
                     jointsRigged.Add(modelJoint.jointType.TryGetMirrored(), modelJoint);
                 }
             }
@@ -173,7 +183,10 @@ namespace NuitrackSDK.Avatar
             {
                 //Adding base distances between the child bone and the parent bone 
                 if (modelJoint.bone != null && modelJoint.jointType.GetParent() != JointType.None)
+                {
+                    jointsDefaultPos.Add(modelJoint.jointType, modelJoint.bone.localPosition);
                     AddBoneScale(modelJoint.jointType.TryGetMirrored(), modelJoint.jointType.GetParent().TryGetMirrored());
+                }
             }
 
             if (vrMode)
@@ -213,7 +226,10 @@ namespace NuitrackSDK.Avatar
 
         void Update()
         {
-            if(ControllerUser != null && ControllerUser.Skeleton != null)
+            if (meshObject != null)
+                meshObject.SetActive(ControllerUser != null && ControllerUser.Skeleton != null && ControllerUser.Skeleton.GetJoint(rootJoint).Position.z > hideDistance);
+
+            if (ControllerUser != null && ControllerUser.Skeleton != null)
                 Process(ControllerUser);
 
             if (vrMode)
@@ -240,48 +256,114 @@ namespace NuitrackSDK.Avatar
 
             foreach (var riggedJoint in jointsRigged)
             {
+                //Get modelJoint
+                ModelJoint modelJoint = riggedJoint.Value;
+
                 //Get joint from the Nuitrack
                 //nuitrack.Joint joint = skeleton.GetJoint(riggedJoint.Key);
                 UserData.SkeletonData.Joint jointTransform = user.Skeleton.GetJoint(riggedJoint.Key);
 
-                if (jointTransform.Confidence > JointConfidence)
+                //Bone rotation
+                Quaternion jointRotation = IsTransformSpace ? jointTransform.RotationMirrored : jointTransform.Rotation;
+
+                if (smoothMove == 0)
+                    modelJoint.bone.rotation = GetJointRotation(user, jointRotation, modelJoint);
+                else
+                    modelJoint.bone.rotation = Quaternion.Slerp(modelJoint.bone.rotation, GetJointRotation(user, jointRotation, modelJoint), Time.deltaTime * SmoothMove);
+
+                if (alignmentBoneLength &&
+                        (boneLengthType == BoneLengthType.Realtime || (boneLengthType == BoneLengthType.AfterCalibration && calibrationSuccess)))
                 {
-                    //Get modelJoint
-                    ModelJoint modelJoint = riggedJoint.Value;
-
-                    //Bone rotation
-                    Quaternion jointRotation = IsTransformSpace ? jointTransform.RotationMirrored : jointTransform.Rotation;
-
+                    Vector3 newPos = GetJointPosition(user, jointRotation, modelJoint, jointTransform);
                     if (smoothMove == 0)
-                        modelJoint.bone.rotation = SpaceTransform.rotation * (jointRotation * modelJoint.baseRotOffset);
+                        modelJoint.bone.position = newPos;
                     else
-                        modelJoint.bone.rotation = Quaternion.Slerp(modelJoint.bone.rotation, SpaceTransform.rotation * (jointRotation * modelJoint.baseRotOffset), Time.deltaTime * SmoothMove);
+                        modelJoint.bone.position = Vector3.Lerp(modelJoint.bone.position, newPos, Time.deltaTime * SmoothMove);
 
-                    if (alignmentBoneLength &&
-                            (boneLengthType == BoneLengthType.Realtime || (boneLengthType == BoneLengthType.AfterCalibration && calibrationSuccess)))
+                    //Bone scale
+                    if (modelJoint.parentBone != null && modelJoint.jointType.GetParent() != rootJoint)
                     {
-                        Vector3 newPos = GetJointLocalPos(jointTransform.Position);
-                        if (smoothMove == 0)
-                            modelJoint.bone.position = newPos;
-                        else
-                            modelJoint.bone.position = Vector3.Lerp(modelJoint.bone.position, newPos, Time.deltaTime * SmoothMove);
-
-                        //Bone scale
-                        if (modelJoint.parentBone != null && modelJoint.jointType.GetParent() != rootJoint)
-                        {
-                            //Take the Transform of a parent bone
-                            Transform parentBone = modelJoint.parentBone;
-                            //calculate how many times the distance between the child bone and its parent bone has changed compared to the base distance (which was recorded at the start)
-                            float scaleDif = modelJoint.baseDistanceToParent / Vector3.Distance(newPos, parentBone.position);
-                            //change the size of the bone to the resulting value (On default bone size (1,1,1))
-                            parentBone.localScale = Vector3.one / scaleDif;
-                            //compensation for size due to hierarchy
-                            parentBone.localScale *= parentBone.localScale.x / parentBone.lossyScale.x;
-                        }
+                        //Take the Transform of a parent bone
+                        Transform parentBone = modelJoint.parentBone;
+                        //calculate how many times the distance between the child bone and its parent bone has changed compared to the base distance (which was recorded at the start)
+                        float scaleDif = modelJoint.baseDistanceToParent / Vector3.Distance(newPos, parentBone.position);
+                        //change the size of the bone to the resulting value (On default bone size (1,1,1))
+                        parentBone.localScale = Vector3.one / scaleDif;
+                        //compensation for size due to hierarchy
+                        parentBone.localScale *= parentBone.localScale.x / parentBone.lossyScale.x;
                     }
                 }
             }
+
             calibrationSuccess = false;
+        }
+
+        Quaternion GetJointRotation(UserData user, Quaternion jointRotation, ModelJoint modelJoint)
+        {
+            Quaternion newRot = SpaceTransform.rotation * (jointRotation * modelJoint.baseRotOffset);
+
+            if (alignStraightLegs)
+            {
+                if (leftLegJointTypes.Contains(modelJoint.jointType))
+                {
+                    if (CheckFailedLegsJoint(user, leftLegJointTypes[0], leftLegJointTypes[1], leftLegJointTypes[2], straightLegsThresold))
+                        newRot = Quaternion.Euler(0, jointsRigged[JointType.Waist].bone.eulerAngles.y, 0) * modelJoint.baseRotOffset;
+                }
+
+                if (rightLegJointTypes.Contains(modelJoint.jointType))
+                {
+                    if (CheckFailedLegsJoint(user, rightLegJointTypes[0], rightLegJointTypes[1], rightLegJointTypes[2], straightLegsThresold))
+                        newRot = Quaternion.Euler(0, jointsRigged[JointType.Waist].bone.eulerAngles.y, 0) * modelJoint.baseRotOffset;
+                }
+            }
+
+            return newRot;
+        }
+
+        Vector3 GetJointPosition(UserData user, Quaternion jointRotation, ModelJoint modelJoint, UserData.SkeletonData.Joint jointTransform)
+        {
+            Vector3 newPos = GetJointLocalPos(jointTransform.Position);
+            if (jointTransform.IsGoodDepth == false && jointsDefaultPos.ContainsKey(modelJoint.jointType))
+                newPos = modelJoint.bone.parent.TransformPoint(jointsDefaultPos[modelJoint.jointType]);
+
+            if (alignStraightLegs)
+            {
+                if (leftLegJointTypes.Contains(modelJoint.jointType))
+                {
+                    if (CheckFailedLegsJoint(user, leftLegJointTypes[0], leftLegJointTypes[1], leftLegJointTypes[2], straightLegsThresold))
+                        newPos = modelJoint.bone.parent.TransformPoint(jointsDefaultPos[modelJoint.jointType]);
+                }
+
+                if (rightLegJointTypes.Contains(modelJoint.jointType))
+                {
+                    if (CheckFailedLegsJoint(user, rightLegJointTypes[0], rightLegJointTypes[1], rightLegJointTypes[2], straightLegsThresold))
+                        newPos = modelJoint.bone.parent.TransformPoint(jointsDefaultPos[modelJoint.jointType]);
+                }
+            }
+
+            return newPos;
+        }
+
+        bool CheckFailedLegsJoint(UserData user, JointType hip, JointType knee, JointType ankle, float threshold)
+        {
+            UserData.SkeletonData.Joint hipJoint = user.Skeleton.GetJoint(hip);
+            UserData.SkeletonData.Joint kneeJoint = user.Skeleton.GetJoint(knee);
+            UserData.SkeletonData.Joint ankleJoint = user.Skeleton.GetJoint(ankle);
+
+            UserData.SkeletonData.Joint waistJoint = user.Skeleton.GetJoint(JointType.Waist);
+            UserData.SkeletonData.Joint torsoJoint = user.Skeleton.GetJoint(JointType.LeftCollar);
+
+            bool badConfidence = hipJoint.Confidence <= JointConfidence || kneeJoint.Confidence <= JointConfidence || ankleJoint.Confidence <= JointConfidence;
+            bool badAIDepth = !hipJoint.IsGoodDepth || !kneeJoint.IsGoodDepth|| !ankleJoint.IsGoodDepth;
+            return (CheckKneePosInDeadzone(hipJoint, kneeJoint, ankleJoint, threshold) || badConfidence || badAIDepth);
+        }
+
+        bool CheckKneePosInDeadzone(UserData.SkeletonData.Joint hip, UserData.SkeletonData.Joint knee, UserData.SkeletonData.Joint ankle, float threshold)
+        {
+            Vector2 xzHipPos = new Vector2(hip.Position.x, hip.Position.z);
+            Vector2 xzKneePos = new Vector2(knee.Position.x, knee.Position.z);
+            Vector2 xzAnklePos = new Vector2(ankle.Position.x, ankle.Position.z);
+            return Vector2.Distance(xzHipPos, xzKneePos) < threshold && Vector2.Distance(xzAnklePos, xzKneePos) < threshold;
         }
 
         void OnSuccessCalib(Quaternion rotation)

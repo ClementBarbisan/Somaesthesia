@@ -114,7 +114,8 @@ namespace NuitrackSDK.NuitrackDemos
 
                     for (int i = 0; i < jointsInfo.Length; i++)
                     {
-                        GameObject joint = (GameObject)Instantiate(jointPrefab, Vector3.zero, Quaternion.identity);
+                        GameObject joint = Instantiate(jointPrefab, Vector3.zero, Quaternion.identity);
+                        joint.name = jointsInfo[i].ToString();
                         skelJoints.Add(jointsInfo[i], joint);
                         joint.transform.parent = skelRoot.transform;
                         joint.SetActive(false);
@@ -141,21 +142,32 @@ namespace NuitrackSDK.NuitrackDemos
                 for (int i = 0; i < jointsInfo.Length; i++)
                 {
                     UserData.SkeletonData.Joint j = user.Skeleton.GetJoint(jointsInfo[i]);
-                    if (j.Confidence > 0.01f)
+                    if (j.Confidence > 0.01f/* || NuitrackManager.Instance.UseNuitrackAi*/)
                     {
-                        if (!joints[user.ID][jointsInfo[i]].activeSelf) 
-                            joints[user.ID][jointsInfo[i]].SetActive(true);
+                        if (j.IsGoodDepth)
+                        {
+                            joints[user.ID][jointsInfo[i]].transform.localScale = Vector3.one;
+                            joints[user.ID][jointsInfo[i]].GetComponentInChildren<Renderer>().material.color = Color.red;
 
-                        joints[user.ID][jointsInfo[i]].transform.position = j.Position;
+                            if (!joints[user.ID][jointsInfo[i]].activeSelf)
+                                joints[user.ID][jointsInfo[i]].SetActive(true);
 
-                        //skel.Joints[i].Orient.Matrix:
-                        // 0,       1,      2, 
-                        // 3,       4,      5,
-                        // 6,       7,      8
-                        // -------
-                        // right(X),  up(Y),    forward(Z)
+                            joints[user.ID][jointsInfo[i]].transform.position = j.Position;
 
-                        joints[user.ID][jointsInfo[i]].transform.rotation = j.Rotation;
+                            //skel.Joints[i].Orient.Matrix:
+                            // 0,       1,      2,
+                            // 3,       4,      5,
+                            // 6,       7,      8
+                            // -------
+                            // right(X),  up(Y),    forward(Z)
+
+                            joints[user.ID][jointsInfo[i]].transform.rotation = j.Rotation;
+                        }
+                        else
+                        {
+                            joints[user.ID][jointsInfo[i]].transform.localScale = Vector3.one * 3;
+                            joints[user.ID][jointsInfo[i]].GetComponentInChildren<Renderer>().material.color = Color.yellow;
+                        }
                     }
                     else
                     {

@@ -49,6 +49,11 @@ public class NuitrackManager : MonoBehaviour
     [SerializeField, NuitrackSDKInspector] int depthHeight;
     List<nuitrack.device.VideoMode> availableDepthResolutions = new List<nuitrack.device.VideoMode>();
 
+    [SerializeField, NuitrackSDKInspector, Tooltip("For example: license:12345:12AbCDefghIjklMn")]
+    string licenseKey;
+    [SerializeField, NuitrackSDKInspector, Tooltip("An attempt will be made to activate the license when Nuitrack is launched (ONLY ANDROID)")]
+    bool autoActivateLicense = false;
+
     public string ResolutionFailMessage
     {
         get;
@@ -432,6 +437,20 @@ public class NuitrackManager : MonoBehaviour
 
             Debug.Log("Nuitrack Init OK");
 
+            OutputMode outputMode = sensorsData[0].DepthSensor.GetOutputMode();
+            Debug.Log("CX " + outputMode.Intrinsics.CX);
+            Debug.Log("CY " + outputMode.Intrinsics.CY);
+            Debug.Log("FX " + outputMode.Intrinsics.FX);
+            Debug.Log("FY " + outputMode.Intrinsics.FY);
+            Debug.Log("HFOV " + outputMode.HFOV);
+
+            if (autoActivateLicense)
+            {
+                string licenseActivateResult;
+                TryActivateLicense(devices[0], licenseKey, out licenseActivateResult);
+                Debug.Log(licenseActivateResult);
+            }
+
             Nuitrack.Run();
             Debug.Log("Nuitrack Run OK");
 
@@ -451,6 +470,29 @@ public class NuitrackManager : MonoBehaviour
 
         if (!asyncInit)
             PlayerPrefs.SetInt("failStart", 0);
+    }
+
+    static public bool TryActivateLicense(nuitrack.device.NuitrackDevice device, string key, out string result)
+    {
+        result = "License key not entered";
+        if (key == "")
+            return false;
+
+        Debug.Log("Activating sensor... Current License:" + device.GetActivationStatus());
+
+        try
+        {
+            device.Activate(key);
+            result = "License Activation Success";
+        }
+        catch (System.Exception ex)
+        {
+            result = "License Activation Failed\n" + ex.Message;
+            return false;
+        }
+        Debug.Log("License status: " + device.GetActivationStatus());
+
+        return true;
     }
 
     public void ChangeModulesState(bool skeleton, bool hand, bool depth, bool color, bool gestures, bool user)
@@ -680,6 +722,8 @@ public class NuitrackManager : MonoBehaviour
             case "RealSense":
                 Nuitrack.SetConfigValue("Realsense2Module." + channel + ".ProcessWidth", width.ToString());
                 Nuitrack.SetConfigValue("Realsense2Module." + channel + ".ProcessHeight", height.ToString());
+                Nuitrack.SetConfigValue("Realsense2Module." + channel + ".RawWidth", width.ToString());
+                Nuitrack.SetConfigValue("Realsense2Module." + channel + ".RawHeight", height.ToString());
                 break;
             default:
                 ResolutionFailMessage = "You cannot change the resolution on this sensor (Only Orbbec Astra and Realsense)";

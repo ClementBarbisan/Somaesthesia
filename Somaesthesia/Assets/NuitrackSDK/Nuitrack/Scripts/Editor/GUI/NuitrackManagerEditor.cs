@@ -63,6 +63,11 @@ namespace NuitrackSDKEditor
             DrawInitEvent();
 
             DrawFramePreview();
+
+
+            SerializedProperty autoActivateLicense = serializedObject.DrawPropertyField("autoActivateLicense");
+            if (autoActivateLicense.boolValue)
+                serializedObject.DrawPropertyField("licenseKey");
         }
 
         void DrawModules()

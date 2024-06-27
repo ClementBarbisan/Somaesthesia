@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 
 using System.Collections.Generic;
+using nuitrack;
 
 
 namespace NuitrackSDK.Avatar
@@ -34,7 +35,20 @@ namespace NuitrackSDK.Avatar
         void Update()
         {
             for (int i = 0; i < avatars.Count; i++)
-                avatars[i].gameObject.SetActive(NuitrackManager.sensorsData[sensorId].SkeletonTracker.GetSkeletonData().Skeletons.Length > i);
+            {
+                int id = i + 1;
+                UserData user = NuitrackManager.sensorsData[sensorId].Users.GetUser(id);
+
+                if (user != null && user.Skeleton != null)
+                {
+                    avatars[i].gameObject.SetActive(true);
+                    avatars[i].Process(user);
+                }
+                else
+                {
+                    avatars[i].gameObject.SetActive(false);
+                }
+            }
         }
     }
 }

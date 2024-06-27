@@ -43,6 +43,17 @@ namespace NuitrackSDK
                 }
 
                 /// <summary>
+                /// Does this joint have depth data (AI case)
+                /// </summary>
+                public bool IsGoodDepth
+                {
+                    get
+                    {
+                        return RawJoint.Real.Z > 0;
+                    }
+                }
+
+                /// <summary>
                 /// Joint type from nuitrack
                 /// </summary>
                 public nuitrack.JointType NuitrackType

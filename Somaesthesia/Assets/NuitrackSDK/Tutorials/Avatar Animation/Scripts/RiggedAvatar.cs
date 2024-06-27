@@ -20,7 +20,7 @@ namespace NuitrackSDK.Tutorials.AvatarAnimation
         {
             for (int i = 0; i < modelJoints.Length; i++)
             {
-                modelJoints[i].baseRotOffset = modelJoints[i].bone.rotation;
+                modelJoints[i].baseRotOffset = Quaternion.Inverse(transform.rotation) * modelJoints[i].bone.rotation;
                 jointsRigged.Add(modelJoints[i].jointType.TryGetMirrored(), modelJoints[i]);
             }
         }
@@ -35,7 +35,7 @@ namespace NuitrackSDK.Tutorials.AvatarAnimation
         {
             //Calculate the model position: take the root position and invert movement along the Z axis
             Vector3 rootPos = Quaternion.Euler(0f, 180f, 0f) * skeleton.GetJoint(rootJoint).Position;
-            transform.position = rootPos;
+            jointsRigged[nuitrack.JointType.Waist].bone.transform.position = transform.TransformPoint(rootPos);
 
             foreach (var riggedJoint in jointsRigged)
             {
@@ -45,7 +45,7 @@ namespace NuitrackSDK.Tutorials.AvatarAnimation
                 ModelJoint modelJoint = riggedJoint.Value;
 
                 //Calculate the model bone rotation: take the mirrored joint orientation, add a basic rotation of the model bone, invert movement along the Z axis
-                Quaternion jointOrient = Quaternion.Inverse(CalibrationInfo.SensorOrientation) * joint.RotationMirrored * modelJoint.baseRotOffset;
+                Quaternion jointOrient = transform.rotation * Quaternion.Inverse(CalibrationInfo.SensorOrientation) * joint.RotationMirrored * modelJoint.baseRotOffset;
 
                 modelJoint.bone.rotation = jointOrient;
             }

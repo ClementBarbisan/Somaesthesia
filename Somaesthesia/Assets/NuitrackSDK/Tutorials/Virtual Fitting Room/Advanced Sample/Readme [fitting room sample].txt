@@ -1,4 +1,4 @@
-*Virtual Fitting Room Advanced Scene*
+*Virtual Fitting Room Sample*
 On this scene are the prefab "Mannequin" and clothing samples. When the scene starts, they will be positioned in front of the RGB image from the camera.
 
 You can study how two items of clothing are configured: Jeans and a T-shirt. A "FittingCloth" component is attached to each of them.
@@ -6,7 +6,7 @@ In this component, which clothing bones will be associated with the mannequin bo
 
 Initial check:
 
-1. Start the Virtual Fitting Room Advanced scene
+1. Start the "Virtual Fitting Room Sample" scene
 2. Hide clothes and turn on the skeleton. Make sure that the red points of the skeleton are exactly on top of the joints of the person in the image.
 3. Hide skeleton and turn on the mannequin display. Make sure that the model is exactly superimposed on top of the person in the image
 4. Hide mannequin and turn on the clothes display.

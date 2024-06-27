@@ -60,10 +60,8 @@ namespace NuitrackSDK.Avatar
             }
         }
 
-        void Update()
+        public void Process(UserData user)
         {
-            UserData user = ControllerUser;
-
             if (user == null || user.Skeleton == null)
                 return;
 
