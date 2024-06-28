@@ -306,7 +306,7 @@ public class SendSkeletonToShader : MonoBehaviour
             }
             else if (index != -1 && _labelsNeg.Contains(_data.TextIA[index]))
             {
-                sizeSkeleton -= Time.deltaTime * (1 / _time) * maxSkeleton * 2 * Mathf.Clamp01(_data.ValIA[index] / 100);
+                sizeSkeleton -= Time.deltaTime * (1 / _time) * maxSkeleton * 1.5f * Mathf.Clamp01(_data.ValIA[index] / 100);
             }
             sizeSkeleton = Mathf.Clamp(sizeSkeleton, 0, maxSkeleton);
             // float val = Mathf.Clamp(90 - (_data.ValIA.Max() - _data.ValIA.Min()), 0, 90);
