@@ -37,10 +37,10 @@ public class ReceiveLabelsValue : MonoBehaviour
 	private void Awake()
 	{
 		Cursor.visible = false;
-        	for (int i = 0; i < Display.displays.Length; i++)
-        	{
-            		Display.displays[i].Activate();
-        	}
+        for (int i = 0; i < Display.displays.Length; i++)
+        {
+            	Display.displays[i].Activate();
+        }
 	}
 
     private void Start()
