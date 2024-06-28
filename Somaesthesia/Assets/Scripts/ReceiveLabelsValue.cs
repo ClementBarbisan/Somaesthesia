@@ -33,6 +33,16 @@ public class ReceiveLabelsValue : MonoBehaviour
     private int _textIndex = 0;
     private int _valIndex = 0;
     [SerializeField]private LaunchProcess _clientTcp;
+	
+	private void Awake()
+	{
+		Cursor.visible = false;
+        	for (int i = 0; i < Display.displays.Length; i++)
+        	{
+            		Display.displays[i].Activate();
+        	}
+	}
+
     private void Start()
     {
        

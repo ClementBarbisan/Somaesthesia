@@ -181,11 +181,7 @@ public class SendSkeletonToShader : MonoBehaviour
     void Start()
     {
         _mainCamera = Camera.main;
-        Cursor.visible = false;
-        for (int i = 0; i < Display.displays.Length; i++)
-        {
-            Display.displays[i].Activate();
-        }
+        
         // _texClear = new Texture2D(Screen.width, Screen.height);
         // for (int i = 0; i < _texClear.width; i++)
         // {
