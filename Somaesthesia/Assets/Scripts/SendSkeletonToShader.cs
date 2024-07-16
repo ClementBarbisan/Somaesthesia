@@ -258,16 +258,11 @@ public class SendSkeletonToShader : MonoBehaviour
         Shader.SetGlobalFloat("_SkeletonSize", sizeSkeleton);
         if ((_id == -1 || !SkeletonPresent) && !_debug)
         {
-            // if (_bufferMove != null)
-            // {
-            //     _bufferMove.SetData(listZero, 0, 0, maxMove);
-            // }
             sizeSkeleton = 0;
             _audioSourceFirst.volume = 0f;
             _audioSourceSecond.volume = 0f;
             _audioSourceStandBy.volume = 1f;
             _cubes.enabled = false;
-            // character.SetActive(false);
             return;
         }
         if (_debug)
@@ -281,7 +276,6 @@ public class SendSkeletonToShader : MonoBehaviour
                 sizeSkeleton = Mathf.Clamp(-1.0f + sizeSkeleton, 0, maxSkeleton);
             }
         }
-        // character.SetActive(true);
         if (_data.ResultsDone)
         {
             int index = -1;
@@ -305,21 +299,7 @@ public class SendSkeletonToShader : MonoBehaviour
                 sizeSkeleton -= Time.deltaTime * (1 / _time) * maxSkeleton * 1.5f * Mathf.Clamp01(_data.ValIA[index] / 100);
             }
             sizeSkeleton = Mathf.Clamp(sizeSkeleton, 0, maxSkeleton);
-            // float val = Mathf.Clamp(90 - (_data.ValIA.Max() - _data.ValIA.Min()), 0, 90);
-            // float[] arrayVal = _data.ValIA.Where(x => Mathf.Abs(x - _data.ValIA.Min()) > 10 &&
-            //         Mathf.Abs(x - _data.ValIA.Max()) > 1).ToArray();
-            // val *= Mathf.Clamp(arrayVal.Length, 1, 100);
-            // val += 0.05f;
-            // val *= _data.ValIA.Length;
-            // if (val >= sizeSkeleton)
-            // {
-            // sizeSkeleton = Mathf.Lerp(sizeSkeleton, val / maxSkeleton, Time.deltaTime * (1 / _speed));
-            // }
-            // else
-            // {
-            // sizeSkeleton = Mathf.Lerp(sizeSkeleton, val / maxSkeleton, 0.05f * (1 / _speed));
-            // }
-
+       
             if (_prefabText != null)
             {
                 if (_listTexts == null)
@@ -374,35 +354,8 @@ public class SendSkeletonToShader : MonoBehaviour
         _audioSourceSecond.volume = Mathf.Clamp(Mathf.Pow(sizeSkeleton + 1, 1.25f) / maxSkeleton, 0, 1f);
         _audioSourceStandBy.volume = 0f;
         _cubes.enabled = true;
-
-        // if (_data.MoveDone)
-        // {
-        //     _data.MoveDone = false;
-        // }
-
     }
-
-   
-
-    // private void OnPreRenderCamera(ScriptableRenderContext scriptableRenderContext, Camera camera1)
-    // {
-        // if (camera1 != _mainCamera)
-        // {
-            // return;
-        // }
-        // Color alpha = _matClear.color;
-        // alpha.a = 1f;//1f - sizeSkeleton / maxSkeleton;
-        // _matClear.color = alpha;
-        // Graphics.Blit(_texClear, RenderTexture.active, _matClear);
-        // CommandBuffer cmd = CommandBufferPool.Get();
-        // cmd.Blit(_texClear,  BuiltinRenderTextureType.CameraTarget, _matClear);
-        // scriptableRenderContext.ExecuteCommandBuffer(cmd);
-        // cmd.Clear();
-        
-        // CommandBufferPool.Release(cmd);
-    // }
-
-
+    
     private void OnRenderObject()
     {
         if (_id != -1 && SkeletonPresent)

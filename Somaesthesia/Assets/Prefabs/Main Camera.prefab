@@ -254,7 +254,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sizeSkeleton: 0
   maxSkeleton: 10
-  _speed: 4
+  _time: 2
   _prefabText: {fileID: 4481629025886409444, guid: 7717a6ac5e5f0ed47bfe54f46903acab,
     type: 3}
   _parentCanvas: {fileID: 0}
@@ -279,10 +279,12 @@ MonoBehaviour:
       values:
       - En-visage
       - Portrait
+      - Ce n'est pas toi!
     - label: FootGap
       values:
       - A l'abri
       - Intime
+      - Belle anonyme
     - label: GlitchFloorSemi
       values:
       - "R\xE9v\xE9rence"
@@ -290,33 +292,42 @@ MonoBehaviour:
     - label: GlitchInclination
       values:
       - Esquive
+      - Noce de l'eau
     - label: GlitchLimbo
       values:
       - Fleur de peau
       - Effleurement
+      - Double trouble
     - label: GlitchTwist
       values:
       - Grimace
+      - "L\xE8vres sans bouche"
     - label: RearCurve
       values:
       - A la renverse
       - De profil
+      - "A-b\xEEme"
     - label: TopArmStraight
       values:
       - Rayonnement
+      - Parler corde
     - label: Tortion
       values:
       - Tortueux
+      - A tour de bras
     - label: VogueGlitch
       values:
       - Osez
+      - Ouverture-chute
     - label: ZigZag
       values:
       - Des axes
+      - Infra mince
     - label: GlitchFloorMax
       values:
       - Extraction
       - Atteignable
+      - Lits sans cieux
   _labelsNeg:
     labels:
     - label: ArmsUp
@@ -324,7 +335,7 @@ MonoBehaviour:
       - Haut-les-mains
     - label: FloatingArms
       values:
-      - "D\xE9marrer"
+      - Osez
     - label: HipsHand
       values:
       - "Coud\xE9e franche"
