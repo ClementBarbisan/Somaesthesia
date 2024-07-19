@@ -25,13 +25,13 @@ public class FilterStandBy : MonoBehaviour
 
     private void OnAudioFilterRead(float[] data, int channels)
     {
+        _filled = false;
         if (_notStandBy)
         {
             return;
         }
         int dataLen = data.Length / channels;
         _emitNbBase.Clear();
-        _filled = false;
         int n = 0;
         while (n < dataLen)
         {
@@ -48,7 +48,6 @@ public class FilterStandBy : MonoBehaviour
             }
             n++;
         }
-
         _filled = true;
     }
 
