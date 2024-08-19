@@ -29,7 +29,7 @@ public class LaunchProcess : MonoBehaviour
         windowUnity = (IntPtr) GetActiveWindow();
        
         ProcessStartInfo prs = new ProcessStartInfo();
-        prs.FileName = "C:\\webcam_recognition\\webcam_recognition.exe";
+        prs.FileName = "C:\\movement\\movement.exe";
         prs.UseShellExecute = true;
         prs.Arguments =
             "C:\\" + _nameProcess + ".py" +
