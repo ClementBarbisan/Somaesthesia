@@ -350,8 +350,8 @@ public class SendSkeletonToShader : MonoBehaviour
 
             _data.ResultsDone = false;
         }
-        _audioSourceFirst.volume = Mathf.Clamp(0.5f - Mathf.Pow(sizeSkeleton + 1, 1.2f) / maxSkeleton, 0, 0.5f);
-        _audioSourceSecond.volume = Mathf.Clamp(Mathf.Pow(sizeSkeleton + 1, 1.25f) / maxSkeleton, 0, 1f);
+        _audioSourceFirst.volume = Mathf.Clamp(0.5f - Mathf.Pow(sizeSkeleton, 1.2f) / maxSkeleton, 0, 0.5f);
+        _audioSourceSecond.volume = Mathf.Clamp(Mathf.Pow(sizeSkeleton, 1.25f) / maxSkeleton, 0, 1f);
         _audioSourceStandBy.volume = 0f;
         _cubes.enabled = true;
     }

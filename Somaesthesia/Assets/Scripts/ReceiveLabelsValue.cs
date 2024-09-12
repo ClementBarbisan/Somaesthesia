@@ -129,7 +129,7 @@ public class ReceiveLabelsValue : MonoBehaviour
         }
         catch (IOException e)
         {
-            quit = true;
+            ResultsDone = false;
         }    
     }
 

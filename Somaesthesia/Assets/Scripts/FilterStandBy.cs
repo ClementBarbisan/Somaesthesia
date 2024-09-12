@@ -11,10 +11,10 @@ public class FilterStandBy : MonoBehaviour
     private bool _notStandBy;
     [FormerlySerializedAs("_sprite")] [SerializeField] private SpriteRenderer _spriteOne;
     [FormerlySerializedAs("_sprite")] [SerializeField] private SpriteRenderer _spriteTwo;
-    private List<float> _emitNb;
     private List<float> _emitNbBase = new List<float>();
 
     private bool _filled;
+    private bool _scale;
 
     // Start is called before the first frame update
     void Awake()
@@ -26,12 +26,12 @@ public class FilterStandBy : MonoBehaviour
     private void OnAudioFilterRead(float[] data, int channels)
     {
         _filled = false;
-        if (_notStandBy)
+        _emitNbBase.Clear();
+        if (_notStandBy || _scale)
         {
             return;
         }
         int dataLen = data.Length / channels;
-        _emitNbBase.Clear();
         int n = 0;
         while (n < dataLen)
         {
@@ -69,10 +69,15 @@ public class FilterStandBy : MonoBehaviour
 
         if (_filled && _emitNbBase.Count > 0)
         {
-            _emitNb = new List<float>(_emitNbBase);
-            _spriteOne.transform.localScale = Vector3.Lerp(_spriteOne.transform.localScale, Vector3.one * ((_emitNb.Max()) * 0.2f), 0.025f);
-            _spriteTwo.transform.localScale = Vector3.Lerp(_spriteTwo.transform.localScale, Vector3.one * ((_emitNb.Max()) * 0.2f), 0.025f);
-            _emitNb.Clear();
+            _scale = true;
+            List<float> emitNb = new List<float>(_emitNbBase);
+            if (emitNb.Count > 0)
+            {
+                _spriteOne.transform.localScale = Vector3.Lerp(_spriteOne.transform.localScale, Vector3.one * ((emitNb.Max()) * 0.2f), 0.025f);
+                _spriteTwo.transform.localScale = Vector3.Lerp(_spriteTwo.transform.localScale, Vector3.one * ((emitNb.Max()) * 0.2f), 0.025f);
+                emitNb.Clear();
+            }
+            _scale = false;
         }
     }
 }

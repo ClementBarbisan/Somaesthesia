@@ -430,7 +430,7 @@ Shader "Particle"
                 AddLine(o, lineStream, F, E, nbVertex);
                 AddLine(o, lineStream, B, D, nbVertex);
 
-                for (int i = 0; i < 18; i++)
+                for (uint i = 0; i < 18; i++)
                 {
                     if (i != p[0].instance)
                     {
@@ -489,12 +489,12 @@ Shader "Particle"
                 return abs(noise.x + noise.y) * 0.5;
             }
 
-            uniform int _Width;
-            uniform int _WidthTex;
-            uniform int _Height;
-            uniform int _HeightTex;
+            uniform uint _Width;
+            uniform uint _WidthTex;
+            uniform uint _Height;
+            uniform uint _HeightTex;
             uniform float3 _CamPos;
-            int _Offset;
+            uint _Offset;
             float _MaxSize;
             
             PS_INPUT vert(uint instance_id : SV_instanceID)
@@ -512,32 +512,34 @@ Shader "Particle"
                     o.keep = float2(-1, 0);
                 }
                 else if ((instance_id % _Offset == 0 || instance_id % (_WidthTex * _Offset) == 0) && (instance_id + _Offset)
-                    < (_WidthTex * _HeightTex) && ((int)instance_id - _Offset) >= 0 &&(instance_id + _WidthTex * _Offset) <
-                    (_WidthTex * _HeightTex) && ((int)instance_id - _WidthTex * _Offset) >= 0)
+                    < (_WidthTex * _HeightTex) && ((int)instance_id - (int)_Offset) >= 0 &&(instance_id + _WidthTex * _Offset) <
+                    (_WidthTex * _HeightTex) && ((int)instance_id - _WidthTex * (int)_Offset) >= 0)
                 {
                     o.keep = float2(-1, 0);
-                    if (segmentBuffer[(instance_id - _Offset)] == 0 && segmentBuffer[(instance_id + _Offset)] > 0)
+                    if (segmentBuffer[(instance_id - _Offset)] == 0 && segmentBuffer[(instance_id + _Offset)] > 0 &&
+                        ((instance_id - _Offset) % _Width < _Width - _Offset && (instance_id + _Offset) % _Width > _Offset))
                     {
-                        o.keep.y = (float)(instance_id + _WidthTex * _Offset);
+                        o.keep.y = (float)(instance_id - _Offset);
                         // o.keep.x = initPoint;
                         o.keep.x = 0;
                     }
-                    else if (segmentBuffer[(instance_id + _Offset)] == 0 && segmentBuffer[(instance_id - _Offset)] > 0)
+                    else if (segmentBuffer[(instance_id + _Offset)] == 0 && segmentBuffer[(instance_id - _Offset)] > 0 &&
+                        ((instance_id - _Offset) % _Width < _Width - _Offset && (instance_id + _Offset) % _Width > _Offset))
                     {
-                        o.keep.y = (float)(instance_id - _WidthTex * _Offset);
+                        o.keep.y = (float)(instance_id + _Offset);
                         // o.keep.x = initPoint;
                         o.keep.x = 0;
                     }
                     else if (segmentBuffer[(instance_id - _WidthTex * _Offset)] == 0 && segmentBuffer[(instance_id + _WidthTex * _Offset)] > 0)
                     {
-                         o.keep.y = (float)(instance_id + _Offset);
+                        o.keep.y = (float)(instance_id - _WidthTex * _Offset);
                          // o.keep.x = initPoint;
                         o.keep.x = 0;
                     }
                     else if (segmentBuffer[(instance_id + _WidthTex * _Offset)] == 0 && segmentBuffer[(instance_id - _WidthTex * _Offset)] > 0)
                     {
-                         o.keep.y = (float)(instance_id - _Offset);
-                         // o.keep.x = initPoint;
+                        o.keep.y = (float)(instance_id + _WidthTex * _Offset);
+                        // o.keep.x = initPoint;
                         o.keep.x = 0;
                     }
                 }
@@ -1022,6 +1024,7 @@ Shader "Particle"
             {
                 PS_INPUT o;
                 // Position
+                o.uv = float2(0, 0);
                 o.position = float4(_Skeleton[instance_id].Pos, 1.0);
                 o.instance = int(instance_id);
                 return o;
