@@ -56,3 +56,4 @@ Material:
     - _ColorLow: {r: 0.75, g: 0.75, b: 0.75, a: 1}
     - _SpeedColor: {r: 1, g: 0, b: 0, a: 0.3}
   m_BuildTextureStacks: []
+  m_AllowLocking: 1
