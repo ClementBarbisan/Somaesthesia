@@ -51,7 +51,7 @@ namespace NuitrackSDK.Tutorials.ZombieVR
                     for (int i = 0; i < rigidbodyRagdoll.Length; i++)
                     {
                         rigidbodyRagdoll[i].isKinematic = false; // Physics is turned on
-                        rigidbodyRagdoll[i].velocity = rb.velocity; // When ragdoll is on, the speed of the main Rigidbody component is passed to the child Rigidbody components so they continue to fly according to physics
+                        rigidbodyRagdoll[i].linearVelocity = rb.linearVelocity; // When ragdoll is on, the speed of the main Rigidbody component is passed to the child Rigidbody components so they continue to fly according to physics
                     }
                 }
                 else // If ragdoll is off
